@@ -8,6 +8,15 @@ Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar
 ### Minimize button (Default: On)
 Adds a minimize button that does the same as double-clicking the header
 
+## By JeansenVaars
+![JVLogo](logo-small-black.png)
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V14D3AH)
+
+## Check out my other modules!
+* Minimal UI (Recommended combination!)
+* Super Select
+
 ### Organized Minimize (Default: Top with Bar)
 Allows minimizing windows into a horizontal taskbar. Possible options are:
 * **Top with Bar (Default)**: Minimize all windows inside a semi transparent bar that appears and resizes as necessary
@@ -32,15 +41,6 @@ Adds a maximize button that will expand resizable windows to the maximum availab
 **All options enabled, showing a pinned window that cannot be closed:**
 
 ![full-mode.png](full-mode.png)
-
-## By JeansenVaars
-![JVLogo](logo-small-black.png)
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V14D3AH)
-
-## Check out my other modules!
-* UI (Recommended combination)
-* Super Select
 
 # Appreciations
 * Thanks to libWrapper by ruipin: UI is less prone to conflicts!
