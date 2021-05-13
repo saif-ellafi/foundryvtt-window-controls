@@ -2,24 +2,24 @@
   "I18N.LANGUAGE": "Español",
   "I18N.MAINTAINERS": "@Viriato139ac#0342",
 
-  "MinimalWCMinimize.Enabled": "Activado",
-  "MinimalWCMinimize.Disabled": "Desactivado",
+  "WindowControls.Enabled": "Activado",
+  "WindowControls.Disabled": "Desactivado",
 
-  "MinimalWCMinimize.MinimizeButtonName": "Minimize Button",
-  "MinimalWCMinimize.MinimizeButtonHint": "Add a minimize button on all floating windows.",
+  "WindowControls.MinimizeButtonName": "Botón Minimizar",
+  "WindowControls.MinimizeButtonHint": "Añade un botón para minimizar las ventanas.",
 
-  "MinimalWCMinimize.OrganizedMinimizeName": "Modo organizado de Minimizar",
-  "MinimalWCMinimize.OrganizedMinimizeHint": "Organiza las ventanas que minimice, al colocarlas o bien en una franja en la parte inferior o superior",
+  "WindowControls.OrganizedMinimizeName": "Modo organizado de Minimizar",
+  "WindowControls.OrganizedMinimizeHint": "Organiza las ventanas que minimice, al colocarlas o bien en una franja en la parte inferior o superior",
 
-  "MinimalWCMinimize.OrganizedMinimizeBottom": "Abajo",
-  "MinimalWCMinimize.OrganizedMinimizeBottomBar": "Abajo con barra",
-  "MinimalWCMinimize.OrganizedMinimizeTop": "Arriba",
-  "MinimalWCMinimize.OrganizedMinimizeTopBar": "Arriba con barra",
+  "WindowControls.OrganizedMinimizeBottom": "Abajo",
+  "WindowControls.OrganizedMinimizeBottomBar": "Abajo con barra",
+  "WindowControls.OrganizedMinimizeTop": "Arriba",
+  "WindowControls.OrganizedMinimizeTopBar": "Arriba con barra",
 
-  "MinimalWCMinimize.PinnedButtonName": "Botón Fijado",
-  "MinimalWCMinimize.PinnedButtonHint": "Añade un botón para fijar las ventanas. Al activarlo, dichas ventanas no podrán ser cerradas.",
+  "WindowControls.PinnedButtonName": "Botón Fijado",
+  "WindowControls.PinnedButtonHint": "Añade un botón para fijar las ventanas. Al activarlo, dichas ventanas no podrán ser cerradas.",
 
-  "MinimalWCMinimize.MaximizeButtonName": "Botón Maximizar",
-  "MinimalWCMinimize.MaximizeButtonHint": "Añade un botón para maximizar las ventanas. Puede no funcionar correctamente en todos los sistemas."
+  "WindowControls.MaximizeButtonName": "Botón Maximizar",
+  "WindowControls.MaximizeButtonHint": "Añade un botón para maximizar las ventanas. Puede no funcionar correctamente en todos los sistemas."
 
 }

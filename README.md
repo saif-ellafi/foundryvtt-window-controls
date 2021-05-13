@@ -1,4 +1,4 @@
-# Minimal Window Controls for Foundry VTT
+# Window Controls for Foundry VTT
 
 Includes configurable buttons for floating windows: Minimized, Maximized and Pinned.
 
@@ -25,7 +25,7 @@ This is useful for character sheets or very important actors that we never want 
 ### Maximize Button (Default: Off)
 Adds a maximize button that will expand resizable windows to the maximum available size. Can be restored with the same button.
 
-**Minimal minimize and close buttons (Default):**
+**minimize and close buttons (Default):**
 
 ![minimize-close.png](minimize-close.png)
 
@@ -39,11 +39,11 @@ Adds a maximize button that will expand resizable windows to the maximum availab
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V14D3AH)
 
 ## Check out my other modules!
-* Minimal UI (Recommended combination)
+* UI (Recommended combination)
 * Super Select
 
 # Appreciations
-* Thanks to libWrapper by ruipin: Minimal UI is less prone to conflicts!
+* Thanks to libWrapper by ruipin: UI is less prone to conflicts!
 * Thanks to the FoundryVTT Discord community for the amazing issue reports and feedback.
 
 # License
