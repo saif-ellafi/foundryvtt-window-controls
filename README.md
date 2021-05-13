@@ -4,10 +4,6 @@ Minimize (Enhanced!), Maximize and Pin floating Windows. Configurable.
 
 Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar on top or bottom.
 
-## 4 Available Settings
-### Minimize button (Default: On)
-Adds a minimize button that does the same as double-clicking the header
-
 ## By JeansenVaars
 ![JVLogo](logo-small-black.png)
 
@@ -16,6 +12,10 @@ Adds a minimize button that does the same as double-clicking the header
 ## Check out my other modules!
 * Minimal UI (Recommended combination!)
 * Super Select
+
+## 4 Available Settings
+### Minimize button (Default: On)
+Adds a minimize button that does the same as double-clicking the header
 
 ### Organized Minimize (Default: Top with Bar)
 Allows minimizing windows into a horizontal taskbar. Possible options are:
