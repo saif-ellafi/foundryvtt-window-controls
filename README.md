@@ -4,6 +4,10 @@ Minimize (Enhanced!), Maximize and Pin floating Windows. Configurable.
 
 Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar on top or bottom.
 
+This was formerly part of **Minimal UI**, but it was ripped off for better flexibility and independence.
+
+**Recommended with Minimal UI**
+
 ![JVLogo](pinned.gif)
 
 ## By JeansenVaars
@@ -12,7 +16,8 @@ Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V14D3AH)
 
 ## Check out my other modules!
-* Minimal UI (Recommended combination!)
+* Minimal UI
+* Scene Preview
 * Super Select
 
 ## 4 Available Settings
