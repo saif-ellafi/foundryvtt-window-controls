@@ -4,6 +4,8 @@ Minimize (Enhanced!), Maximize and Pin floating Windows. Configurable.
 
 Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar on top or bottom.
 
+![JVLogo](pinned.gif)
+
 ## By JeansenVaars
 ![JVLogo](logo-small-black.png)
 
