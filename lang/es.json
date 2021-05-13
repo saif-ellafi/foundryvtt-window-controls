@@ -1,0 +1,25 @@
+{
+  "I18N.LANGUAGE": "Español",
+  "I18N.MAINTAINERS": "@Viriato139ac#0342",
+
+  "MinimalWCMinimize.Enabled": "Activado",
+  "MinimalWCMinimize.Disabled": "Desactivado",
+
+  "MinimalWCMinimize.MinimizeButtonName": "Minimize Button",
+  "MinimalWCMinimize.MinimizeButtonHint": "Add a minimize button on all floating windows.",
+
+  "MinimalWCMinimize.OrganizedMinimizeName": "Modo organizado de Minimizar",
+  "MinimalWCMinimize.OrganizedMinimizeHint": "Organiza las ventanas que minimice, al colocarlas o bien en una franja en la parte inferior o superior",
+
+  "MinimalWCMinimize.OrganizedMinimizeBottom": "Abajo",
+  "MinimalWCMinimize.OrganizedMinimizeBottomBar": "Abajo con barra",
+  "MinimalWCMinimize.OrganizedMinimizeTop": "Arriba",
+  "MinimalWCMinimize.OrganizedMinimizeTopBar": "Arriba con barra",
+
+  "MinimalWCMinimize.PinnedButtonName": "Botón Fijado",
+  "MinimalWCMinimize.PinnedButtonHint": "Añade un botón para fijar las ventanas. Al activarlo, dichas ventanas no podrán ser cerradas.",
+
+  "MinimalWCMinimize.MaximizeButtonName": "Botón Maximizar",
+  "MinimalWCMinimize.MaximizeButtonHint": "Añade un botón para maximizar las ventanas. Puede no funcionar correctamente en todos los sistemas."
+
+}

@@ -1,0 +1,36 @@
+:root {
+    --minibarw: unset;
+    --minibarbot: unset;
+    --minibartop: unset;
+    --minibarleft: unset;
+    --wcbordercolor: unset;
+    --wcshadowcolor: unset;
+    --wcshadowstrength: unset;
+}
+
+#minimized-bar {
+    position: absolute;
+    width: var(--minibarw);
+    height: 40px;
+    bottom: var(--minibarbot);
+    top: var(--minibartop);
+    border-radius: 5px;
+    left: var(--minibarleft);
+    opacity: 50%;
+    transition: 0.2s;
+    border: 1px solid var(--wcbordercolor);
+    box-shadow: 0 0 var(--wcshadowstrength) 0 var(--wcshadowcolor);
+}
+
+.window-app.minimized .window-header {
+    border: 1px solid var(--wcbordercolor);
+    box-shadow: 0 0 var(--wcshadowstrength) 0 var(--wcshadowcolor);
+}
+
+.minimized.window-app .window-header a {
+    margin: 0 0 0 2px;
+}
+
+.minimized-pinned {
+    background-color: var(--wcbordercolor);
+}
