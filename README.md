@@ -1,12 +1,12 @@
 # Window Controls for Foundry VTT
 
-Includes configurable buttons for floating windows: Minimized, Maximized and Pinned.
+Minimize (Enhanced!), Maximize and Pin floating Windows. Configurable.
 
 Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar on top or bottom.
 
 ## 4 Available Settings
 ### Minimize button (Default: On)
-Adds a minimize button that does the same as double clicking the header
+Adds a minimize button that does the same as double-clicking the header
 
 ### Organized Minimize (Default: Top with Bar)
 Allows minimizing windows into a horizontal taskbar. Possible options are:
