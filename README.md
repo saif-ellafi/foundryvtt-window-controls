@@ -8,18 +8,6 @@ This was formerly part of **Minimal UI**, but it was ripped off for better flexi
 
 **Recommended with Minimal UI**
 
-![JVLogo](pinned.gif)
-
-## By JeansenVaars
-![JVLogo](logo-small-black.png)
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V14D3AH)
-
-## Check out my other modules!
-* Minimal UI
-* Scene Preview
-* Super Select
-
 ## 4 Available Settings
 ### Minimize button (Default: On)
 Adds a minimize button that does the same as double-clicking the header
@@ -48,6 +36,18 @@ Adds a maximize button that will expand resizable windows to the maximum availab
 **All options enabled, showing a pinned window that cannot be closed:**
 
 ![full-mode.png](full-mode.png)
+
+![JVLogo](pinned.gif)
+
+## By JeansenVaars
+![JVLogo](logo-small-black.png)
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V14D3AH)
+
+## Check out my other modules!
+* Minimal UI
+* Scene Preview
+* Super Select
 
 # Appreciations
 * Thanks to libWrapper by ruipin: UI is less prone to conflicts!
