@@ -10,6 +10,8 @@ class WindowControls {
     static cssTopBarLeftStart = 120;
     static cssBottomBarLeftStart = 160;
 
+    static debouncedReload = debounce(() => window.location.reload(), 100);
+
     static positionMinimizeBar() {
         const rootStyle = document.querySelector(':root').style;
         const setting = game.settings.get('window-controls', 'organizedMinimize');
@@ -236,9 +238,7 @@ class WindowControls {
                 "disabled": game.i18n.localize("WindowControls.Disabled")
             },
             default: "enabled",
-            onChange: _ => {
-                window.location.reload();
-            }
+            onChange: WindowControls.debouncedReload
         });
         game.settings.register('window-controls', 'organizedMinimize', {
             name: game.i18n.localize("WindowControls.OrganizedMinimizeName"),
@@ -254,9 +254,7 @@ class WindowControls {
                 "disabled": game.i18n.localize("WindowControls.Disabled")
             },
             default: "topBar",
-            onChange: _ => {
-                window.location.reload();
-            }
+            onChange: WindowControls.debouncedReload
         });
         game.settings.register('window-controls', 'pinnedButton', {
             name: game.i18n.localize("WindowControls.PinnedButtonName"),
@@ -269,9 +267,7 @@ class WindowControls {
                 "disabled": game.i18n.localize("WindowControls.Disabled")
             },
             default: "disabled",
-            onChange: _ => {
-                window.location.reload();
-            }
+            onChange: WindowControls.debouncedReload
         });
         game.settings.register('window-controls', 'maximizeButton', {
             name: game.i18n.localize("WindowControls.MaximizeButtonName"),
@@ -284,9 +280,7 @@ class WindowControls {
                 "disabled": game.i18n.localize("WindowControls.Disabled")
             },
             default: "disabled",
-            onChange: _ => {
-                window.location.reload()
-            }
+            onChange: WindowControls.debouncedReload
         });
     }
 
