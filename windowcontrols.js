@@ -78,14 +78,17 @@ class WindowControls {
             if (WindowControls.minimizedStash[i]?.app.appId === app.appId) {
                 WindowControls.minimizedStash[i].oldPosition = Object.assign({}, app.position);
                 targetPos = i;
-                break;
+                return targetPos;
             } else if (!targetPos && !WindowControls.minimizedStash[i]?.app.rendered) {
                 WindowControls.minimizedStash[i] = {app: app, oldPosition: Object.assign({}, app.position)};
                 targetPos = i;
-                break;
+                return targetPos;
             }
         }
-        return targetPos;
+        let appI = app.position.left;
+        while (appI in WindowControls.minimizedStash) appI += 20;
+        WindowControls.minimizedStash[appI] = {app: app, oldPosition: Object.assign({}, app.position)};
+        return appI;
     }
 
     static setMinimizedPosition(app) {
