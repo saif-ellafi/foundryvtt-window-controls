@@ -20,7 +20,7 @@ class WindowControls {
         switch (setting) {
             case 'topBar': {
                 rootStyle.setProperty('--minibarbot', 'unset');
-                rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition()-4)+'px');
+                rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition() - 4) + 'px');
                 rootStyle.setProperty('--minibarleft', WindowControls.cssTopBarLeftStart + 'px');
                 if (bar.length === 0)
                     barHtml.appendTo('body');
@@ -28,7 +28,7 @@ class WindowControls {
             }
             case 'persistentTop': {
                 rootStyle.setProperty('--minibarbot', 'unset');
-                rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition()-4)+'px');
+                rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition() - 4) + 'px');
                 rootStyle.setProperty('--minibarleft', WindowControls.cssTopBarLeftStart + 'px');
                 if (bar.length === 0)
                     barHtml.appendTo('body');
@@ -39,9 +39,9 @@ class WindowControls {
                 if (game.modules.get('minimal-ui')?.active)
                     hotbarSetting = game.settings.get('minimal-ui', 'hotbar');
                 if (hotbarSetting && (hotbarSetting === 'hidden' || (hotbarSetting === 'onlygm' && !game.user?.isGM)))
-                    rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomNoHotbar+'px');
+                    rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomNoHotbar + 'px');
                 else
-                    rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomHotbar+'px');
+                    rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomHotbar + 'px');
                 rootStyle.setProperty('--minibartop', 'unset');
                 rootStyle.setProperty('--minibarleft', WindowControls.cssBottomBarLeftStart + 'px');
                 if (bar.length === 0)
@@ -53,9 +53,9 @@ class WindowControls {
                 if (game.modules.get('minimal-ui')?.active)
                     hotbarSetting = game.settings.get('minimal-ui', 'hotbar');
                 if (hotbarSetting && (hotbarSetting === 'hidden' || (hotbarSetting === 'onlygm' && !game.user?.isGM)))
-                    rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomNoHotbar+'px');
+                    rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomNoHotbar + 'px');
                 else
-                    rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomHotbar+'px');
+                    rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomHotbar + 'px');
                 rootStyle.setProperty('--minibartop', 'unset');
                 rootStyle.setProperty('--minibarleft', WindowControls.cssBottomBarLeftStart + 'px');
                 if (bar.length === 0)
@@ -136,7 +136,7 @@ class WindowControls {
             const stash = WindowControls.minimizedStash[i];
             if (!stash.app?.rendered || appIds.includes(stash.app?.appId)) {
                 delete WindowControls.minimizedStash[i];
-            } else if (stash.app){
+            } else if (stash.app) {
                 appIds.push(stash.app.appId);
             }
         });
@@ -154,10 +154,10 @@ class WindowControls {
                 WindowControls.positionMinimizeBar();
             WindowControls.cleanupStash();
             const maxPosition = Math.max(
-              ...Object.entries(WindowControls.minimizedStash)
-                .filter(([_, app]) => app.app.rendered && app.app._minimized)
-                .map(([pos, _]) => Number(pos))
-                .concat(0)
+                ...Object.entries(WindowControls.minimizedStash)
+                    .filter(([_, app]) => app.app.rendered && app.app._minimized)
+                    .map(([pos, _]) => Number(pos))
+                    .concat(0)
             );
             const setting = game.settings.get('window-controls', 'organizedMinimize');
             const rootStyle = document.querySelector(':root').style;
@@ -203,19 +203,24 @@ class WindowControls {
     }
 
     static applyPinnedMode(app) {
+        if (!app?.element) return;
         const header = app.element.find(".window-header");
         if (header.hasClass('minimized-pinned')) {
             header.removeClass('minimized-pinned');
             app.close = app.closeBKP;
             delete app.closeBKP;
             app.element.find(".window-header")
-              .append($(`<a class="header-button close"><i class="fas fa-times"></i></a>`)
-                .click(function() {app.close()}));
+                .append($(`<a class="header-button close"><i class="fas fa-times"></i></a>`)
+                    .click(function () {
+                        app.close()
+                    }));
         } else {
             header.addClass('minimized-pinned');
             app.element.find(".close").remove();
             app.closeBKP = app.close;
-            app.close = function() {if (!app._minimized) app.minimize()};
+            app.close = function () {
+                if (!app._minimized) app.minimize()
+            };
         }
     }
 
@@ -232,9 +237,9 @@ class WindowControls {
         if (app._maximized) {
             app.setPosition(app._maximized);
             app.element
-              .find(".fa-window-restore")
-              .removeClass('fa-window-restore')
-              .addClass('fa-window-maximize');
+                .find(".fa-window-restore")
+                .removeClass('fa-window-restore')
+                .addClass('fa-window-maximize');
             delete app._maximized;
         } else {
             const board = $("#board");
@@ -245,10 +250,25 @@ class WindowControls {
             WindowControls.reapplyMaximize(app, availableHeight, availableWidth);
             WindowControls.reapplyMaximize(app, availableHeight, availableWidth);
             app.element
-              .find(".fa-window-maximize")
-              .removeClass('fa-window-maximize')
-              .addClass('fa-window-restore');
+                .find(".fa-window-maximize")
+                .removeClass('fa-window-maximize')
+                .addClass('fa-window-restore');
         }
+    }
+
+    static renderDummyPanelApp(app) {
+        if ($(`[id='dummy-${app.title}']`).length > 0) return;
+        const taskbarApp = new WindowControlsPersistentDummy(app);
+        taskbarApp.render(true);
+        setTimeout(() => {
+            taskbarApp.minimize();
+        }, 10);
+        setTimeout(() => {
+            WindowControls.setMinimizedPosition(taskbarApp);
+            WindowControls.setMinimizedStyle(taskbarApp);
+            WindowControls.refreshMinimizeBar();
+            taskbarApp.element.css('visibility', 'visible')
+        }, 500);
     }
 
     static initSettings() {
@@ -313,14 +333,14 @@ class WindowControls {
 
     static initHooks() {
 
-        const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
+        Hooks.once('ready', async function () {
 
-        Hooks.once('ready', async function() {
+            const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
             libWrapper.register('window-controls', 'KeyboardManager.prototype._onEscape', function (wrapped, ...args) {
                 let [_, up, modifiers] = args;
-                if ( up || modifiers.hasFocus ) return wrapped(...args);
-                else if ( $(".minimized-pinned").length === 0 && !(ui.context && ui.context.menu.length) ) {
-                    if (  Object.keys(WindowControls.minimizedStash).length > 0) {
+                if (up || modifiers.hasFocus) return wrapped(...args);
+                else if ($(".minimized-pinned").length === 0 && !(ui.context && ui.context.menu.length)) {
+                    if (Object.keys(WindowControls.minimizedStash).length > 0) {
                         WindowControls.cleanupMinimizeBar(undefined, true);
                     }
                 }
@@ -328,14 +348,19 @@ class WindowControls {
             }, 'WRAPPER');
 
             if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
+                const supportedWindowTypes = ['ActorSheet', 'ItemSheet', 'JournalSheet', 'SidebarTab', 'StaticViewer', 'Compendium'];
                 libWrapper.register('window-controls', 'Application.prototype.minimize', async function (wrapped, ...args) {
-                    const targetHtml = $(`[data-appid='${this.appId}']`);
-                    targetHtml.css('visibility', 'hidden');
+                    if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
+                        const targetHtml = $(`[data-appid='${this.appId}']`);
+                        targetHtml.css('visibility', 'hidden');
+                    }
                     return await wrapped(...args);
                 }, 'WRAPPER');
                 libWrapper.register('window-controls', 'Application.prototype.maximize', async function (wrapped, ...args) {
-                    const targetHtml = $(`[data-appid='${this.appId}']`);
-                    targetHtml.css('visibility', '');
+                    if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
+                        const targetHtml = $(`[data-appid='${this.appId}']`);
+                        targetHtml.css('visibility', '');
+                    }
                     return await wrapped(...args);
                 }, 'WRAPPER');
             } else if (settingOrganized !== 'disabled') {
@@ -401,7 +426,11 @@ class WindowControls {
                         class: "pin",
                         icon: "fas fa-map-pin",
                         onclick: () => {
-                            WindowControls.applyPinnedMode(this)
+                            WindowControls.applyPinnedMode(this);
+                            WindowControls.applyPinnedMode(
+                                Object.values(ui.windows)
+                                    .find(w => w.title === this.title && w.constructor.name == 'WindowControlsPersistentDummy')
+                            );
                         }
                     }
                     newButtons.push(pinButton)
@@ -411,36 +440,19 @@ class WindowControls {
 
         });
 
-        if (settingOrganized === 'persistentBottom' || settingOrganized === 'persistentTop') {
-            Hooks.on('renderActorSheet', async function(app) {
-                const taskbarApp = new WindowControlsPersistentDummy(app);
-                console.log(taskbarApp);
-                taskbarApp.render(true);
-                setTimeout(() => {
-                    taskbarApp.minimize();
-                }, 10);
-                setTimeout(() => {
-                    WindowControls.setMinimizedPosition(taskbarApp);
-                    WindowControls.setMinimizedStyle(taskbarApp);
-                    WindowControls.refreshMinimizeBar();
-                    taskbarApp.element.css('visibility', 'visible')
-                }, 500);
-            });
-        }
-
-        Hooks.on('closeSidebarTab', function(app) {
+        Hooks.on('closeSidebarTab', function (app) {
             WindowControls.cleanupMinimizeBar(app);
         });
 
-        Hooks.on('closeApplication', function(app) {
+        Hooks.on('closeApplication', function (app) {
             WindowControls.cleanupMinimizeBar(app);
         });
 
-        Hooks.on('closeItemSheet', function(app) {
+        Hooks.on('closeItemSheet', function (app) {
             WindowControls.cleanupMinimizeBar(app);
         });
 
-        Hooks.on('closeActorSheet', function(app) {
+        Hooks.on('closeActorSheet', function (app) {
             WindowControls.cleanupMinimizeBar(app);
         });
 
@@ -479,6 +491,30 @@ Hooks.once('ready', () => {
         rootStyle.setProperty('--wcbordercolor', '#ff640080');
     }
 
+    const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
+    if (settingOrganized === 'persistentBottom' || settingOrganized === 'persistentTop') {
+        setTimeout(() => {
+            Hooks.on('renderActorSheet', function (app) {
+                WindowControls.renderDummyPanelApp(app);
+            });
+            Hooks.on('renderItemSheet', function (app) {
+                WindowControls.renderDummyPanelApp(app);
+            });
+            Hooks.on('renderJournalSheet', function (app) {
+                WindowControls.renderDummyPanelApp(app);
+            });
+            Hooks.on('renderSidebarTab', function (app) {
+                WindowControls.renderDummyPanelApp(app);
+            });
+            Hooks.on('renderStaticViewer', function (app) {
+                WindowControls.renderDummyPanelApp(app);
+            });
+            Hooks.on('renderCompendium', function (app) {
+                WindowControls.renderDummyPanelApp(app);
+            });
+        }, 250);
+    }
+
 })
 
 class WindowControlsPersistentDummy extends Application {
@@ -487,33 +523,38 @@ class WindowControlsPersistentDummy extends Application {
             title: targetApp.title,
             width: 0,
             height: 0,
-            minimizable: true
+            minimizable: true,
+            id: `dummy-${targetApp.title}`
         });
         this.targetApp = targetApp;
         var oldClose = this.targetApp.close;
         var thisMagic = this;
-        this.targetApp.close = function() {
+        this.targetApp.close = function () {
             thisMagic.justClose();
             oldClose.apply(this);
         }
     }
+
     static get defaultOptions() {
         return mergeObject(Dialog.defaultOptions, {
             classes: ['hidden-placeholder'],
             resizable: false
         });
     }
+
     maximize() {
         if (this.targetApp._minimized) {
             this.targetApp.maximize();
         }
         this.targetApp.bringToTop();
     }
+
     justClose() {
         super.close();
     }
+
     close() {
-        this.targetApp.close()
+        this.targetApp.close();
         super.close();
     }
 }

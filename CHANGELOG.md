@@ -1,3 +1,6 @@
+### 1.1.0
+* Feature: New Persistent Bar mode where open windows are also visible in the Panel (Experimental!!!)
+
 ### 1.0.2
 * Bugfix: Fixed windows restoring to a wrong size when exceeding taskbar width
 
