@@ -15,6 +15,8 @@
   "WindowControls.OrganizedMinimizeBottomBar": "Bottom with Bar",
   "WindowControls.OrganizedMinimizeTop": "Top",
   "WindowControls.OrganizedMinimizeTopBar": "Top with Bar",
+  "WindowControls.OrganizedPersistentTop": "Persistent Top Bar (Experimental)",
+  "WindowControls.OrganizedPersistentBottom": "Persistent Bottom Bar (Experimental)",
 
   "WindowControls.PinnedButtonName": "Pinned Button",
   "WindowControls.PinnedButtonHint": "Add a pin button on windows. If clicked, such windows may not be closed, only minimized.",

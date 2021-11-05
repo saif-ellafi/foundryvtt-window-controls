@@ -16,7 +16,7 @@
     top: var(--minibartop);
     border-radius: 5px;
     left: var(--minibarleft);
-    opacity: 50%;
+    opacity: 75%;
     transition: 0.2s;
     border: 1px solid var(--wcbordercolor);
     box-shadow: 0 0 var(--wcshadowstrength) 0 var(--wcshadowcolor);
@@ -33,4 +33,8 @@
 
 .minimized-pinned {
     background-color: var(--wcbordercolor);
+}
+
+.hidden-placeholder {
+    visibility: hidden;
 }

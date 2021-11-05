@@ -15,6 +15,8 @@
   "WindowControls.OrganizedMinimizeBottomBar": "Abajo con barra",
   "WindowControls.OrganizedMinimizeTop": "Arriba",
   "WindowControls.OrganizedMinimizeTopBar": "Arriba con barra",
+  "WindowControls.OrganizedPersistentTop": "Barra Persistente Arriba (Experimental)",
+  "WindowControls.OrganizedPersistentBottom": "Barra Persistente Abajo (Experimental)",
 
   "WindowControls.PinnedButtonName": "Botón Fijado",
   "WindowControls.PinnedButtonHint": "Añade un botón para fijar las ventanas. Al activarlo, dichas ventanas no podrán ser cerradas.",

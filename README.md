@@ -1,12 +1,12 @@
 # Window Controls for Foundry VTT
 
-Minimize (Enhanced!), Maximize and Pin floating Windows. Configurable.
+Window Taskbar and Window Buttons: Minimize, Maximize and Pin floating Windows. Configurable.
 
-Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar on top or bottom.
+Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar located on top or bottom.
 
 This was formerly part of **Minimal UI**, but it was ripped off for better flexibility and independence.
 
-**Recommended with Minimal UI**
+**Recommended Together with [Minimal UI](https://github.com/saif-ellafi/foundryvtt-minimal-ui)**
 
 ## 4 Available Settings
 ### Minimize button (Default: On)
@@ -19,6 +19,8 @@ Allows minimizing windows into a horizontal taskbar. Possible options are:
 * **Bottom with Bar**: Minimize all windows inside a semi transparent bar at the bottom of the screen
 * **Bottom**: Minimizes all windows on an invisible horizontal taskbar located at the bottom of the screen
 * **Disabled**: Default behavior in Foundry. Minimizes wherever the window was originally.
+* **Persistent Top Bar**: (EXPERIMENTAL) All windows, minimized or not, will have a header in a Bar located on top. Similar to a Taskbar.
+* **Persistent Bottom Bar**: (EXPERIMENTAL) All windows, minimized or not, will have a header in a Bar located on Bottom. Similar to a Taskbar.
 
 ### Pinned Button (Default: Off)
 Adds a pin button on window controls, to prevent a window from being closed.
@@ -32,6 +34,9 @@ Adds a maximize button that will expand resizable windows to the maximum availab
 **minimize and close buttons (Default):**
 
 ![minimize-close.png](minimize-close.png)
+
+**New experimental Persistent Window Bars!**
+![Animation2.gif](Animation2.gif)
 
 **All options enabled, showing a pinned window that cannot be closed:**
 
