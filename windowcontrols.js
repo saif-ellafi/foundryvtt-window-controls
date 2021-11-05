@@ -122,6 +122,7 @@ class WindowControls {
             top: topPos ?? app.position.top,
             width: WindowControls.cssMinimizedSize
         });
+        app.element.css({'z-index': 1});
     }
 
     static setRestoredPosition(app) {
@@ -429,7 +430,7 @@ class WindowControls {
                             WindowControls.applyPinnedMode(this);
                             WindowControls.applyPinnedMode(
                                 Object.values(ui.windows)
-                                    .find(w => w.title === this.title && w.constructor.name == 'WindowControlsPersistentDummy')
+                                    .find(w => w.title === this.title && w.constructor.name === 'WindowControlsPersistentDummy')
                             );
                         }
                     }

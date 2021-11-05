@@ -20,6 +20,7 @@
     transition: 0.2s;
     border: 1px solid var(--wcbordercolor);
     box-shadow: 0 0 var(--wcshadowstrength) 0 var(--wcshadowcolor);
+    z-index: 0;
 }
 
 .window-app.minimized .window-header {
