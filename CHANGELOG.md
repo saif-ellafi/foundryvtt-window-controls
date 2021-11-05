@@ -1,5 +1,6 @@
 ### 1.1.1
 * Bugfix: Fixed context menu priority in Scene right click when top bar is used (Thanks @Grayhead)
+* Bugfix: Improved compatibility between pinned windows and windows that might close themselves (i.e. image-text journals) (Thanks @Grayhead)
 
 ### 1.1.0
 * Feature: New Persistent Bar mode where open windows are also visible in the Panel (Experimental!!!)
