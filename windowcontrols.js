@@ -173,7 +173,7 @@ class WindowControls {
 
     static cleanupMinimizeBar(app, force) {
         const minimizedApps = $(".minimized").toArray();
-        const matchedStash = minimizedApps.find(a => $(a).attr('data-appid') == app?.appId);
+        const matchedStash = minimizedApps.find(a => $(a).attr('data-appid') === app?.appId);
         if (matchedStash) {
             $(matchedStash).css('visibility', 'hidden');
             WindowControls.setRestoredPosition(app);
@@ -207,21 +207,17 @@ class WindowControls {
         if (!app?.element) return;
         const header = app.element.find(".window-header");
         if (header.hasClass('minimized-pinned')) {
+            delete app._pinned;
             header.removeClass('minimized-pinned');
-            app.close = app.closeBKP;
-            delete app.closeBKP;
             app.element.find(".window-header")
                 .append($(`<a class="header-button close"><i class="fas fa-times"></i></a>`)
                     .click(function () {
                         app.close()
                     }));
         } else {
+            app._pinned = true;
             header.addClass('minimized-pinned');
             app.element.find(".close").remove();
-            app.closeBKP = app.close;
-            app.close = function () {
-                if (!app._minimized) app.minimize()
-            };
         }
     }
 
@@ -337,7 +333,7 @@ class WindowControls {
         Hooks.once('ready', async function () {
 
             const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
-            libWrapper.register('window-controls', 'KeyboardManager.prototype._onEscape', function (wrapped, ...args) {
+            libWrapper.register('window-controls', 'KeyboardManager.prototype._onEscape', async function (wrapped, ...args) {
                 let [_, up, modifiers] = args;
                 if (up || modifiers.hasFocus) return wrapped(...args);
                 else if ($(".minimized-pinned").length === 0 && !(ui.context && ui.context.menu.length)) {
@@ -345,7 +341,21 @@ class WindowControls {
                         WindowControls.cleanupMinimizeBar(undefined, true);
                     }
                 }
-                return wrapped(...args);
+                const pinnedWindows = Object.values(ui.windows).filter(w => w._pinned);
+                pinnedWindows.forEach(w => {
+                    // Temporarily coating close() of pinned windows during escape calls
+                    w.closeBkp = w.close;
+                    w.close = function () {
+                        if (!this._minimized) this.minimize();
+                    };
+                });
+                const result = await wrapped(...args);
+                pinnedWindows.forEach(w => {
+                    // uncoating close() back
+                    w.close = w.closeBkp;
+                    delete w.closeBkp;
+                });
+                return result;
             }, 'WRAPPER');
 
             if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
