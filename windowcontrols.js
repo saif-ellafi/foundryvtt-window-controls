@@ -240,7 +240,7 @@ class WindowControls {
     taskbarApp.render(true);
     setTimeout(() => {
       taskbarApp.minimize();
-    }, 10);
+    }, 100);
     setTimeout(() => {
       WindowControls.setMinimizedPosition(taskbarApp);
       WindowControls.setMinimizedStyle(taskbarApp);
@@ -564,7 +564,7 @@ class WindowControlsPersistentDummy extends Application {
       if (this.initialSheetMode && this.initialSheetMode !== this.targetApp._sheetMode) {
         this.targetApp.render(true);
         if (this.targetApp._pinned)
-          setTimeout(() => {WindowControls.applyPinnedMode(this.targetApp)}, 100);
+          setTimeout(() => {WindowControls.applyPinnedMode(this.targetApp)}, 250);
         this.initialSheetMode = this.targetApp._sheetMode;
       } else {
         super.close();

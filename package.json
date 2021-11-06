@@ -1,0 +1,33 @@
+{
+  "name": "foundryvtt-window-controls",
+  "version": "1.1.4",
+  "description": "Improves Minimized window organization, style and adds Maximize and Pin window buttons",
+  "main": "windowcontrols.js",
+  "scripts": {
+    "copy": "mkdir -p dist && cp ./windowcontrols.js dist/ && cp ./windowcontrols.css dist/ && cp ./README.md dist/ && cp ./CHANGELOG.md dist/ && cp ./LICENSE.md dist/ && cp ./module.json dist/ && cp ./THANKS.txt dist/",
+    "copyWin": "mkdir dist && copy module.json dist && copy windowcontrols.js dist && copy windowcontrols.css dist && copy README.md dist && copy CHANGELOG.md dist && copy LICENSE.md dist && copy module.json dist && copy THANKS.txt dist",
+    "zip": "npm-build-zip --source=dist --destination=.",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saif-ellafi/foundryvtt-mythic-gme.git"
+  },
+  "keywords": [
+    "foundry",
+    "vtt",
+    "windows",
+    "productivity",
+    "minimize",
+    "controls"
+  ],
+  "author": "JeansenVaars (Saif Ellafi)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/saif-ellafi/foundryvtt-window-controls/issues"
+  },
+  "homepage": "https://github.com/saif-ellafi/foundryvtt-window-controls",
+  "devDependencies": {
+    "npm-build-zip": "^1.0.3"
+  }
+}
