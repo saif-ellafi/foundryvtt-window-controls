@@ -1,3 +1,12 @@
+### 1.1.2
+* Enhancement: Replaced [Token] from minimized Windows to shorten header titles
+* Enhancement: Window Pin button enabled by default because I think it is cool
+* Bugfix: Fixed a bug preventing the bar from disappearing in some situations
+* Bugfix: Fixed a bug where windows would not correctly restore to their proper size
+* Bugfix: Fixed a bug where pressing Escape to all Windows did not clean the interface properly
+* Bugfix: Fixed a bug where closing minimized windows threw an error in some situations
+* Bugfix: Reduced code redundancies
+
 ### 1.1.1
 * Bugfix: Fixed context menu priority in Scene right click when top bar is used (Thanks @Grayhead)
 * Bugfix: Improved compatibility between pinned windows and windows that might close themselves (i.e. image-text journals) (Thanks @Grayhead)

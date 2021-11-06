@@ -21,8 +21,8 @@ Allows minimizing windows into a horizontal taskbar. Possible options are:
 * **Bottom with Bar**: Minimize all windows inside a semi transparent bar at the bottom of the screen
 * **Bottom**: Minimizes all windows on an invisible horizontal taskbar located at the bottom of the screen
 * **Disabled**: Default behavior in Foundry. Minimizes wherever the window was originally.
-* **Persistent Top Bar**: (EXPERIMENTAL) All windows, minimized or not, will have a header in a Bar located on top. Similar to a Taskbar.
-* **Persistent Bottom Bar**: (EXPERIMENTAL) All windows, minimized or not, will have a header in a Bar located on Bottom. Similar to a Taskbar.
+* **Persistent Top Bar**: All windows (minimized or not) are visible in the Bar located on top. Similar to a Taskbar.
+* **Persistent Bottom Bar**: All windows (minimized or not) are visible in the Bar located on Bottom. Similar to a Taskbar.
 
 ### Pinned Button (Default: Off)
 Adds a pin button on window controls, to prevent a window from being closed.

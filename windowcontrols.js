@@ -18,14 +18,7 @@ class WindowControls {
     const bar = $('#minimized-bar').hide();
     const barHtml = $(`<div id="minimized-bar" class="app" style="display: none;"></div>`);
     switch (setting) {
-      case 'topBar': {
-        rootStyle.setProperty('--minibarbot', 'unset');
-        rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition() - 4) + 'px');
-        rootStyle.setProperty('--minibarleft', WindowControls.cssTopBarLeftStart + 'px');
-        if (bar.length === 0)
-          barHtml.appendTo('body');
-        break;
-      }
+      case 'topBar':
       case 'persistentTop': {
         rootStyle.setProperty('--minibarbot', 'unset');
         rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition() - 4) + 'px');
@@ -34,20 +27,7 @@ class WindowControls {
           barHtml.appendTo('body');
         break;
       }
-      case 'bottomBar': {
-        let hotbarSetting;
-        if (game.modules.get('minimal-ui')?.active)
-          hotbarSetting = game.settings.get('minimal-ui', 'hotbar');
-        if (hotbarSetting && (hotbarSetting === 'hidden' || (hotbarSetting === 'onlygm' && !game.user?.isGM)))
-          rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomNoHotbar + 'px');
-        else
-          rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomHotbar + 'px');
-        rootStyle.setProperty('--minibartop', 'unset');
-        rootStyle.setProperty('--minibarleft', WindowControls.cssBottomBarLeftStart + 'px');
-        if (bar.length === 0)
-          barHtml.appendTo('body');
-        break;
-      }
+      case 'bottomBar':
       case 'persistentBottom': {
         let hotbarSetting;
         if (game.modules.get('minimal-ui')?.active)
@@ -145,11 +125,10 @@ class WindowControls {
 
   static refreshMinimizeBar() {
     const minimized = $(".minimized");
-    const bar = $("#minimized-bar");
     const stashSize = Object.keys(WindowControls.minimizedStash).length;
     if (minimized.length === 0) {
       WindowControls.minimizedStash = {};
-      bar.hide();
+      $("#minimized-bar").hide();
     } else if (stashSize > 0) {
       if (stashSize === 1)
         WindowControls.positionMinimizeBar();
@@ -167,7 +146,7 @@ class WindowControls {
       } else
         rootStyle.setProperty('--minibarw', maxPosition - 80 + 'px');
       minimized.show();
-      bar.show();
+      $("#minimized-bar").show();
     }
   }
 
@@ -193,12 +172,14 @@ class WindowControls {
   }
 
   static setMinimizedStyle(app) {
+    app.element.find(".window-header > h4").text(app.title.replace("[Token] ", "~ "));
     app.element.find(".minimize").empty();
     app.element.find(".minimize").append(`<i class="far fa-window-restore"></i>`);
     app.element.find(".minimize").show();
   }
 
   static setRestoredStyle(app) {
+    app.element.find(".window-header > h4").text(app.title.replace("~ ", "[Token] "));
     app.element.find(".minimize").empty();
     app.element.find(".minimize").append(`<i class="far fa-window-minimize"></i>`);
   }
@@ -310,7 +291,7 @@ class WindowControls {
         "enabled": game.i18n.localize("WindowControls.Enabled"),
         "disabled": game.i18n.localize("WindowControls.Disabled")
       },
-      default: "disabled",
+      default: "enabled",
       onChange: WindowControls.debouncedReload
     });
     game.settings.register('window-controls', 'maximizeButton', {
@@ -393,6 +374,21 @@ class WindowControls {
           WindowControls.setRestoredPosition(this);
           WindowControls.refreshMinimizeBar();
           WindowControls.setRestoredStyle(this);
+          targetHtml.css('visibility', '');
+          return result;
+        }, 'WRAPPER');
+
+        libWrapper.register('window-controls', 'Application.prototype.close', async function (wrapped, ...args) {
+          const targetHtml = $(`[data-appid='${this.appId}']`);
+          if (this._minimized) {
+            targetHtml.css('visibility', 'hidden');
+            WindowControls.setRestoredPosition(this);
+            // For some reason, setPosition() does not work at this stage. Manually override for now until we figure it out.
+            this.sheetWidth = this.constructor.defaultOptions.width;
+            this.sheetHeight = this.constructor.defaultOptions.height;
+          }
+          const result = await wrapped(...args);
+          WindowControls.refreshMinimizeBar();
           targetHtml.css('visibility', '');
           return result;
         }, 'WRAPPER');
@@ -562,6 +558,9 @@ class WindowControlsPersistentDummy extends Application {
 
   justClose() {
     super.close();
+    setTimeout(() => {
+      WindowControls.refreshMinimizeBar()
+    }, 250);
   }
 
   close() {
