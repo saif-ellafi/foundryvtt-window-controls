@@ -534,6 +534,8 @@ class WindowControlsPersistentDummy extends Application {
       id: `dummy-${targetApp.title}`
     });
     this.targetApp = targetApp;
+    // Hack for Journal sheetmode swapping. See below.
+    this.initialSheetMode = this.targetApp._sheetMode;
     var oldClose = this.targetApp.close;
     var thisMagic = this;
     this.targetApp.close = function () {
@@ -557,9 +559,17 @@ class WindowControlsPersistentDummy extends Application {
   }
 
   justClose() {
-    super.close();
     setTimeout(() => {
-      WindowControls.refreshMinimizeBar()
+      // journal entries are reopened when changing their sheet mode. Need special treatment.
+      if (this.initialSheetMode && this.initialSheetMode !== this.targetApp._sheetMode) {
+        this.targetApp.render(true);
+        if (this.targetApp._pinned)
+          setTimeout(() => {WindowControls.applyPinnedMode(this.targetApp)}, 100);
+        this.initialSheetMode = this.targetApp._sheetMode;
+      } else {
+        super.close();
+        WindowControls.refreshMinimizeBar();
+      }
     }, 250);
   }
 

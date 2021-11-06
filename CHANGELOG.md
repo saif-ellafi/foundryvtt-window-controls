@@ -1,3 +1,6 @@
+### 1.1.3
+* Bugfix: Fixed pinned handouts not staying pinned after changing from text to image
+
 ### 1.1.2
 * Enhancement: Replaced [Token] from minimized Windows to shorten header titles
 * Enhancement: Window Pin button enabled by default because I think it is cool
