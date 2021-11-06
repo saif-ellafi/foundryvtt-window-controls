@@ -1,3 +1,6 @@
+### 1.1.4
+* Bugfix: Tweaked some race condition parameters for better stability
+
 ### 1.1.3
 * Bugfix: Fixed pinned handouts not staying pinned after changing from text to image
 
