@@ -8,6 +8,8 @@ This was formerly part of **Minimal UI**, but it was ripped off for better flexi
 
 **Recommended Together with [Minimal UI](https://github.com/saif-ellafi/foundryvtt-minimal-ui)**
 
+[Invite me a coffee if you have the time :D](#by-jeansenvaars)
+
 ## 4 Available Settings
 ### Minimize button (Default: On)
 Adds a minimize button that does the same as double-clicking the header
