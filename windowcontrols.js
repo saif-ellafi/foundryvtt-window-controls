@@ -568,7 +568,7 @@ class WindowControlsPersistentDummy extends Application {
         this.initialSheetMode = this.targetApp._sheetMode;
       } else {
         super.close();
-        WindowControls.refreshMinimizeBar();
+        setTimeout(() => {WindowControls.refreshMinimizeBar()}, 250);
       }
     }, 250);
   }

@@ -3,7 +3,7 @@
 	"title": "Window Controls",
 	"author": "JeansenVaars#2857",
 	"description": "Improves Minimized window organization, style and adds Maximize and Pin window buttons",
-	"version": "1.1.4",
+	"version": "1.1.5",
 	"minimumCoreVersion": "0.8.9",
 	"compatibleCoreVersion": "0.8.9",
 	"dependencies": [
@@ -25,5 +25,5 @@
 	],
 	"url": "https://github.com/saif-ellafi/foundryvtt-window-controls.git",
 	"manifest": "https://github.com/saif-ellafi/foundryvtt-window-controls/releases/latest/download/module.json",
-	"download": "https://github.com/saif-ellafi/foundryvtt-window-controls/releases/download/1.1.4/foundryvtt-window-controls_1.1.4.zip"
+	"download": "https://github.com/saif-ellafi/foundryvtt-window-controls/releases/download/1.1.5/foundryvtt-window-controls_1.1.5.zip"
 }

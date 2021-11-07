@@ -1,3 +1,6 @@
+### 1.1.5
+* Bugfix: Fixed a situation where the persistent mode bar would not disappear after closing last open window
+
 ### 1.1.4
 * Bugfix: Tweaked some race condition parameters for better stability
 
