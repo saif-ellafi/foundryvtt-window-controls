@@ -1,3 +1,6 @@
+### 1.1.6
+* Bugfix: Fixed ghost tabs appearing when changing scenes in persistent mode setting
+
 ### 1.1.5
 * Bugfix: Fixed a situation where the persistent mode bar would not disappear after closing last open window
 

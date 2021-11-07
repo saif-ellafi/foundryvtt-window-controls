@@ -511,7 +511,8 @@ Hooks.once('ready', () => {
         WindowControls.renderDummyPanelApp(app);
       });
       Hooks.on('renderSidebarTab', function (app) {
-        WindowControls.renderDummyPanelApp(app);
+        if (app._original) // Avoids launching ghost applications on internal hooks
+          WindowControls.renderDummyPanelApp(app);
       });
       Hooks.on('renderStaticViewer', function (app) {
         WindowControls.renderDummyPanelApp(app);
