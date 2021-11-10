@@ -1,3 +1,6 @@
+### 1.1.7
+* Bugfix: Fixed missing language localizations of previous build
+
 ### 1.1.6
 * Bugfix: Fixed ghost tabs appearing when changing scenes in persistent mode setting
 
