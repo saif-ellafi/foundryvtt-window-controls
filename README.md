@@ -59,6 +59,7 @@ Adds a maximize button that will expand resizable windows to the maximum availab
 # Appreciations
 * Thanks to libWrapper by ruipin: UI is less prone to conflicts!
 * Thanks to the FoundryVTT Discord community for the amazing issue reports and feedback.
+* Thanks to Grayhead for the German translations!
 
 # License
 [MIT License](./LICENSE.md)

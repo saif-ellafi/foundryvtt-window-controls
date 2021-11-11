@@ -1,3 +1,6 @@
+### 1.1.8
+* Localization: Thank you @Grayhead for adding German language to Window Controls!
+
 ### 1.1.7
 * Bugfix: Fixed missing language localizations of previous build
 
