@@ -1,0 +1,27 @@
+{
+  "I18N.LANGUAGE": "Deutsch",
+  "I18N.MAINTAINERS": "@JeansenVaars#2857",
+
+  "WindowControls.Enabled": "Eingeschaltet",
+  "WindowControls.Disabled": "Ausgeschaltet",
+
+  "WindowControls.MinimizeButtonName": "Minimieren Knopf",
+  "WindowControls.MinimizeButtonHint": "An allen Fenstern einen Minimieren Knopf darstellen.",
+
+  "WindowControls.OrganizedMinimizeName": "Minimierung organisieren",
+  "WindowControls.OrganizedMinimizeHint": "Minimierte Fenster organisieren, indem sie oben oder unten in Bereichen dargestellt werden.",
+
+  "WindowControls.OrganizedMinimizeBottom": "Unten",
+  "WindowControls.OrganizedMinimizeBottomBar": "In Bereich unten",
+  "WindowControls.OrganizedMinimizeTop": "Oben",
+  "WindowControls.OrganizedMinimizeTopBar": "In Bereich oben",
+  "WindowControls.OrganizedPersistentTop": "Persistenter Bereich oben",
+  "WindowControls.OrganizedPersistentBottom": "Persistenter Bereich unten",
+
+  "WindowControls.PinnedButtonName": "Gepinnt Knopf",
+  "WindowControls.PinnedButtonHint": "Einen 'angepinnt' Knopf den Fenstern hínzufügen. Wenn geklickt, werden Fenster nie geschlossen sondern minimiert.",
+
+  "WindowControls.MaximizeButtonName": "Maximieren Knopf",
+  "WindowControls.MaximizeButtonHint": "Bei Fenstern, die in ihrer Größe änderbar sind, einen Maximieren Knopf hinzufügen. Funktioniert nicht unbedingt mit allen Systemen."
+
+}
