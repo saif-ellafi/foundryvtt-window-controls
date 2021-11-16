@@ -1,3 +1,6 @@
+### 1.2.0
+* Enhancement: When using Organized Minimize with BAR, minimized or persisted Windows CANNOT be moved (Unless overflowed).This will prevent accidental moves. If undesired, use modes without a BAR. This was very requested by the community :-)
+
 ### 1.1.8
 * Localization: Thank you @Grayhead for adding German language to Window Controls!
 

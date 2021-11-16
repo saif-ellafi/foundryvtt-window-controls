@@ -12,11 +12,11 @@
   "WindowControls.OrganizedMinimizeHint": "Organize minimized windows by placing them either on a bottom line or top bar.",
 
   "WindowControls.OrganizedMinimizeBottom": "Bottom",
-  "WindowControls.OrganizedMinimizeBottomBar": "Bottom with Bar",
+  "WindowControls.OrganizedMinimizeBottomBar": "Bottom with Bar (Windows cannot move)",
   "WindowControls.OrganizedMinimizeTop": "Top",
-  "WindowControls.OrganizedMinimizeTopBar": "Top with Bar",
-  "WindowControls.OrganizedPersistentTop": "Persistent Taskbar on Top",
-  "WindowControls.OrganizedPersistentBottom": "Persistent Taskbar on Bottom",
+  "WindowControls.OrganizedMinimizeTopBar": "Top with Bar (Windows cannot move)",
+  "WindowControls.OrganizedPersistentTop": "Persistent Top Bar (Windows cannot move)",
+  "WindowControls.OrganizedPersistentBottom": "Persistent Bottom Bar (Windows cannot move)",
 
   "WindowControls.PinnedButtonName": "Pinned Button",
   "WindowControls.PinnedButtonHint": "Add a pin button on windows. If clicked, such windows may not be closed, only minimized.",

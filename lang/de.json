@@ -12,11 +12,11 @@
   "WindowControls.OrganizedMinimizeHint": "Minimierte Fenster organisieren, indem sie oben oder unten in Bereichen dargestellt werden.",
 
   "WindowControls.OrganizedMinimizeBottom": "Unten",
-  "WindowControls.OrganizedMinimizeBottomBar": "In Bereich unten",
+  "WindowControls.OrganizedMinimizeBottomBar": "In Bereich unten (Fenster unbeweglich)",
   "WindowControls.OrganizedMinimizeTop": "Oben",
-  "WindowControls.OrganizedMinimizeTopBar": "In Bereich oben",
-  "WindowControls.OrganizedPersistentTop": "Persistenter Bereich oben",
-  "WindowControls.OrganizedPersistentBottom": "Persistenter Bereich unten",
+  "WindowControls.OrganizedMinimizeTopBar": "In Bereich oben (Fenster unbeweglich)",
+  "WindowControls.OrganizedPersistentTop": "Persistenter Bereich oben (Fenster unbeweglich)",
+  "WindowControls.OrganizedPersistentBottom": "Persistenter Bereich unten (Fenster unbeweglich)",
 
   "WindowControls.PinnedButtonName": "Gepinnt Knopf",
   "WindowControls.PinnedButtonHint": "Einen 'angepinnt' Knopf den Fenstern hínzufügen. Wenn geklickt, werden Fenster nie geschlossen sondern minimiert.",

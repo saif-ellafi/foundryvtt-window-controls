@@ -12,6 +12,51 @@ class WindowControls {
 
   static debouncedReload = debounce(() => window.location.reload(), 100);
 
+  static getCurrentMaxGap() {
+    const sidebarGap = WindowControls.cssMinimizedSize * 4;
+    const boardSize = parseInt($("#board").css('width'));
+    return boardSize - sidebarGap;
+  }
+
+  static getOverflowedState() {
+    return Math.max(...Object.keys(WindowControls.minimizedStash)) >= WindowControls.getCurrentMaxGap();
+  }
+
+  static toggleMovement(app) {
+    const elementJS = app.element[0];
+    const stashOverflowed = WindowControls.getOverflowedState();
+    if (stashOverflowed) {
+      if (app._canBeMoved === false) {
+        app.element.find("header").addClass("draggable");
+        app._canBeMoved = true;
+      }
+      return;
+    }
+
+    if (app._canBeMoved === undefined) {
+      elementJS.addEventListener('mousemove', function(ev) {
+        if (!app._canBeMoved)
+          ev.stopImmediatePropagation();
+      }, true)
+      elementJS.addEventListener('mousedown', function(ev) {
+        if (!app._canBeMoved)
+          ev.stopImmediatePropagation();
+      }, true)
+      elementJS.addEventListener('mouseup', function(ev) {
+        if (!app._canBeMoved)
+          ev.stopImmediatePropagation();
+      }, true)
+      app.element.find("header").removeClass("draggable");
+      app._canBeMoved = false;
+    } else if (app._canBeMoved === true) {
+      app.element.find("header").removeClass("draggable");
+      app._canBeMoved = false;
+    } else {
+      app.element.find("header").addClass("draggable");
+      app._canBeMoved = true;
+    }
+  }
+
   static positionMinimizeBar() {
     const rootStyle = document.querySelector(':root').style;
     const setting = game.settings.get('window-controls', 'organizedMinimize');
@@ -71,10 +116,8 @@ class WindowControls {
   static getLeftPosition(app) {
     const minimizedSetting = game.settings.get('window-controls', 'organizedMinimize');
     const minGap = ['top', 'topBar', 'persistentTop'].includes(minimizedSetting) ? WindowControls.cssTopBarLeftStart + 10 : WindowControls.cssBottomBarLeftStart + 10;
-    const sidebarGap = WindowControls.cssMinimizedSize * 4;
     const jumpGap = WindowControls.cssMinimizedSize + 10;
-    const boardSize = parseInt($("#board").css('width'));
-    const maxGap = boardSize - sidebarGap;
+    const maxGap = WindowControls.getCurrentMaxGap();
     let targetPos;
     for (let i = minGap; i < maxGap + jumpGap; i = i + jumpGap) {
       if (WindowControls.minimizedStash[i]?.app.appId === app.appId) {
@@ -102,7 +145,7 @@ class WindowControls {
       top: topPos ?? app.position.top,
       width: WindowControls.cssMinimizedSize
     });
-    app.element.css({'z-index': 1});
+    app.element.css({'z-index': WindowControls.getOverflowedState() ? 10 : 1});
   }
 
   static setRestoredPosition(app) {
@@ -239,6 +282,7 @@ class WindowControls {
     const taskbarApp = new WindowControlsPersistentDummy(app);
     taskbarApp.render(true);
     setTimeout(() => {
+      WindowControls.toggleMovement(taskbarApp);
       taskbarApp.minimize();
     }, 100);
     setTimeout(() => {
@@ -343,23 +387,26 @@ class WindowControls {
         const supportedWindowTypes = ['ActorSheet', 'ItemSheet', 'JournalSheet', 'SidebarTab', 'StaticViewer', 'Compendium'];
         libWrapper.register('window-controls', 'Application.prototype.minimize', async function (wrapped, ...args) {
           if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
-            const targetHtml = $(`[data-appid='${this.appId}']`);
+            const targetHtml = this.element;
             targetHtml.css('visibility', 'hidden');
           }
           return await wrapped(...args);
         }, 'WRAPPER');
         libWrapper.register('window-controls', 'Application.prototype.maximize', async function (wrapped, ...args) {
           if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
-            const targetHtml = $(`[data-appid='${this.appId}']`);
+            const targetHtml = this.element;
             targetHtml.css('visibility', '');
           }
           return await wrapped(...args);
         }, 'WRAPPER');
       } else if (settingOrganized !== 'disabled') {
         libWrapper.register('window-controls', 'Application.prototype.minimize', async function (wrapped, ...args) {
-          const targetHtml = $(`[data-appid='${this.appId}']`);
+          const targetHtml = this.element;
           targetHtml.css('visibility', 'hidden');
           const result = await wrapped(...args);
+          if (['topBar', 'bottomBar'].includes(settingOrganized)) {
+            WindowControls.toggleMovement(this);
+          }
           WindowControls.setMinimizedPosition(this);
           WindowControls.setMinimizedStyle(this);
           WindowControls.refreshMinimizeBar();
@@ -368,9 +415,12 @@ class WindowControls {
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.maximize', async function (wrapped, ...args) {
-          const targetHtml = $(`[data-appid='${this.appId}']`);
+          const targetHtml = this.element;
           targetHtml.css('visibility', 'hidden');
           const result = await wrapped(...args);
+          if (['topBar', 'bottomBar'].includes(settingOrganized)) {
+            WindowControls.toggleMovement(this);
+          }
           WindowControls.setRestoredPosition(this);
           WindowControls.refreshMinimizeBar();
           WindowControls.setRestoredStyle(this);
@@ -379,7 +429,7 @@ class WindowControls {
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.close', async function (wrapped, ...args) {
-          const targetHtml = $(`[data-appid='${this.appId}']`);
+          const targetHtml = this.element;
           if (this._minimized) {
             targetHtml.css('visibility', 'hidden');
             WindowControls.setRestoredPosition(this);

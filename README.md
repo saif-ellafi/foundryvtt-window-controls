@@ -16,13 +16,13 @@ Adds a minimize button that does the same as double-clicking the header
 
 ### Organized Minimize (Default: Top with Bar)
 Allows minimizing windows into a horizontal taskbar. Possible options are:
-* **Top with Bar (Default)**: Minimize all windows inside a semi transparent bar that appears and resizes as necessary
 * **Top**: Minimizes all windows on an invisible horizontal taskbar at the top of the screen below scenes
-* **Bottom with Bar**: Minimize all windows inside a semi transparent bar at the bottom of the screen
 * **Bottom**: Minimizes all windows on an invisible horizontal taskbar located at the bottom of the screen
+* **Top with Bar (Default)**: Minimize all windows inside a bar at the top in which minimized windows will be locked
+* **Bottom with Bar**: Minimize all windows inside a bar at the bottom in which minimized windows will be locked
 * **Disabled**: Default behavior in Foundry. Minimizes wherever the window was originally.
-* **Persistent Top Bar**: All windows (minimized or not) are visible in the Bar located on top. Similar to a Taskbar.
-* **Persistent Bottom Bar**: All windows (minimized or not) are visible in the Bar located on Bottom. Similar to a Taskbar.
+* **Persistent Top Bar**: All windows (both minimized and open) are visible in a Bar located on top from which windows cannot move
+* **Persistent Bottom Bar**: All windows (both minimized and open) are visible in a Bar located on Bottom from which windows cannot move
 
 ### Pinned Button (Default: Off)
 Adds a pin button on window controls, to prevent a window from being closed.
