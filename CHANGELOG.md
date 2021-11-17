@@ -1,3 +1,6 @@
+### 1.2.1
+* Bugfix: Fixed an issue caused by Windows with non-letter characters in Persistent BAR mode to disappear
+
 ### 1.2.0
 * Enhancement: When using Organized Minimize with BAR, minimized or persisted Windows CANNOT be moved (Unless overflowed).This will prevent accidental moves. If undesired, use modes without a BAR. This was very requested by the community :-)
 

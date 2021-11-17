@@ -278,7 +278,7 @@ class WindowControls {
   }
 
   static renderDummyPanelApp(app) {
-    if ($(`[id='dummy-${app.title}']`).length > 0) return;
+    if ($(`[id='dummy-${app.title.replace(/\W/g,'_')}']`).length > 0) return;
     const taskbarApp = new WindowControlsPersistentDummy(app);
     taskbarApp.render(true);
     setTimeout(() => {
@@ -582,7 +582,7 @@ class WindowControlsPersistentDummy extends Application {
       width: 0,
       height: 0,
       minimizable: true,
-      id: `dummy-${targetApp.title}`
+      id: `dummy-${targetApp.title.replace(/\W/g,'_')}`
     });
     this.targetApp = targetApp;
     // Hack for Journal sheetmode swapping. See below.
