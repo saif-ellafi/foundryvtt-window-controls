@@ -1,3 +1,6 @@
+### 1.2.2
+* Bugfix: Improved stability after ugly code cleanup
+
 ### 1.2.1
 * Bugfix: Fixed an issue caused by Windows with non-letter characters in Persistent BAR mode to disappear
 

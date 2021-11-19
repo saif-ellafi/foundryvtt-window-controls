@@ -277,20 +277,16 @@ class WindowControls {
     }
   }
 
-  static renderDummyPanelApp(app) {
+  static async renderDummyPanelApp(app) {
     if ($(`[id='dummy-${app.title.replace(/\W/g,'_')}']`).length > 0) return;
     const taskbarApp = new WindowControlsPersistentDummy(app);
-    taskbarApp.render(true);
-    setTimeout(() => {
-      WindowControls.toggleMovement(taskbarApp);
-      taskbarApp.minimize();
-    }, 100);
-    setTimeout(() => {
-      WindowControls.setMinimizedPosition(taskbarApp);
-      WindowControls.setMinimizedStyle(taskbarApp);
-      WindowControls.refreshMinimizeBar();
-      taskbarApp.element.css('visibility', 'visible')
-    }, 500);
+    await taskbarApp._render(true);
+    WindowControls.toggleMovement(taskbarApp);
+    await taskbarApp.minimize();
+    WindowControls.setMinimizedPosition(taskbarApp);
+    WindowControls.setMinimizedStyle(taskbarApp);
+    WindowControls.refreshMinimizeBar();
+    taskbarApp.element.css('visibility', 'visible')
   }
 
   static initSettings() {
@@ -367,11 +363,11 @@ class WindowControls {
           }
         }
         const pinnedWindows = Object.values(ui.windows).filter(w => w._pinned);
-        pinnedWindows.forEach(w => {
+        pinnedWindows.forEach(async function (w) {
           // Temporarily coating close() of pinned windows during escape calls
           w.closeBkp = w.close;
-          w.close = function () {
-            if (!this._minimized) this.minimize();
+          w.close = async function() {
+            if (!this._minimized) await this.minimize();
           };
         });
         const result = await wrapped(...args);
@@ -455,12 +451,12 @@ class WindowControls {
             label: "",
             class: "minimize",
             icon: "far fa-window-minimize",
-            onclick: () => {
+            onclick: async function() {
               if (this._minimized)
-                this.maximize();
+                await this.maximize();
               else
-                this.minimize();
-            }
+                await this.minimize();
+            }.bind(this)
           };
           newButtons.push(minimizeButton)
         }
@@ -550,27 +546,26 @@ Hooks.once('ready', () => {
 
   const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
   if (settingOrganized === 'persistentBottom' || settingOrganized === 'persistentTop') {
-    setTimeout(() => {
-      Hooks.on('renderActorSheet', function (app) {
+
+    Hooks.on('renderActorSheet', function (app) {
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderItemSheet', function (app) {
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderJournalSheet', function (app) {
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderSidebarTab', function (app) {
+      if (app._original) // Avoids launching ghost applications on internal hooks
         WindowControls.renderDummyPanelApp(app);
-      });
-      Hooks.on('renderItemSheet', function (app) {
-        WindowControls.renderDummyPanelApp(app);
-      });
-      Hooks.on('renderJournalSheet', function (app) {
-        WindowControls.renderDummyPanelApp(app);
-      });
-      Hooks.on('renderSidebarTab', function (app) {
-        if (app._original) // Avoids launching ghost applications on internal hooks
-          WindowControls.renderDummyPanelApp(app);
-      });
-      Hooks.on('renderStaticViewer', function (app) {
-        WindowControls.renderDummyPanelApp(app);
-      });
-      Hooks.on('renderCompendium', function (app) {
-        WindowControls.renderDummyPanelApp(app);
-      });
-    }, 250);
+    });
+    Hooks.on('renderStaticViewer', function (app) {
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderCompendium', function (app) {
+      WindowControls.renderDummyPanelApp(app);
+    });
   }
 
 })
@@ -602,30 +597,28 @@ class WindowControlsPersistentDummy extends Application {
     });
   }
 
-  maximize() {
+  async maximize() {
     if (this.targetApp._minimized) {
-      this.targetApp.maximize();
+      await this.targetApp.maximize();
     }
     this.targetApp.bringToTop();
   }
 
-  justClose() {
-    setTimeout(() => {
-      // journal entries are reopened when changing their sheet mode. Need special treatment.
-      if (this.initialSheetMode && this.initialSheetMode !== this.targetApp._sheetMode) {
-        this.targetApp.render(true);
-        if (this.targetApp._pinned)
-          setTimeout(() => {WindowControls.applyPinnedMode(this.targetApp)}, 250);
-        this.initialSheetMode = this.targetApp._sheetMode;
-      } else {
-        super.close();
-        setTimeout(() => {WindowControls.refreshMinimizeBar()}, 250);
-      }
-    }, 250);
+  async justClose() {
+    // journal entries are reopened when changing their sheet mode. Need special treatment.
+    if (this.initialSheetMode && this.initialSheetMode !== this.targetApp._sheetMode) {
+      await this.targetApp._render(true);
+      if (this.targetApp._pinned)
+        WindowControls.applyPinnedMode(this.targetApp);
+      this.initialSheetMode = this.targetApp._sheetMode;
+    } else {
+      await super.close();
+      WindowControls.refreshMinimizeBar();
+    }
   }
 
-  close() {
-    this.targetApp.close();
-    super.close();
+  async close() {
+    await this.targetApp.close();
+    await super.close();
   }
 }
