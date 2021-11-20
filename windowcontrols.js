@@ -499,8 +499,7 @@ class WindowControls {
             onclick: () => {
               WindowControls.applyPinnedMode(this);
               WindowControls.applyPinnedMode(
-                Object.values(ui.windows)
-                  .find(w => w.title === this.title && w.constructor.name === 'WindowControlsPersistentDummy')
+                Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId)
               );
             }
           }
@@ -623,16 +622,8 @@ class WindowControlsPersistentDummy extends Application {
   }
 
   async justClose() {
-    // journal entries are reopened when changing their sheet mode. Need special treatment.
-    if (this.initialSheetMode && this.initialSheetMode !== this.targetApp._sheetMode) {
-      await this.targetApp._render(true);
-      if (this._pinned)
-        WindowControls.applyPinnedMode(this.targetApp);
-      this.initialSheetMode = this.targetApp._sheetMode;
-    } else {
-      await super.close();
-      WindowControls.refreshMinimizeBar();
-    }
+    await super.close();
+    WindowControls.refreshMinimizeBar();
   }
 
   async close() {
