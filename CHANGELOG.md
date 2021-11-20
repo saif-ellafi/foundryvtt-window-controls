@@ -1,3 +1,6 @@
+### 1.2.4
+* Bugfix: Fixed journal switching between text and images also broken in 1.2.3
+
 ### 1.2.3
 * Bugfix: Fixed Journal switching between text and images broken in 1.2.2
 * Bugfix: Fixed persistent mode when updating names of open windows

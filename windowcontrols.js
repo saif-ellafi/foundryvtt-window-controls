@@ -247,8 +247,8 @@ class WindowControls {
       header.removeClass('minimized-pinned');
       app.element.find(".window-header")
         .append($(`<a class="header-button close"><i class="fas fa-times"></i></a>`)
-          .click(function () {
-            app.close()
+          .click(async function () {
+            await app.close()
           }));
     } else {
       app._pinned = true;
@@ -296,7 +296,7 @@ class WindowControls {
       matchingWindow.options.title = WindowControls.curateTitle(app.title);
       matchingWindow.render();
       return;
-    };
+    }
     const taskbarApp = new WindowControlsPersistentDummy(app);
     await taskbarApp._render(true);
     WindowControls.toggleMovement(taskbarApp);
@@ -561,6 +561,14 @@ Hooks.once('ready', () => {
     rootStyle.setProperty('--wcbordercolor', '#ff640080');
   }
 
+  // Special treatment for journals when swap modes - reapply pinned after swap
+  if (game.settings.get('window-controls', 'pinnedButton') === 'enabled') {
+    Hooks.on('renderJournalSheet', function (app) {
+      if (app._pinned === true && !app.element.find('header').hasClass('minimized-pinned'))
+        WindowControls.applyPinnedMode(app);
+    });
+  }
+
   const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
   if (settingOrganized === 'persistentBottom' || settingOrganized === 'persistentTop') {
 
@@ -597,8 +605,6 @@ class WindowControlsPersistentDummy extends Application {
       id: `dummy-${WindowControls.curateId(targetApp.title)}`
     });
     this.targetApp = targetApp;
-    // Hack for Journal sheetmode swapping. See below.
-    this.initialSheetMode = this.targetApp._sheetMode;
     var oldClose = this.targetApp.close;
     var thisMagic = this;
     this.targetApp.close = async function () {
@@ -623,7 +629,12 @@ class WindowControlsPersistentDummy extends Application {
 
   async justClose() {
     await super.close();
-    WindowControls.refreshMinimizeBar();
+    // Hack for Journal mode swapping, since it is reopened, we need to wait a bit before refreshing the bar
+    // ToDo: some day we need a proper containing flex bar and delete these hacks once and for all!
+    if (this.targetApp._sheetMode)
+      setTimeout(() => {WindowControls.refreshMinimizeBar()}, 1000)
+    else
+      WindowControls.refreshMinimizeBar()
   }
 
   async close() {
