@@ -315,13 +315,13 @@ class WindowControls {
       config: true,
       type: String,
       choices: {
-        "bottom": game.i18n.localize("WindowControls.OrganizedMinimizeBottom"),
-        "bottomBar": game.i18n.localize("WindowControls.OrganizedMinimizeBottomBar"),
         "top": game.i18n.localize("WindowControls.OrganizedMinimizeTop"),
+        "bottom": game.i18n.localize("WindowControls.OrganizedMinimizeBottom"),
         "topBar": game.i18n.localize("WindowControls.OrganizedMinimizeTopBar"),
-        "disabled": game.i18n.localize("WindowControls.Disabled"),
+        "bottomBar": game.i18n.localize("WindowControls.OrganizedMinimizeBottomBar"),
         "persistentTop": game.i18n.localize("WindowControls.OrganizedPersistentTop"),
-        "persistentBottom": game.i18n.localize("WindowControls.OrganizedPersistentBottom")
+        "persistentBottom": game.i18n.localize("WindowControls.OrganizedPersistentBottom"),
+        "disabled": game.i18n.localize("WindowControls.Disabled")
       },
       default: "topBar",
       onChange: WindowControls.debouncedReload
