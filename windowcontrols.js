@@ -12,6 +12,18 @@ class WindowControls {
 
   static debouncedReload = debounce(() => window.location.reload(), 100);
 
+  static curateId(text) {
+    return text.replace(/\W/g,'_');
+  }
+
+  static curateTitle(title) {
+    return title.replace("[Token] ", "~ ");
+  }
+
+  static uncurateTitle(title) {
+    return title.replace("~ ", "[Token] ");
+  }
+
   static getCurrentMaxGap() {
     const sidebarGap = WindowControls.cssMinimizedSize * 4;
     const boardSize = parseInt($("#board").css('width'));
@@ -215,14 +227,14 @@ class WindowControls {
   }
 
   static setMinimizedStyle(app) {
-    app.element.find(".window-header > h4").text(app.title.replace("[Token] ", "~ "));
+    app.element.find(".window-header > h4").text(WindowControls.curateTitle(app.title));
     app.element.find(".minimize").empty();
     app.element.find(".minimize").append(`<i class="far fa-window-restore"></i>`);
     app.element.find(".minimize").show();
   }
 
   static setRestoredStyle(app) {
-    app.element.find(".window-header > h4").text(app.title.replace("~ ", "[Token] "));
+    app.element.find(".window-header > h4").text(WindowControls.uncurateTitle(app.title));
     app.element.find(".minimize").empty();
     app.element.find(".minimize").append(`<i class="far fa-window-minimize"></i>`);
   }
@@ -278,7 +290,13 @@ class WindowControls {
   }
 
   static async renderDummyPanelApp(app) {
-    if ($(`[id='dummy-${app.title.replace(/\W/g,'_')}']`).length > 0) return;
+    const matchingWindow = Object.values(ui.windows).find(w => w.targetApp?.id === app.id);
+    // Update any name changes and prevent from opening new tabs
+    if (matchingWindow) {
+      matchingWindow.options.title = WindowControls.curateTitle(app.title);
+      matchingWindow.render();
+      return;
+    };
     const taskbarApp = new WindowControlsPersistentDummy(app);
     await taskbarApp._render(true);
     WindowControls.toggleMovement(taskbarApp);
@@ -363,7 +381,7 @@ class WindowControls {
           }
         }
         const pinnedWindows = Object.values(ui.windows).filter(w => w._pinned);
-        pinnedWindows.forEach(async function (w) {
+        pinnedWindows.forEach(function (w) {
           // Temporarily coating close() of pinned windows during escape calls
           w.closeBkp = w.close;
           w.close = async function() {
@@ -577,16 +595,16 @@ class WindowControlsPersistentDummy extends Application {
       width: 0,
       height: 0,
       minimizable: true,
-      id: `dummy-${targetApp.title.replace(/\W/g,'_')}`
+      id: `dummy-${WindowControls.curateId(targetApp.title)}`
     });
     this.targetApp = targetApp;
     // Hack for Journal sheetmode swapping. See below.
     this.initialSheetMode = this.targetApp._sheetMode;
     var oldClose = this.targetApp.close;
     var thisMagic = this;
-    this.targetApp.close = function () {
-      thisMagic.justClose();
-      oldClose.apply(this);
+    this.targetApp.close = async function () {
+      await thisMagic.justClose();
+      await oldClose.apply(this);
     }
   }
 

@@ -1,3 +1,7 @@
+### 1.2.3
+* Bugfix: Fixed Journal switching between text and images broken in 1.2.2
+* Bugfix: Fixed persistent mode when updating names of open windows
+
 ### 1.2.2
 * Bugfix: Improved stability after ugly code cleanup
 
