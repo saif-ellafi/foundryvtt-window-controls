@@ -626,7 +626,7 @@ class WindowControlsPersistentDummy extends Application {
     // journal entries are reopened when changing their sheet mode. Need special treatment.
     if (this.initialSheetMode && this.initialSheetMode !== this.targetApp._sheetMode) {
       await this.targetApp._render(true);
-      if (this.targetApp._pinned)
+      if (this._pinned)
         WindowControls.applyPinnedMode(this.targetApp);
       this.initialSheetMode = this.targetApp._sheetMode;
     } else {
