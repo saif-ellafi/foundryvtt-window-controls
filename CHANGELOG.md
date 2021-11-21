@@ -1,3 +1,6 @@
+### 1.3.0
+* Enhancement: Pinned windows will no longer minimize on `ESC`. Double Tapping `ESC` will do instead. Configurable in Settings.
+
 ### 1.2.5
 * Bugfix: Fixed Bar cleanup with unsupported modules or applications
 * Bugfix: Fixed persistent mode bug when opening duplicated tokens

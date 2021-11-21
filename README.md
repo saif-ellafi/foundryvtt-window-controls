@@ -10,11 +10,11 @@ This was formerly part of **Minimal UI**, but it was ripped off for better flexi
 
 [Invite me a coffee if you have the time :D](#by-jeansenvaars)
 
-## 4 Available Settings
+## Features
 ### Minimize button (Default: On)
 Adds a minimize button that does the same as double-clicking the header
 
-### Organized Minimize (Default: Top with Bar)
+### Organized Minimize (Default: ON - Top with Bar)
 Allows minimizing windows into a horizontal taskbar. Possible options are:
 * **Top**: Minimizes all windows on an invisible horizontal taskbar at the top of the screen below scenes
 * **Bottom**: Minimizes all windows on an invisible horizontal taskbar located at the bottom of the screen
@@ -25,10 +25,9 @@ Allows minimizing windows into a horizontal taskbar. Possible options are:
 * **Persistent Bottom Bar**: All windows (both minimized and open) are visible in a Bar located on Bottom from which windows cannot move
 
 ### Pinned Button (Default: Off)
-Adds a pin button on window controls, to prevent a window from being closed.
-One point behind this, is when having multiple windows opened. Pressing `ESC` will close ALL of them.
-Pinned windows, however, will not be closed on these circumstances or in any other circumstances, until unpinned with the same button.
-This is useful for character sheets or very important actors that we never want to close, and find them quickly.
+* Adds a pin button on window controls, to prevent them from being closed while pinned.
+* Pressing `ESC` will close all windows except Pinned windows. Double tapping `ESC` will minimize them instead (Configurable)
+* This is useful for very important sheets that we never want to lose, and find them quickly.
 
 ### Maximize Button (Default: Off)
 Adds a maximize button that will expand resizable windows to the maximum available size. Can be restored with the same button.

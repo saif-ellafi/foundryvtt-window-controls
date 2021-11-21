@@ -365,6 +365,14 @@ class WindowControls {
       default: "disabled",
       onChange: WindowControls.debouncedReload
     });
+    game.settings.register('window-controls', 'pinnedDoubleTapping', {
+      name: game.i18n.localize("WindowControls.PinnedDoubleTappingName"),
+      hint: game.i18n.localize("WindowControls.PinnedDoubleTappingHint"),
+      scope: 'world',
+      config: true,
+      type: Boolean,
+      default: true
+    });
   }
 
   static initHooks() {
@@ -384,9 +392,15 @@ class WindowControls {
         pinnedWindows.forEach(function (w) {
           // Temporarily coating close() of pinned windows during escape calls
           w.closeBkp = w.close;
-          w.close = async function() {
-            if (!this._minimized) await this.minimize();
-          };
+          if (w._pinned_marked || game.settings.get('window-controls', 'pinnedDoubleTapping') === false) {
+            w.close = async function() {
+              if (!this._minimized) await this.minimize();
+            };
+          } else {
+            w.close = function() {};
+            w._pinned_marked = true;
+            setTimeout(() => {delete w._pinned_marked}, 3000)
+          }
         });
         const result = await wrapped(...args);
         pinnedWindows.forEach(w => {
