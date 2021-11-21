@@ -181,7 +181,7 @@ class WindowControls {
   static refreshMinimizeBar() {
     const minimized = $(".minimized");
     const stashSize = Object.keys(WindowControls.minimizedStash).length;
-    if (minimized.length === 0) {
+    if (minimized.length === 0 || Object.values(WindowControls.minimizedStash).every(w => w.app.rendered === false)) {
       WindowControls.minimizedStash = {};
       $("#minimized-bar").hide();
     } else if (stashSize > 0) {
@@ -602,7 +602,7 @@ class WindowControlsPersistentDummy extends Application {
       width: 0,
       height: 0,
       minimizable: true,
-      id: `dummy-${WindowControls.curateId(targetApp.title)}`
+      id: `dummy-${WindowControls.curateId(targetApp.title)}-${targetApp.appId}`
     });
     this.targetApp = targetApp;
     var oldClose = this.targetApp.close;
