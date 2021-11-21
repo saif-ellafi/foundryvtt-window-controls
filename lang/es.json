@@ -20,7 +20,7 @@
 
   "WindowControls.PinnedButtonName": "Botón Fijado",
   "WindowControls.PinnedButtonHint": "Añade un botón para fijar las ventanas. Al activarlo, dichas ventanas no podrán ser cerradas.",
-  "WindowControls.PinnedDoubleTappingName": "Doble pulsación de 'ESC' para las ventanas ancladas",
+  "WindowControls.PinnedDoubleTappingName": "Doble pulsación de 'ESC' para minimizar ventanas ancladas",
   "WindowControls.PinnedDoubleTappingHint": "Las ventanas que están actualmente fijadas, no se minimizarán al pulsar 'ESC', a menos que se pulse dos veces",
 
   "WindowControls.MaximizeButtonName": "Botón Maximizar",

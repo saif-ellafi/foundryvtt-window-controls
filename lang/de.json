@@ -20,7 +20,7 @@
 
   "WindowControls.PinnedButtonName": "Gepinnt Knopf",
   "WindowControls.PinnedButtonHint": "Einen 'angepinnt' Knopf den Fenstern hínzufügen. Wenn geklickt, werden Fenster nie geschlossen sondern minimiert.",
-  "WindowControls.PinnedDoubleTappingName": "Doppeltes 'ESC'-Tippen für angepinnte Fenster",
+  "WindowControls.PinnedDoubleTappingName": "Doppeltes 'ESC'-Tippen, um angepinnte Fenster zu minimieren",
   "WindowControls.PinnedDoubleTappingHint": "Fenster, die derzeit angepinnt sind, werden beim Drücken von 'ESC' nicht minimiert, es sei denn, es wird zweimal gedrückt.",
 
   "WindowControls.MaximizeButtonName": "Maximieren Knopf",
