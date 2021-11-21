@@ -1,6 +1,7 @@
 ### 1.2.5
 * Bugfix: Fixed Bar cleanup with unsupported modules or applications
 * Bugfix: Fixed persistent mode bug when opening duplicated tokens
+* Localization: Thank you, @Grayhead for improving German Language and Settings configuration!
 
 ### 1.2.4
 * Bugfix: Fixed journal switching between text and images also broken in 1.2.3
