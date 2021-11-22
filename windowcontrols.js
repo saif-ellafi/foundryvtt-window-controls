@@ -305,6 +305,11 @@ class WindowControls {
       .find(".fa-window-restore")
       .removeClass('fa-window-restore')
       .addClass('fa-window-minimize');
+    if (game.modules.get('minimal-ui')?.active) {
+      taskbarApp.element.css('background-color', game.settings.get('minimal-ui', 'shadowColor'));
+    } else {
+      taskbarApp.element.css('background-color', '#ff640080');
+    }
     taskbarApp.element.find('header').click(function() {
       if (!taskbarApp.targetApp._minimized)
         taskbarApp.targetApp.bringToTop();
@@ -423,8 +428,9 @@ class WindowControls {
                 .find(".fa-window-minimize")
                 .removeClass('fa-window-minimize')
                 .addClass('fa-window-restore');
-            };
-            targetHtml.css('visibility', 'hidden');
+              alreadyPersistedWindow.element.css('background-color', '');
+              targetHtml.css('visibility', 'hidden');
+            }
           }
           return await wrapped(...args);
         }, 'WRAPPER');
@@ -655,6 +661,11 @@ class WindowControlsPersistentDummy extends Application {
         .find(".fa-window-restore")
         .removeClass('fa-window-restore')
         .addClass('fa-window-minimize');
+      if (game.modules.get('minimal-ui')?.active) {
+        this.element.css('background-color', game.settings.get('minimal-ui', 'shadowColor'));
+      } else {
+        this.element.css('background-color', '#ff640080');
+      }
     } else {
       await this.targetApp.minimize();
       this.element

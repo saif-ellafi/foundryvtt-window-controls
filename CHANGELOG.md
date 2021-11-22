@@ -1,3 +1,6 @@
+### 1.3.2
+* Enhancement: Color markings when persistent mode windows are already open
+
 ### 1.3.1
 * Enhancement: Persistent mode windows will be brought to top on click in the bar
 * Enhancement: Ironed out animations all over the module (Feedback welcome)
