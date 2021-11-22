@@ -12,6 +12,10 @@ class WindowControls {
 
   static debouncedReload = debounce(() => window.location.reload(), 100);
 
+  static getStashedKeys() {
+    return Object.keys(WindowControls.minimizedStash).map(w => parseInt(w));
+  }
+
   static curateId(text) {
     return text.replace(/\W/g,'_');
   }
@@ -31,7 +35,7 @@ class WindowControls {
   }
 
   static getOverflowedState() {
-    return Math.max(...Object.keys(WindowControls.minimizedStash)) >= WindowControls.getCurrentMaxGap();
+    return Math.max(...WindowControls.getStashedKeys()) >= WindowControls.getCurrentMaxGap();
   }
 
   static toggleMovement(app) {
@@ -59,12 +63,15 @@ class WindowControls {
           ev.stopImmediatePropagation();
       }, true)
       app.element.find("header").removeClass("draggable");
+      app.element.addClass("undraggable-minimized");
       app._canBeMoved = false;
     } else if (app._canBeMoved === true) {
       app.element.find("header").removeClass("draggable");
+      app.element.addClass("undraggable-minimized");
       app._canBeMoved = false;
     } else {
       app.element.find("header").addClass("draggable");
+      app.element.removeClass("undraggable-minimized");
       app._canBeMoved = true;
     }
   }
@@ -149,7 +156,8 @@ class WindowControls {
   }
 
   static setMinimizedPosition(app) {
-    WindowControls.cleanupStash();
+    const alreadyStashedWindow = Object.values(WindowControls.minimizedStash).find(m => m.app.appId === app.appId);
+    if (!alreadyStashedWindow && WindowControls.getOverflowedState()) return;
     const leftPos = WindowControls.getLeftPosition(app);
     const topPos = WindowControls.getTopPosition();
     app.setPosition({
@@ -157,7 +165,6 @@ class WindowControls {
       top: topPos ?? app.position.top,
       width: WindowControls.cssMinimizedSize
     });
-    app.element.css({'z-index': WindowControls.getOverflowedState() ? 10 : 1});
   }
 
   static setRestoredPosition(app) {
@@ -166,28 +173,31 @@ class WindowControls {
     app.setPosition(matchedStash?.oldPosition ?? app.position);
   }
 
-  static cleanupStash() {
-    const appIds = [];
-    Object.keys(WindowControls.minimizedStash).forEach(i => {
+  static deleteFromStash(app, keys) {
+    let lastDeleted;
+    keys.forEach(i => {
       const stash = WindowControls.minimizedStash[i];
-      if (!stash.app?.rendered || appIds.includes(stash.app?.appId)) {
+      if (stash?.app && stash.app.appId === app.appId) {
+        lastDeleted = i;
         delete WindowControls.minimizedStash[i];
-      } else if (stash.app) {
-        appIds.push(stash.app.appId);
+      } else if (stash && lastDeleted) {
+        WindowControls.minimizedStash[lastDeleted] = stash;
+        stash.app.setPosition({left: lastDeleted});
+        lastDeleted = i;
+        delete WindowControls.minimizedStash[i];
       }
     });
   }
 
   static refreshMinimizeBar() {
     const minimized = $(".minimized");
-    const stashSize = Object.keys(WindowControls.minimizedStash).length;
+    const stashSize = WindowControls.getStashedKeys().length;
     if (minimized.length === 0 || Object.values(WindowControls.minimizedStash).every(w => w.app.rendered === false)) {
       WindowControls.minimizedStash = {};
       $("#minimized-bar").hide();
     } else if (stashSize > 0) {
       if (stashSize === 1)
         WindowControls.positionMinimizeBar();
-      WindowControls.cleanupStash();
       const maxPosition = Math.max(
         ...Object.entries(WindowControls.minimizedStash)
           .filter(([_, app]) => app.app.rendered && app.app._minimized)
@@ -205,25 +215,10 @@ class WindowControls {
     }
   }
 
-  static cleanupMinimizeBar(app, force) {
-    const minimizedApps = $(".minimized").toArray();
-    const matchedStash = minimizedApps.find(a => $(a).attr('data-appid') === app?.appId);
-    if (matchedStash) {
-      $(matchedStash).css('visibility', 'hidden');
-      WindowControls.setRestoredPosition(app);
-      WindowControls.setRestoredStyle(app);
-    } else if (force) {
-      Object.values(WindowControls.minimizedStash).forEach(stashed => {
-        WindowControls.setRestoredPosition(stashed.app);
-        WindowControls.setRestoredStyle(stashed.app);
-      });
-    }
-    if (force || (minimizedApps.length === 0) || (minimizedApps.length === 1 && matchedStash)) {
-      $("#minimized-bar").hide();
-      WindowControls.minimizedStash = {};
-    } else if (matchedStash) {
-      WindowControls.refreshMinimizeBar();
-    }
+  static cleanupMinimizeBar(app) {
+    const keys = WindowControls.getStashedKeys();
+    if (keys.length)
+      WindowControls.deleteFromStash(app, keys);
   }
 
   static setMinimizedStyle(app) {
@@ -290,6 +285,7 @@ class WindowControls {
   }
 
   static async renderDummyPanelApp(app) {
+    if (WindowControls.getOverflowedState()) return;
     const matchingWindow = Object.values(ui.windows).find(w => w.targetApp?.id === app.id);
     // Update any name changes and prevent from opening new tabs
     if (matchingWindow) {
@@ -383,12 +379,9 @@ class WindowControls {
       libWrapper.register('window-controls', 'KeyboardManager.prototype._onEscape', async function (wrapped, ...args) {
         let [_, up, modifiers] = args;
         if (up || modifiers.hasFocus) return wrapped(...args);
-        else if ($(".minimized-pinned").length === 0 && !(ui.context && ui.context.menu.length)) {
-          if (Object.keys(WindowControls.minimizedStash).length > 0) {
-            WindowControls.cleanupMinimizeBar(undefined, true);
-          }
-        }
         const pinnedWindows = Object.values(ui.windows).filter(w => w._pinned);
+        if (!pinnedWindows.length)
+          WindowControls.minimizedStash = {}; // Flush minimized stash
         pinnedWindows.forEach(function (w) {
           // Temporarily coating close() of pinned windows during escape calls
           w.closeBkp = w.close;
@@ -399,7 +392,7 @@ class WindowControls {
           } else {
             w.close = function() {};
             w._pinned_marked = true;
-            setTimeout(() => {delete w._pinned_marked}, 3000)
+            setTimeout(() => {delete w._pinned_marked}, 2000)
           }
         });
         const result = await wrapped(...args);
@@ -414,7 +407,9 @@ class WindowControls {
       if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
         const supportedWindowTypes = ['ActorSheet', 'ItemSheet', 'JournalSheet', 'SidebarTab', 'StaticViewer', 'Compendium'];
         libWrapper.register('window-controls', 'Application.prototype.minimize', async function (wrapped, ...args) {
-          if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
+          const alreadyPersistedWindow = Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId);
+          if (alreadyPersistedWindow &&
+            (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication))) {
             const targetHtml = this.element;
             targetHtml.css('visibility', 'hidden');
           }
@@ -578,8 +573,14 @@ Hooks.once('ready', () => {
   // Special treatment for journals when swap modes - reapply pinned after swap
   if (game.settings.get('window-controls', 'pinnedButton') === 'enabled') {
     Hooks.on('renderJournalSheet', function (app) {
-      if (app._pinned === true && !app.element.find('header').hasClass('minimized-pinned'))
+      if (app._pinned === true && !app.element.find('header').hasClass('minimized-pinned')) {
         WindowControls.applyPinnedMode(app);
+        setTimeout(() => { // Sometimes swapping takes time. Give time for Persistent companion to re-render
+          const companion = Object.values(ui.windows).find(w => w.targetApp?.appId === app.appId);
+          if (!companion?._pinned)
+            WindowControls.applyPinnedMode(companion);
+        }, 1000);
+      };
     });
   }
 

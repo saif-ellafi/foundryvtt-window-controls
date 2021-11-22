@@ -1,5 +1,10 @@
 ### 1.3.0
-* Enhancement: Pinned windows will no longer minimize on `ESC`. Double Tapping `ESC` will do instead. Configurable in Settings.
+* Enhancement: Organized Minimize windows will auto adjust their positions when closing other windows
+* Enhancement: Pinned windows will no longer minimize on `ESC`. Double Tapping `ESC` will do instead. Configurable in Settings
+* Enhancement: Organized Minimize windows will be smarter when looking for an empty space in the panel
+* Enhancement: Added smoother animations to Organized Minimized in any of the "Bar" modes
+* Bugfix: Overflow minimized windows will no longer go to the panel positions, instead they will be minimized in place
+* Bugfix: Improved overall stability by simplification of logic
 
 ### 1.2.5
 * Bugfix: Fixed Bar cleanup with unsupported modules or applications

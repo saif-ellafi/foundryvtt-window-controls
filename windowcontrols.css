@@ -17,10 +17,14 @@
     border-radius: 5px;
     left: var(--minibarleft);
     opacity: 75%;
-    transition: 0.2s;
     border: 1px solid var(--wcbordercolor);
     box-shadow: 0 0 var(--wcshadowstrength) 0 var(--wcshadowcolor);
     z-index: 0;
+    transition: 0.25s ease-out 0.25s;
+}
+
+.window-app.minimized.undraggable-minimized {
+    transition: 0.10s ease-out 0.25s;
 }
 
 .window-app.minimized .window-header {
