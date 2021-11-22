@@ -40,6 +40,10 @@
     background-color: var(--wcbordercolor);
 }
 
+.hidden-placeholder h4:hover {
+    text-shadow: 0 1px darkred;
+}
+
 .hidden-placeholder {
     visibility: hidden;
 }

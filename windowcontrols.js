@@ -305,6 +305,10 @@ class WindowControls {
       .find(".fa-window-restore")
       .removeClass('fa-window-restore')
       .addClass('fa-window-minimize');
+    taskbarApp.element.find('header').click(function() {
+      if (!taskbarApp.targetApp._minimized)
+        taskbarApp.targetApp.bringToTop();
+    })
     taskbarApp.element.css('visibility', 'visible')
   }
 

@@ -1,4 +1,5 @@
 ### 1.3.1
+* Enhancement: Persistent mode windows will be brought to top on click in the bar
 * Enhancement: Ironed out animations all over the module (Feedback welcome)
 * Enhancement: Persistent mode windows show a minimize button when open and can toggle
 * Bugfix: Fixed a bug where windows closed with ESC wouldn't remember the original position afterwards
