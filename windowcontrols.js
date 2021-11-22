@@ -418,14 +418,12 @@ class WindowControls {
         libWrapper.register('window-controls', 'Application.prototype.maximize', async function (wrapped, ...args) {
           if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
             const targetHtml = this.element;
-            targetHtml.css('visibility', '');
+            targetHtml.css('visibility', 'visible');
           }
           return await wrapped(...args);
         }, 'WRAPPER');
       } else if (settingOrganized !== 'disabled') {
         libWrapper.register('window-controls', 'Application.prototype.minimize', async function (wrapped, ...args) {
-          const targetHtml = this.element;
-          targetHtml.css('visibility', 'hidden');
           const result = await wrapped(...args);
           if (['topBar', 'bottomBar'].includes(settingOrganized)) {
             WindowControls.toggleMovement(this);
@@ -433,13 +431,10 @@ class WindowControls {
           WindowControls.setMinimizedPosition(this);
           WindowControls.setMinimizedStyle(this);
           WindowControls.refreshMinimizeBar();
-          targetHtml.css('visibility', '');
           return result;
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.maximize', async function (wrapped, ...args) {
-          const targetHtml = this.element;
-          targetHtml.css('visibility', 'hidden');
           const result = await wrapped(...args);
           if (['topBar', 'bottomBar'].includes(settingOrganized)) {
             WindowControls.toggleMovement(this);
@@ -447,14 +442,11 @@ class WindowControls {
           WindowControls.setRestoredPosition(this);
           WindowControls.refreshMinimizeBar();
           WindowControls.setRestoredStyle(this);
-          targetHtml.css('visibility', '');
           return result;
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.close', async function (wrapped, ...args) {
-          const targetHtml = this.element;
           if (this._minimized) {
-            targetHtml.css('visibility', 'hidden');
             WindowControls.setRestoredPosition(this);
             // For some reason, setPosition() does not work at this stage. Manually override for now until we figure it out.
             this.sheetWidth = this.constructor.defaultOptions.width;
@@ -462,7 +454,6 @@ class WindowControls {
           }
           const result = await wrapped(...args);
           WindowControls.refreshMinimizeBar();
-          targetHtml.css('visibility', '');
           return result;
         }, 'WRAPPER');
       }
@@ -580,7 +571,7 @@ Hooks.once('ready', () => {
           if (!companion?._pinned)
             WindowControls.applyPinnedMode(companion);
         }, 1000);
-      };
+      }
     });
   }
 

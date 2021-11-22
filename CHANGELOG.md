@@ -1,3 +1,6 @@
+### 1.3.1
+* Enhancement: Smoothened minimize and maximize animations (Feedback welcome)
+
 ### 1.3.0
 * Enhancement: Organized Minimize windows will auto adjust their positions when closing other windows
 * Enhancement: Pinned windows will no longer minimize on `ESC`. Double Tapping `ESC` will do instead. Configurable in Settings
