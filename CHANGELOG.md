@@ -1,5 +1,10 @@
 ### 1.3.1
-* Enhancement: Smoothened minimize and maximize animations (Feedback welcome)
+* Enhancement: Ironed out animations all over the module (Feedback welcome)
+* Enhancement: Persistent mode windows show a minimize button when open and can toggle
+* Bugfix: Fixed a bug where windows closed with ESC wouldn't remember the original position afterwards
+* Bugfix: Fixed a bug where closing left side windows on the bar would move maximized windows of the right
+* Bugfix: Fixed a bug with bottom located windows were not being restored correctly after minimized
+* Bugfix: Fixed a bug where closed windows from the bar would not remember correctly the windows length
 
 ### 1.3.0
 * Enhancement: Organized Minimize windows will auto adjust their positions when closing other windows

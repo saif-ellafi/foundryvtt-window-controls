@@ -182,7 +182,8 @@ class WindowControls {
         delete WindowControls.minimizedStash[i];
       } else if (stash && lastDeleted) {
         WindowControls.minimizedStash[lastDeleted] = stash;
-        stash.app.setPosition({left: lastDeleted});
+        if (stash.app._minimized)
+          stash.app.setPosition({left: lastDeleted});
         lastDeleted = i;
         delete WindowControls.minimizedStash[i];
       }
@@ -300,6 +301,10 @@ class WindowControls {
     WindowControls.setMinimizedPosition(taskbarApp);
     WindowControls.setMinimizedStyle(taskbarApp);
     WindowControls.refreshMinimizeBar();
+    taskbarApp.element
+      .find(".fa-window-restore")
+      .removeClass('fa-window-restore')
+      .addClass('fa-window-minimize');
     taskbarApp.element.css('visibility', 'visible')
   }
 
@@ -380,8 +385,6 @@ class WindowControls {
         let [_, up, modifiers] = args;
         if (up || modifiers.hasFocus) return wrapped(...args);
         const pinnedWindows = Object.values(ui.windows).filter(w => w._pinned);
-        if (!pinnedWindows.length)
-          WindowControls.minimizedStash = {}; // Flush minimized stash
         pinnedWindows.forEach(function (w) {
           // Temporarily coating close() of pinned windows during escape calls
           w.closeBkp = w.close;
@@ -411,6 +414,12 @@ class WindowControls {
           if (alreadyPersistedWindow &&
             (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication))) {
             const targetHtml = this.element;
+            if (alreadyPersistedWindow) {
+              alreadyPersistedWindow.element
+                .find(".fa-window-minimize")
+                .removeClass('fa-window-minimize')
+                .addClass('fa-window-restore');
+            };
             targetHtml.css('visibility', 'hidden');
           }
           return await wrapped(...args);
@@ -435,22 +444,31 @@ class WindowControls {
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.maximize', async function (wrapped, ...args) {
-          const result = await wrapped(...args);
+          if (this._minimized) {
+            if (['bottom', 'bottomBar'].includes(settingOrganized))
+              this.setPosition({top: 0});
+            this.element.hide();
+          }
           if (['topBar', 'bottomBar'].includes(settingOrganized)) {
             WindowControls.toggleMovement(this);
           }
           WindowControls.setRestoredPosition(this);
           WindowControls.refreshMinimizeBar();
           WindowControls.setRestoredStyle(this);
+          const result = await wrapped(...args);
+          this.element.show();
           return result;
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.close', async function (wrapped, ...args) {
           if (this._minimized) {
+            this.element.hide();
+            if (['bottom', 'bottomBar'].includes(settingOrganized))
+              this.setPosition({top: 0});
+            // If minimized, remember the maximized state position
             WindowControls.setRestoredPosition(this);
-            // For some reason, setPosition() does not work at this stage. Manually override for now until we figure it out.
+            // ToDo: For some reason, setPosition() does not restore width at this point. Investigate.
             this.sheetWidth = this.constructor.defaultOptions.width;
-            this.sheetHeight = this.constructor.defaultOptions.height;
           }
           const result = await wrapped(...args);
           WindowControls.refreshMinimizeBar();
@@ -571,7 +589,7 @@ Hooks.once('ready', () => {
           if (!companion?._pinned)
             WindowControls.applyPinnedMode(companion);
         }, 1000);
-      }
+      };
     });
   }
 
@@ -629,6 +647,17 @@ class WindowControlsPersistentDummy extends Application {
   async maximize() {
     if (this.targetApp._minimized) {
       await this.targetApp.maximize();
+      this.element
+        .find(".fa-window-restore")
+        .removeClass('fa-window-restore')
+        .addClass('fa-window-minimize');
+    } else {
+      await this.targetApp.minimize();
+      this.element
+        .find(".fa-window-minimize")
+        .removeClass('fa-window-minimize')
+        .addClass('fa-window-restore');
+      return
     }
     this.targetApp.bringToTop();
   }
