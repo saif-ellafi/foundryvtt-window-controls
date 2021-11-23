@@ -165,6 +165,7 @@ class WindowControls {
       top: topPos ?? app.position.top,
       width: WindowControls.cssMinimizedSize
     });
+    app.element.css({'z-index': WindowControls.getOverflowedState() ? 10 : 1});
   }
 
   static setRestoredPosition(app) {

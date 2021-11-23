@@ -1,3 +1,6 @@
+### 1.3.3
+* Bugfix: Restored an accidentally deleted bugfix for minimized windows appearing below navigation context menus
+
 ### 1.3.2
 * Enhancement: Color markings when persistent mode windows are already open
 
