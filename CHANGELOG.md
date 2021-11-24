@@ -1,3 +1,6 @@
+### 1.3.4
+* Compatibility: Make better use of space with Minimal UI
+
 ### 1.3.3
 * Bugfix: Restored an accidentally deleted bugfix for minimized windows appearing below navigation context menus
 

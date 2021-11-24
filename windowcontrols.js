@@ -5,8 +5,8 @@ class WindowControls {
 
   static minimizedStash = {};
   static cssMinimizedSize = 150;
-  static cssMinimizedBottomHotbar = 70;
-  static cssMinimizedBottomNoHotbar = 5;
+  static cssMinimizedBottomBaseline = 70;
+  static cssMinimizedTopBaseline = 0;
   static cssTopBarLeftStart = 120;
   static cssBottomBarLeftStart = 250;
 
@@ -85,6 +85,9 @@ class WindowControls {
       case 'topBar':
       case 'persistentTop': {
         rootStyle.setProperty('--minibarbot', 'unset');
+        let sceneNavigationSetting;
+        if (game.modules.get('minimal-ui')?.active)
+          sceneNavigationSetting = game.settings.get('minimal-ui', 'sceneNavigation');
         rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition() - 4) + 'px');
         rootStyle.setProperty('--minibarleft', WindowControls.cssTopBarLeftStart + 'px');
         if (bar.length === 0)
@@ -96,10 +99,10 @@ class WindowControls {
         let hotbarSetting;
         if (game.modules.get('minimal-ui')?.active)
           hotbarSetting = game.settings.get('minimal-ui', 'hotbar');
-        if (hotbarSetting && (hotbarSetting === 'hidden' || (hotbarSetting === 'onlygm' && !game.user?.isGM)))
-          rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomNoHotbar + 'px');
+        if (hotbarSetting === 'hidden' || (hotbarSetting === 'onlygm' && !game.user?.isGM))
+          rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomBaseline - 65 + 'px');
         else
-          rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomHotbar + 'px');
+          rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomBaseline + 'px');
         rootStyle.setProperty('--minibartop', 'unset');
         rootStyle.setProperty('--minibarleft', WindowControls.cssBottomBarLeftStart + 'px');
         if (bar.length === 0)
@@ -117,14 +120,21 @@ class WindowControls {
         hotbarSetting = game.settings.get('minimal-ui', 'hotbar');
       let availableHeight = parseInt($("#board").css('height'));
       if (hotbarSetting && (hotbarSetting === 'hidden' || (hotbarSetting === 'onlygm' && !game.user?.isGM)))
-        return availableHeight - WindowControls.cssMinimizedBottomNoHotbar - 42;
+        return availableHeight - WindowControls.cssMinimizedBottomBaseline + 65 - 42;
       else
-        return availableHeight - WindowControls.cssMinimizedBottomHotbar - 42;
+        return availableHeight - WindowControls.cssMinimizedBottomBaseline - 42;
     } else {
       let logoSetting;
       if (game.modules.get('minimal-ui')?.active)
         logoSetting = game.settings.get('minimal-ui', 'foundryLogoSize');
-      let offset = document.querySelector("#navigation").offsetHeight + 20;
+      let sceneNavigationSetting;
+      if (game.modules.get('minimal-ui')?.active)
+        sceneNavigationSetting = game.settings.get('minimal-ui', 'sceneNavigation');
+      let offset;
+      if (sceneNavigationSetting === 'hidden')
+        offset = document.querySelector("#navigation").offsetHeight + WindowControls.cssMinimizedTopBaseline - 20;
+      else
+        offset = document.querySelector("#navigation").offsetHeight + WindowControls.cssMinimizedTopBaseline + 20;
       // 65px is Rough estimate for standard logo size, to not overlap
       if (logoSetting && logoSetting === 'standard')
         offset = Math.max(65, offset);
