@@ -120,9 +120,9 @@ class WindowControls {
         hotbarSetting = game.settings.get('minimal-ui', 'hotbar');
       let availableHeight = parseInt($("#board").css('height'));
       if (hotbarSetting && (hotbarSetting === 'hidden' || (hotbarSetting === 'onlygm' && !game.user?.isGM)))
-        return availableHeight - WindowControls.cssMinimizedBottomBaseline + 65 - 42;
+        return availableHeight - WindowControls.cssMinimizedBottomBaseline + 65 - 40;
       else
-        return availableHeight - WindowControls.cssMinimizedBottomBaseline - 42;
+        return availableHeight - WindowControls.cssMinimizedBottomBaseline - 40;
     } else {
       let logoSetting;
       if (game.modules.get('minimal-ui')?.active)

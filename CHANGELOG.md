@@ -1,3 +1,6 @@
+### 1.3.5
+* Bugfix: Small pixel position tweak in the positioning of bottom bar
+
 ### 1.3.4
 * Compatibility: Make better use of space with Minimal UI
 
