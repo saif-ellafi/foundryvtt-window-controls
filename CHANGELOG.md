@@ -1,3 +1,6 @@
+### 1.3.6
+* Enhancement: Internal code quality improvements (thanks to the community for the help!) and V9 Support
+
 ### 1.3.5
 * Bugfix: Small pixel position tweak in the positioning of bottom bar
 

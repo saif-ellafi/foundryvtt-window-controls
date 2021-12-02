@@ -244,23 +244,48 @@ class WindowControls {
     app.element.find(".window-header > h4").text(WindowControls.uncurateTitle(app.title));
     app.element.find(".minimize").empty();
     app.element.find(".minimize").append(`<i class="far fa-window-minimize"></i>`);
+    if (app._pinned === true) {
+      app.element.find(".entry-image").hide();
+      app.element.find(".entry-text").hide();
+      app.element.find(".close").hide();
+    }
   }
 
   static applyPinnedMode(app) {
     if (!app?.element) return;
     const header = app.element.find(".window-header");
-    if (header.hasClass('minimized-pinned')) {
+    if (!header.hasClass('minimized-pinned')) {
+      header.addClass('minimized-pinned');
+      app._pinned = true;
+      app._closeBkp = app.close;
+      if (game.settings.get('window-controls', 'pinnedDoubleTapping') === false) {
+        app.close = async function() {
+          if (!this._minimized) await this.minimize();
+        };
+      } else {
+        app.close = function() {
+          if (this._minimized)
+            return;
+          if (app._pinned_marked) {
+            delete app._pinned_marked;
+            this.minimize();
+          } else {
+            app._pinned_marked = true;
+            setTimeout(() => {delete app._pinned_marked}, 2000) // Give 2 seconds to attempt to close again
+          }
+        };
+      };
+      header.find(".close").hide();
+      header.find(".entry-image").hide(); // Disallow switching journal modes - it is the safest approach to avoid dealing with close()
+      header.find(".entry-text").hide();
+    } else {
       delete app._pinned;
       header.removeClass('minimized-pinned');
-      app.element.find(".window-header")
-        .append($(`<a class="header-button close"><i class="fas fa-times"></i></a>`)
-          .click(async function () {
-            await app.close()
-          }));
-    } else {
-      app._pinned = true;
-      header.addClass('minimized-pinned');
-      app.element.find(".close").remove();
+      app.close = app._closeBkp;
+      delete app._closeBkp;
+      header.find(".entry-image").show();
+      header.find(".entry-text").show();
+      header.find(".close").show();
     }
   }
 
@@ -401,31 +426,6 @@ class WindowControls {
     Hooks.once('ready', async function () {
 
       const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
-      libWrapper.register('window-controls', 'KeyboardManager.prototype._onEscape', async function (wrapped, ...args) {
-        let [_, up, modifiers] = args;
-        if (up || modifiers.hasFocus) return wrapped(...args);
-        const pinnedWindows = Object.values(ui.windows).filter(w => w._pinned);
-        pinnedWindows.forEach(function (w) {
-          // Temporarily coating close() of pinned windows during escape calls
-          w.closeBkp = w.close;
-          if (w._pinned_marked || game.settings.get('window-controls', 'pinnedDoubleTapping') === false) {
-            w.close = async function() {
-              if (!this._minimized) await this.minimize();
-            };
-          } else {
-            w.close = function() {};
-            w._pinned_marked = true;
-            setTimeout(() => {delete w._pinned_marked}, 2000)
-          }
-        });
-        const result = await wrapped(...args);
-        pinnedWindows.forEach(w => {
-          // uncoating close() back
-          w.close = w.closeBkp;
-          delete w.closeBkp;
-        });
-        return result;
-      }, 'WRAPPER');
 
       if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
         const supportedWindowTypes = ['ActorSheet', 'ItemSheet', 'JournalSheet', 'SidebarTab', 'StaticViewer', 'Compendium'];
@@ -446,11 +446,13 @@ class WindowControls {
           return await wrapped(...args);
         }, 'WRAPPER');
         libWrapper.register('window-controls', 'Application.prototype.maximize', async function (wrapped, ...args) {
+          const result = await wrapped(...args);
           if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
             const targetHtml = this.element;
+            WindowControls.setRestoredStyle(this);
             targetHtml.css('visibility', 'visible');
           }
-          return await wrapped(...args);
+          return result;
         }, 'WRAPPER');
       } else if (settingOrganized !== 'disabled') {
         libWrapper.register('window-controls', 'Application.prototype.minimize', async function (wrapped, ...args) {
@@ -468,16 +470,16 @@ class WindowControls {
           if (this._minimized) {
             if (['bottom', 'bottomBar'].includes(settingOrganized))
               this.setPosition({top: 0});
-            this.element.hide();
+            this.element.css('visibility', 'hidden');
           }
           if (['topBar', 'bottomBar'].includes(settingOrganized)) {
             WindowControls.toggleMovement(this);
           }
           WindowControls.setRestoredPosition(this);
           WindowControls.refreshMinimizeBar();
-          WindowControls.setRestoredStyle(this);
           const result = await wrapped(...args);
-          this.element.show();
+          WindowControls.setRestoredStyle(this);
+          this.element.css('visibility', '');
           return result;
         }, 'WRAPPER');
 
@@ -600,20 +602,6 @@ Hooks.once('ready', () => {
     rootStyle.setProperty('--wcbordercolor', '#ff640080');
   }
 
-  // Special treatment for journals when swap modes - reapply pinned after swap
-  if (game.settings.get('window-controls', 'pinnedButton') === 'enabled') {
-    Hooks.on('renderJournalSheet', function (app) {
-      if (app._pinned === true && !app.element.find('header').hasClass('minimized-pinned')) {
-        WindowControls.applyPinnedMode(app);
-        setTimeout(() => { // Sometimes swapping takes time. Give time for Persistent companion to re-render
-          const companion = Object.values(ui.windows).find(w => w.targetApp?.appId === app.appId);
-          if (!companion?._pinned)
-            WindowControls.applyPinnedMode(companion);
-        }, 1000);
-      };
-    });
-  }
-
   const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
   if (settingOrganized === 'persistentBottom' || settingOrganized === 'persistentTop') {
 
@@ -690,12 +678,7 @@ class WindowControlsPersistentDummy extends Application {
 
   async justClose() {
     await super.close();
-    // Hack for Journal mode swapping, since it is reopened, we need to wait a bit before refreshing the bar
-    // ToDo: some day we need a proper containing flex bar and delete these hacks once and for all!
-    if (this.targetApp._sheetMode)
-      setTimeout(() => {WindowControls.refreshMinimizeBar()}, 1000)
-    else
-      WindowControls.refreshMinimizeBar()
+    WindowControls.refreshMinimizeBar()
   }
 
   async close() {
