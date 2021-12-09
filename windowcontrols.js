@@ -274,7 +274,7 @@ class WindowControls {
             setTimeout(() => {delete app._pinned_marked}, 2000) // Give 2 seconds to attempt to close again
           }
         };
-      };
+      }
       header.find(".close").hide();
       header.find(".entry-image").hide(); // Disallow switching journal modes - it is the safest approach to avoid dealing with close()
       header.find(".entry-text").hide();
@@ -429,7 +429,7 @@ class WindowControls {
 
       if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
         const supportedWindowTypes = ['ActorSheet', 'ItemSheet', 'JournalSheet', 'SidebarTab', 'StaticViewer', 'Compendium'];
-        libWrapper.register('window-controls', 'Application.prototype.minimize', async function (wrapped, ...args) {
+        libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
           const alreadyPersistedWindow = Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId);
           if (alreadyPersistedWindow &&
             (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication))) {
@@ -443,30 +443,30 @@ class WindowControls {
               targetHtml.css('visibility', 'hidden');
             }
           }
-          return await wrapped(...args);
+          return wrapped(...args);
         }, 'WRAPPER');
-        libWrapper.register('window-controls', 'Application.prototype.maximize', async function (wrapped, ...args) {
-          const result = await wrapped(...args);
-          if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
-            const targetHtml = this.element;
-            WindowControls.setRestoredStyle(this);
-            targetHtml.css('visibility', 'visible');
-          }
-          return result;
+        libWrapper.register('window-controls', 'Application.prototype.maximize', function (wrapped, ...args) {
+          return wrapped(...args).then(() => {
+            if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
+              const targetHtml = this.element;
+              WindowControls.setRestoredStyle(this);
+              targetHtml.css('visibility', 'visible');
+            }
+          })
         }, 'WRAPPER');
       } else if (settingOrganized !== 'disabled') {
-        libWrapper.register('window-controls', 'Application.prototype.minimize', async function (wrapped, ...args) {
-          const result = await wrapped(...args);
-          if (['topBar', 'bottomBar'].includes(settingOrganized)) {
-            WindowControls.toggleMovement(this);
-          }
-          WindowControls.setMinimizedPosition(this);
-          WindowControls.setMinimizedStyle(this);
-          WindowControls.refreshMinimizeBar();
-          return result;
+        libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
+          return wrapped(...args).then(() => {
+            if (['topBar', 'bottomBar'].includes(settingOrganized)) {
+              WindowControls.toggleMovement(this);
+            }
+            WindowControls.setMinimizedPosition(this);
+            WindowControls.setMinimizedStyle(this);
+            WindowControls.refreshMinimizeBar();
+          })
         }, 'WRAPPER');
 
-        libWrapper.register('window-controls', 'Application.prototype.maximize', async function (wrapped, ...args) {
+        libWrapper.register('window-controls', 'Application.prototype.maximize', function (wrapped, ...args) {
           if (this._minimized) {
             if (['bottom', 'bottomBar'].includes(settingOrganized))
               this.setPosition({top: 0});
@@ -477,13 +477,13 @@ class WindowControls {
           }
           WindowControls.setRestoredPosition(this);
           WindowControls.refreshMinimizeBar();
-          const result = await wrapped(...args);
-          WindowControls.setRestoredStyle(this);
-          this.element.css('visibility', '');
-          return result;
+          return wrapped(...args).then(() => {
+            WindowControls.setRestoredStyle(this);
+            this.element.css('visibility', '');
+          });
         }, 'WRAPPER');
 
-        libWrapper.register('window-controls', 'Application.prototype.close', async function (wrapped, ...args) {
+        libWrapper.register('window-controls', 'Application.prototype.close', function (wrapped, ...args) {
           if (this._minimized) {
             this.element.hide();
             if (['bottom', 'bottomBar'].includes(settingOrganized))
@@ -493,9 +493,9 @@ class WindowControls {
             // ToDo: For some reason, setPosition() does not restore width at this point. Investigate.
             this.sheetWidth = this.constructor.defaultOptions.width;
           }
-          const result = await wrapped(...args);
-          WindowControls.refreshMinimizeBar();
-          return result;
+          return wrapped(...args).then(() => {
+            WindowControls.refreshMinimizeBar();
+          });
         }, 'WRAPPER');
       }
 
@@ -510,11 +510,19 @@ class WindowControls {
             label: "",
             class: "minimize",
             icon: "far fa-window-minimize",
-            onclick: async function() {
+            onclick: function() {
               if (this._minimized)
-                await this.maximize();
-              else
-                await this.minimize();
+                this.maximize();
+              else {
+                this.minimize();
+                //* Dirty hack to prevent "double minimize" after rapidly double-clicking on the minimize button
+                this._bkpMinimize = this.minimize;
+                this.minimize = function() {}
+                setTimeout(() => {
+                  this.minimize = this._bkpMinimize;
+                  delete this._bkpMinimize
+                }, 1000)
+              }
             }.bind(this)
           };
           newButtons.push(minimizeButton)

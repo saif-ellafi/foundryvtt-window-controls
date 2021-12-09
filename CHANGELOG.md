@@ -1,5 +1,6 @@
 ### 1.4.0
 * Enhancement: V9 Support and Internal code quality improvements (thanks to the community for the help!)
+* Bugfix: Fixed a specific situation when double clicking on minimize would double minimize
 
 ### 1.3.5
 * Bugfix: Small pixel position tweak in the positioning of bottom bar
