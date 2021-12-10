@@ -221,7 +221,7 @@ class WindowControls {
       if (setting === 'topBar' || setting === 'persistentTop') {
         rootStyle.setProperty('--minibarw', maxPosition + 40 + 'px');
       } else
-        rootStyle.setProperty('--minibarw', maxPosition - 80 + 'px');
+        rootStyle.setProperty('--minibarw', maxPosition - 90 + 'px');
       minimized.show();
       $("#minimized-bar").show();
     }
