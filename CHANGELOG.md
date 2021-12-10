@@ -1,4 +1,5 @@
 ### 1.4.1
+* Enhancement: Added Roll Tables to supported window types for Persistent Mode
 * Bugfix: Minor style adjustments for the horizontal bar
 
 ### 1.4.0

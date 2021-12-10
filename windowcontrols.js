@@ -21,7 +21,7 @@ class WindowControls {
   }
 
   static curateTitle(title) {
-    return title.replace("[Token] ", "~ ");
+    return title.replace("[Token] ", "~ ").replace("Table Configuration: ", "");
   }
 
   static uncurateTitle(title) {
@@ -428,7 +428,7 @@ class WindowControls {
       const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
 
       if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
-        const supportedWindowTypes = ['ActorSheet', 'ItemSheet', 'JournalSheet', 'SidebarTab', 'StaticViewer', 'Compendium'];
+        const supportedWindowTypes = ['ActorSheet', 'ItemSheet', 'JournalSheet', 'SidebarTab', 'StaticViewer', 'Compendium', 'RollTableConfig'];
         libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
           const alreadyPersistedWindow = Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId);
           if (alreadyPersistedWindow &&
@@ -620,6 +620,9 @@ Hooks.once('ready', () => {
       WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderJournalSheet', function (app) {
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderRollTableConfig', function (app) {
       WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderSidebarTab', function (app) {
