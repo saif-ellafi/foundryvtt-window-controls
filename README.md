@@ -15,7 +15,7 @@ This was formerly part of **Minimal UI**, but it was ripped off for better flexi
 ### Minimize button (Default: On)
 Adds a minimize button that does the same as double-clicking the header
 
-### Organized Minimize (Default: ON - Top with Bar)
+### Organized Minimize (Default: On - Top with Bar)
 Allows minimizing windows into a horizontal taskbar. Possible options are:
 * **Top**: Minimizes all windows on an invisible horizontal taskbar at the top of the screen below scenes
 * **Bottom**: Minimizes all windows on an invisible horizontal taskbar located at the bottom of the screen
@@ -25,7 +25,7 @@ Allows minimizing windows into a horizontal taskbar. Possible options are:
 * **Persistent Top Bar**: All windows (both minimized and open) are visible in a Bar located on top from which windows cannot move
 * **Persistent Bottom Bar**: All windows (both minimized and open) are visible in a Bar located on Bottom from which windows cannot move
 
-### Pinned Button (Default: Off)
+### Pinned Button (Default: On)
 * Adds a pin button on window controls, to prevent them from being closed while pinned.
 * Pressing `ESC` will close all windows except Pinned windows. Double tapping `ESC` will minimize them instead (Configurable)
 * This is useful for very important sheets that we never want to lose, and find them quickly.
