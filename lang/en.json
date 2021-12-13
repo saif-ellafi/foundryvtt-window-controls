@@ -22,6 +22,8 @@
   "WindowControls.PinnedButtonHint": "Add a pin button on windows. If clicked, such windows may not be closed, only minimized.",
   "WindowControls.PinnedDoubleTappingName": "Double 'ESC' Tapping to minimize Pinned Windows",
   "WindowControls.PinnedDoubleTappingHint": "Windows that are currently pinned, will not be minimized when pressing 'ESC', unless it is pressed twice",
+  "WindowControls.RememberPinnedName": "Remember Pinned Windows (Experimental)",
+  "WindowControls.RememberPinnedHint": "Pinned Windows will automatically reopen when starting a new session",
 
   "WindowControls.MaximizeButtonName": "Maximize Button",
   "WindowControls.MaximizeButtonHint": "Add a maximize button on resizeable windows. May not work well with all systems"

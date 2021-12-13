@@ -29,6 +29,7 @@ Allows minimizing windows into a horizontal taskbar. Possible options are:
 * Adds a pin button on window controls, to prevent them from being closed while pinned.
 * Pressing `ESC` will close all windows except Pinned windows. Double tapping `ESC` will minimize them instead (Configurable)
 * This is useful for very important sheets that we never want to lose, and find them quickly.
+* Setting `Remember Pinned Windows` will restore pinned windows across sessions. Disabled by default.
 
 ### Maximize Button (Default: Off)
 Adds a maximize button that will expand resizable windows to the maximum available size. Can be restored with the same button.
