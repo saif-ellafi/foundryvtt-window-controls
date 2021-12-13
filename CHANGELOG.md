@@ -1,3 +1,8 @@
+### 1.5.0
+* Enhancement: New Feature (experimental, disabled by default) remembers the pinned windows for next sessions!
+* Compatibility: GM Screen entries should no longer spawn persistent window tabs
+* Bugfix: Fixed a specific situation when unpinning and closing very fast caused in a minimize because of double clicking recognition
+
 ### 1.4.1
 * Enhancement: Added Roll Tables to supported window types for Persistent Mode
 * Bugfix: Minor style adjustments for the horizontal bar

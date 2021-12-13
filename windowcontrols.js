@@ -38,6 +38,41 @@ class WindowControls {
     return Math.max(...WindowControls.getStashedKeys()) >= WindowControls.getCurrentMaxGap();
   }
 
+  static persistPinned(app) {
+    if (app.document?.id) {
+      const currentPersisted = game.user.getFlag("window-controls", "persisted-pinned-windows") ?? [];
+      if (!currentPersisted.find(p => p.docId === app.document.id)) {
+        currentPersisted.push({docId: app.document.id, docName: app.document.documentName});
+        game.user.setFlag("window-controls", "persisted-pinned-windows", currentPersisted);
+      }
+    }
+  }
+
+  static unpersistPinned(app) {
+    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows").filter(a => a.docId !== app.document.id);
+    game.user.setFlag("window-controls", "persisted-pinned-windows", filtered);
+  }
+
+  static persistRender(persisted, collection) {
+    const document = collection.contents.find(d => d.id === persisted.docId).sheet.render(true);
+    WindowControls.persistRenderMinimizeRetry(document)
+  }
+
+  static persistRenderMinimizeRetry(document, stop) {
+    console.warn("Window Controls: Too slow to render persisted Windows... Retrying...");
+    setTimeout(() => {
+      if (document.rendered) {
+        WindowControls.applyPinnedMode(document);
+        document.minimize();
+      } else if (!stop) {
+        WindowControls.persistRenderMinimizeRetry(document, true);
+      } else {
+        console.warn("Window Controls: Too slow to render persisted Windows... I give up!");
+        game.user.unsetFlag("window-controls", "persisted-pinned-windows");
+      }
+    }, 1000)
+  }
+
   static toggleMovement(app) {
     const elementJS = app.element[0];
     const stashOverflowed = WindowControls.getOverflowedState();
@@ -278,14 +313,23 @@ class WindowControls {
       header.find(".close").hide();
       header.find(".entry-image").hide(); // Disallow switching journal modes - it is the safest approach to avoid dealing with close()
       header.find(".entry-text").hide();
-    } else {
+      if (game.settings.get('window-controls', 'rememberPinnedWindows') && app.targetApp === undefined) {
+        WindowControls.persistPinned(app);
+      }
+    } else if (app._pinned) {
       delete app._pinned;
       header.removeClass('minimized-pinned');
       app.close = app._closeBkp;
       delete app._closeBkp;
+      // Dirty hack to prevent very fast minimization (messes up windows size)
+      app._bkpMinimize = app.minimize;
+      app.minimize = () => {};
+      setTimeout(() => {app.minimize = app._bkpMinimize; delete app._bkpMinimize}, 1000)
       header.find(".entry-image").show();
       header.find(".entry-text").show();
       header.find(".close").show();
+      if (game.settings.get('window-controls', 'rememberPinnedWindows'))
+        WindowControls.unpersistPinned(app);
     }
   }
 
@@ -322,6 +366,8 @@ class WindowControls {
   }
 
   static async renderDummyPanelApp(app) {
+    if (game.modules.get("gm-screen")?.active && app.cellId?.includes("gm-screen"))
+      return;
     if (WindowControls.getOverflowedState()) return;
     const matchingWindow = Object.values(ui.windows).find(w => w.targetApp?.id === app.id);
     // Update any name changes and prevent from opening new tabs
@@ -418,6 +464,15 @@ class WindowControls {
       config: true,
       type: Boolean,
       default: true
+    });
+    game.settings.register('window-controls', 'rememberPinnedWindows', {
+      name: game.i18n.localize("WindowControls.RememberPinnedName"),
+      hint: game.i18n.localize("WindowControls.RememberPinnedHint"),
+      scope: 'world',
+      config: true,
+      type: Boolean,
+      default: false,
+      onChange: () => {game.user.unsetFlag("window-controls", "persisted-pinned-windows")}
     });
   }
 
@@ -556,6 +611,34 @@ class WindowControls {
         }
         return newButtons.concat(result)
       }, 'WRAPPER');
+
+      if (game.settings.get('window-controls', 'rememberPinnedWindows')) {
+        try {
+          game.user.getFlag("window-controls", "persisted-pinned-windows")?.forEach(persisted => {
+            switch (persisted.docName) {
+              case "Actor": {
+                WindowControls.persistRender(persisted, game.actors);
+                break
+              }
+              case "Item": {
+                WindowControls.persistRender(persisted, game.items);
+                break
+              }
+              case "JournalEntry": {
+                WindowControls.persistRender(persisted, game.journal);
+                break
+              }
+              case "RollTable": {
+                WindowControls.persistRender(persisted, game.tables);
+                break
+              }
+            }
+          })
+        } catch (error) {
+          console.warn("Window Controls: Failed to load persisted pinned windows.\n" + error);
+          game.user.unsetFlag("window-controls", "persisted-pinned-windows");
+        }
+      }
 
     });
 
