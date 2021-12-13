@@ -59,12 +59,12 @@ class WindowControls {
   }
 
   static persistRenderMinimizeRetry(document, stop) {
-    console.warn("Window Controls: Too slow to render persisted Windows... Retrying...");
     setTimeout(() => {
       if (document.rendered) {
         WindowControls.applyPinnedMode(document);
         document.minimize();
       } else if (!stop) {
+        console.warn("Window Controls: Too slow to render persisted Windows... Retrying...");
         WindowControls.persistRenderMinimizeRetry(document, true);
       } else {
         console.warn("Window Controls: Too slow to render persisted Windows... I give up!");
