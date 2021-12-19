@@ -342,7 +342,7 @@ class WindowControls {
       header.find(".entry-image").show();
       header.find(".entry-text").show();
       header.find(".close").show();
-      if (game.settings.get('window-controls', 'rememberPinnedWindows'))
+      if (game.settings.get('window-controls', 'rememberPinnedWindows') && app.targetApp === undefined)
         WindowControls.unpersistPinned(app);
     }
   }

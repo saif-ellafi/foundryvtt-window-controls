@@ -1,3 +1,6 @@
+### 1.5.2
+* Bugfix: Fixed a bug when combining persisted mode and remember pinned windows, where closing them would not be remembered
+
 ### 1.5.1
 * Enhancement: Remember Pinned Windows will now also remember position and size of windows (at the time of getting pinned)
 * Enhancement: Remember Pinned Windows will start minimized
