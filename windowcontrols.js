@@ -42,33 +42,45 @@ class WindowControls {
     if (app.document?.id) {
       const currentPersisted = game.user.getFlag("window-controls", "persisted-pinned-windows") ?? [];
       if (!currentPersisted.find(p => p.docId === app.document.id)) {
-        currentPersisted.push({docId: app.document.id, docName: app.document.documentName});
+        currentPersisted.push({docId: app.document.id, docName: app.document.documentName, position: app.position});
         game.user.setFlag("window-controls", "persisted-pinned-windows", currentPersisted);
       }
     }
   }
 
   static unpersistPinned(app) {
-    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows").filter(a => a.docId !== app.document.id);
+    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows").filter(a => a.docId !== app.document?.id);
     game.user.setFlag("window-controls", "persisted-pinned-windows", filtered);
   }
 
-  static persistRender(persisted, collection) {
-    const document = collection.contents.find(d => d.id === persisted.docId).sheet.render(true);
-    WindowControls.persistRenderMinimizeRetry(document)
+  static async persistRender(persisted, collection) {
+    const appDoc = collection.contents.find(d => d.id === persisted.docId).sheet;
+    await appDoc._render(true);
+    appDoc.element.css('visibility', 'hidden');
+    WindowControls.persistRenderMinimizeRetry(appDoc, false, persisted.position)
   }
 
-  static persistRenderMinimizeRetry(document, stop) {
+  static delayUnhide(app) {
+    if (!app._sourceDummyPanelApp)
+      setTimeout(() => app.element.css('visibility', ''), 500);
+  }
+
+  static persistRenderMinimizeRetry(appDoc, stop, position) {
     setTimeout(() => {
-      if (document.rendered) {
-        WindowControls.applyPinnedMode(document);
-        document.minimize();
+      if (appDoc.rendered) {
+        WindowControls.applyPinnedMode(appDoc);
+        if (appDoc._sourceDummyPanelApp)
+          WindowControls.applyPinnedMode(appDoc._sourceDummyPanelApp);
+        appDoc.setPosition(position);
+        appDoc.minimize();
+        WindowControls.delayUnhide(appDoc);
       } else if (!stop) {
         console.warn("Window Controls: Too slow to render persisted Windows... Retrying...");
-        WindowControls.persistRenderMinimizeRetry(document, true);
+        WindowControls.persistRenderMinimizeRetry(appDoc, true, position);
       } else {
         console.warn("Window Controls: Too slow to render persisted Windows... I give up!");
         game.user.unsetFlag("window-controls", "persisted-pinned-windows");
+        WindowControls.delayUnhide(appDoc);
       }
     }, 1000)
   }
@@ -322,9 +334,11 @@ class WindowControls {
       app.close = app._closeBkp;
       delete app._closeBkp;
       // Dirty hack to prevent very fast minimization (messes up windows size)
-      app._bkpMinimize = app.minimize;
-      app.minimize = () => {};
-      setTimeout(() => {app.minimize = app._bkpMinimize; delete app._bkpMinimize}, 1000)
+      var _bkpMinimize = app.minimize;
+      app.minimize = function () {};
+      setTimeout(() => {
+        app.minimize = _bkpMinimize;
+      }, 1000)
       header.find(".entry-image").show();
       header.find(".entry-text").show();
       header.find(".close").show();
@@ -377,6 +391,7 @@ class WindowControls {
       return;
     }
     const taskbarApp = new WindowControlsPersistentDummy(app);
+    app._sourceDummyPanelApp = taskbarApp;
     await taskbarApp._render(true);
     WindowControls.toggleMovement(taskbarApp);
     await taskbarApp.minimize();
@@ -483,7 +498,7 @@ class WindowControls {
       const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
 
       if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
-        const supportedWindowTypes = ['ActorSheet', 'ItemSheet', 'JournalSheet', 'SidebarTab', 'StaticViewer', 'Compendium', 'RollTableConfig'];
+        const supportedWindowTypes = ['ActorSheet', 'ItemSheet', 'JournalSheet', 'SidebarTab', 'StaticViewer', 'Compendium', 'RollTableConfig', 'InlineViewer'];
         libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
           const alreadyPersistedWindow = Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId);
           if (alreadyPersistedWindow &&
@@ -505,7 +520,7 @@ class WindowControls {
             if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
               const targetHtml = this.element;
               WindowControls.setRestoredStyle(this);
-              targetHtml.css('visibility', 'visible');
+              targetHtml.css('visibility', '');
             }
           })
         }, 'WRAPPER');
@@ -571,11 +586,11 @@ class WindowControls {
               else {
                 this.minimize();
                 //* Dirty hack to prevent "double minimize" after rapidly double-clicking on the minimize button
-                this._bkpMinimize = this.minimize;
-                this.minimize = function() {}
+                var _bkpMinimize = this.minimize;
+                this.minimize = () => {};
                 setTimeout(() => {
-                  this.minimize = this._bkpMinimize;
-                  delete this._bkpMinimize
+                  this.minimize = _bkpMinimize;
+                  // delete this._bkpMinimize;
                 }, 1000)
               }
             }.bind(this)
@@ -630,6 +645,10 @@ class WindowControls {
               }
               case "RollTable": {
                 WindowControls.persistRender(persisted, game.tables);
+                break
+              }
+              case "InlineViewer": {
+                WindiwControls.persistRender(persisted, game.tables);
                 break
               }
             }
@@ -716,6 +735,9 @@ Hooks.once('ready', () => {
       WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderCompendium', function (app) {
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderInlineViewer', function (app) {
       WindowControls.renderDummyPanelApp(app);
     });
   }

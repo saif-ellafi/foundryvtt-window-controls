@@ -1,3 +1,11 @@
+### 1.5.1
+* Enhancement: Remember Pinned Windows will now also remember position and size of windows (at the time of getting pinned)
+* Enhancement: Remember Pinned Windows will start minimized
+* Bugfix: Fixed wrong rounded corners in pinned windows
+* Bugfix: Fixed pinned mode not setting up correctly in persisted loaded windows
+* Bugfix: Fixed a certain situation where minimizing windows would not work after unpinning them
+* Compatibility: Inline WebViewer window application now counts for persisted bar mode
+
 ### 1.5.0
 * Enhancement: New Feature (experimental, disabled by default) remembers the pinned windows for next sessions!
 * Compatibility: GM Screen entries should no longer spawn persistent window tabs

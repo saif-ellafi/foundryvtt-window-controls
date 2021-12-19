@@ -38,6 +38,7 @@
 
 .minimized-pinned {
     background-color: var(--wcbordercolor);
+    border-radius: 5px 5px 0 0;
 }
 
 .hidden-placeholder h4:hover {
