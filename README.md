@@ -1,6 +1,6 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/saif-ellafi/foundryvtt-window-controls/total?logo=GitHub) ![GitHub release (latest by date)](https://img.shields.io/github/downloads/saif-ellafi/foundryvtt-window-controls/latest/total) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/saif-ellafi/foundryvtt-window-controls) ![GitHub issues](https://img.shields.io/github/issues-raw/saif-ellafi/foundryvtt-window-controls) ![GitHub](https://img.shields.io/github/license/saif-ellafi/foundryvtt-window-controls)
 # Window Controls for Foundry VTT
-### _Created by: JeansenVaars_
+### _Created by: JeansenVaars_ - [Invite me a coffee if you have the time :D](#by-jeansenvaars)
 
 Window Taskbar and Window Buttons: Minimize, Maximize and Pin floating Windows. Configurable.
 
@@ -9,8 +9,6 @@ Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar
 This was formerly part of **Minimal UI**, but it was ripped off for better flexibility and independence.
 
 **Recommended Together with [Minimal UI](https://github.com/saif-ellafi/foundryvtt-minimal-ui)**
-
-[Invite me a coffee if you have the time :D](#by-jeansenvaars)
 
 ## Features
 ### Minimize button (Default: On)
