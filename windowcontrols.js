@@ -500,33 +500,34 @@ class WindowControls {
       if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
         const supportedWindowTypes = ['ActorSheet', 'ItemSheet', 'JournalSheet', 'SidebarTab', 'StaticViewer', 'Compendium', 'RollTableConfig', 'InlineViewer'];
         libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
+          if (!this.element.length) return wrapped(...args);
           const alreadyPersistedWindow = Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId);
           if (alreadyPersistedWindow &&
             (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication))) {
-            const targetHtml = this.element;
             if (alreadyPersistedWindow) {
               alreadyPersistedWindow.element
                 .find(".fa-window-minimize")
                 .removeClass('fa-window-minimize')
                 .addClass('fa-window-restore');
               alreadyPersistedWindow.element.css('background-color', '');
-              targetHtml.css('visibility', 'hidden');
+              this.element.css('visibility', 'hidden');
             }
           }
           return wrapped(...args);
         }, 'WRAPPER');
         libWrapper.register('window-controls', 'Application.prototype.maximize', function (wrapped, ...args) {
           return wrapped(...args).then(() => {
+            if (!this.element.length) return;
             if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
-              const targetHtml = this.element;
               WindowControls.setRestoredStyle(this);
-              targetHtml.css('visibility', '');
+              this.element.css('visibility', '');
             }
           })
         }, 'WRAPPER');
       } else if (settingOrganized !== 'disabled') {
         libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
           return wrapped(...args).then(() => {
+            if (!this.element.length) return;
             if (['topBar', 'bottomBar'].includes(settingOrganized)) {
               WindowControls.toggleMovement(this);
             }
@@ -537,6 +538,7 @@ class WindowControls {
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.maximize', function (wrapped, ...args) {
+          if (!this.element.length) return wrapped(...args);
           if (this._minimized) {
             if (['bottom', 'bottomBar'].includes(settingOrganized))
               this.setPosition({top: 0});
@@ -554,6 +556,7 @@ class WindowControls {
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.close', function (wrapped, ...args) {
+          if (!this.element.length) return wrapped(...args);
           if (this._minimized) {
             this.element.hide();
             if (['bottom', 'bottomBar'].includes(settingOrganized))

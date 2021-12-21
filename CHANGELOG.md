@@ -1,3 +1,6 @@
+### 1.5.3
+* Bugfix: Fixed a bug where some modules might trigger some ghost windows that trick Window Controls and thus throwing an error (Thank you Casanova for helping find it)
+
 ### 1.5.2
 * Bugfix: Fixed a bug when combining persisted mode and remember pinned windows, where closing them would not be remembered
 
