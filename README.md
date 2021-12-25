@@ -6,7 +6,8 @@ Window Taskbar and Window Buttons: Minimize, Maximize and Pin floating Windows. 
 
 Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar located on top or bottom.
 
-### [This module was made for free, with joy, long nights and because of hundred windows needed it, so tons of coffee :D!](https://ko-fi.com/jeansenvaars)
+#### [This module was made for free, with joy, long nights and because of hundred windows needed it, so tons of coffee :D!](https://ko-fi.com/jeansenvaars)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V14D3AH)
 
 This was formerly part of **Minimal UI**, but it was ripped off for better flexibility and independence.
 
