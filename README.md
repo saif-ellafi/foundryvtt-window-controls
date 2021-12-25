@@ -1,11 +1,13 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/saif-ellafi/foundryvtt-window-controls/total?logo=GitHub) ![GitHub release (latest by date)](https://img.shields.io/github/downloads/saif-ellafi/foundryvtt-window-controls/latest/total) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/saif-ellafi/foundryvtt-window-controls) ![GitHub issues](https://img.shields.io/github/issues-raw/saif-ellafi/foundryvtt-window-controls) ![GitHub](https://img.shields.io/github/license/saif-ellafi/foundryvtt-window-controls)
 # Window Controls for Foundry VTT
-### _Created by: JeansenVaars_ - [Invite me a coffee if you have the time :D](#by-jeansenvaars)
 
 Window Taskbar and Window Buttons: Minimize, Maximize and Pin floating Windows. Configurable.
 
 Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar located on top or bottom.
 
+![full-mode.png](full-mode.png)
+
+### _Created by: JeansenVaars_ - [Invite me a coffee if you have the time :D](#by-jeansenvaars)
 #### [This module was made for free, with joy, long nights and because of hundred windows needed it, so tons of coffee :D!](https://ko-fi.com/jeansenvaars)
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V14D3AH)
 
