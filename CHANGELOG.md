@@ -1,3 +1,6 @@
+### 1.5.4 (WIP
+* Default: By default from now on, pinned windows will be remembered
+
 ### 1.5.3
 * Bugfix: Fixed a bug where some modules might trigger some ghost windows that trick Window Controls and thus throwing an error (Thank you Casanova for helping find it)
 

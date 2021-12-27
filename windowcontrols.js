@@ -486,7 +486,7 @@ class WindowControls {
       scope: 'world',
       config: true,
       type: Boolean,
-      default: false,
+      default: true,
       onChange: () => {game.user.unsetFlag("window-controls", "persisted-pinned-windows")}
     });
   }
