@@ -10,6 +10,8 @@ class WindowControls {
   static cssTopBarLeftStart = 120;
   static cssBottomBarLeftStart = 250;
 
+  static persistExceptions = ['Dialog', 'DestinyTracker', 'FilePicker', 'SceneConfig', 'DrawingConfig'];
+
   static debouncedReload = debounce(() => window.location.reload(), 100);
 
   static getStashedKeys() {
@@ -498,30 +500,24 @@ class WindowControls {
       const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
 
       if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
-        const supportedWindowTypes = ['ActorSheet', 'ItemSheet', 'JournalSheet', 'SidebarTab', 'StaticViewer', 'Compendium', 'RollTableConfig', 'InlineViewer'];
         libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
           if (!this.element.length) return wrapped(...args);
           const alreadyPersistedWindow = Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId);
-          if (alreadyPersistedWindow &&
-            (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication))) {
-            if (alreadyPersistedWindow) {
-              alreadyPersistedWindow.element
-                .find(".fa-window-minimize")
-                .removeClass('fa-window-minimize')
-                .addClass('fa-window-restore');
-              alreadyPersistedWindow.element.css('background-color', '');
-              this.element.css('visibility', 'hidden');
-            }
+          if (alreadyPersistedWindow) {
+            alreadyPersistedWindow.element
+              .find(".fa-window-minimize")
+              .removeClass('fa-window-minimize')
+              .addClass('fa-window-restore');
+            alreadyPersistedWindow.element.css('background-color', '');
+            this.element.css('visibility', 'hidden');
           }
           return wrapped(...args);
         }, 'WRAPPER');
         libWrapper.register('window-controls', 'Application.prototype.maximize', function (wrapped, ...args) {
           return wrapped(...args).then(() => {
             if (!this.element.length) return;
-            if (supportedWindowTypes.includes(this.constructor.name) || supportedWindowTypes.includes(this.options.baseApplication)) {
-              WindowControls.setRestoredStyle(this);
-              this.element.css('visibility', '');
-            }
+            WindowControls.setRestoredStyle(this);
+            this.element.css('visibility', '');
           })
         }, 'WRAPPER');
       } else if (settingOrganized !== 'disabled') {
@@ -718,30 +714,21 @@ Hooks.once('ready', () => {
   const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
   if (settingOrganized === 'persistentBottom' || settingOrganized === 'persistentTop') {
 
-    Hooks.on('renderActorSheet', function (app) {
-      WindowControls.renderDummyPanelApp(app);
-    });
-    Hooks.on('renderItemSheet', function (app) {
-      WindowControls.renderDummyPanelApp(app);
-    });
-    Hooks.on('renderJournalSheet', function (app) {
-      WindowControls.renderDummyPanelApp(app);
-    });
-    Hooks.on('renderRollTableConfig', function (app) {
-      WindowControls.renderDummyPanelApp(app);
-    });
-    Hooks.on('renderSidebarTab', function (app) {
-      if (app._original) // Avoids launching ghost applications on internal hooks
+    Hooks.on('renderApplication', function (app, elem) {
+      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp && !app._sourceDummyPanelApp)
         WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderStaticViewer', function (app) {
-      WindowControls.renderDummyPanelApp(app);
+    Hooks.on('renderSidebarTab', function (app, elem) {
+      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp && !app._sourceDummyPanelApp)
+        WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderCompendium', function (app) {
-      WindowControls.renderDummyPanelApp(app);
+    Hooks.on('renderActorSheet', function (app, elem) {
+      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp && !app._sourceDummyPanelApp)
+        WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderInlineViewer', function (app) {
-      WindowControls.renderDummyPanelApp(app);
+    Hooks.on('renderItemSheet', function (app, elem) {
+      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp && !app._sourceDummyPanelApp)
+        WindowControls.renderDummyPanelApp(app);
     });
   }
 
