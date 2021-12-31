@@ -1,9 +1,9 @@
 ### 1.6.0
-* Enhancement: Improved detection of Windows for persistent Windows mode (now detect module apps like Fate Utilities, Inline WebViewer, FXMaster, etc.)
-* Enhancement: Persistent Mode of Windows will now apply standard minimization behavior on unsupported windows (i.e. Config or Dialog windows)
-* Compatibility: PopOut!
-* Default: Setting Persisted TopBar mode is now the default (Risky in terms of compatibility, but I put my trust on it!)
-* Default: Setting remember pinned windows is now set by default (I like it!)
+* Enhancement: Persistent Window mode will now work universally (Can detect module apps like Fate Utilities, Inline WebViewer, FXMaster, etc.)
+* Enhancement: Persistent Mode of Windows will now minimize "non-important" windows into the bar as well, as opposed to leave them floating
+* Compatibility: PopOut! support improved
+* Default: Setting Persisted TopBar mode is now the default (Risky in terms of compatibility, but I give my vote of confidence!)
+* Default: Setting remember pinned windows is now set by default (I like it and use it!)
 
 ### 1.5.3
 * Bugfix: Fixed a bug where some modules might trigger some ghost windows that trick Window Controls and thus throwing an error (Thank you Casanova for helping find it)
