@@ -715,19 +715,21 @@ Hooks.once('ready', () => {
   if (settingOrganized === 'persistentBottom' || settingOrganized === 'persistentTop') {
 
     Hooks.on('renderApplication', function (app, elem) {
-      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp && !app._sourceDummyPanelApp)
+      console.log(app);
+      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp)
         WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderSidebarTab', function (app, elem) {
-      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp && !app._sourceDummyPanelApp)
+      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp)
         WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderActorSheet', function (app, elem) {
-      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp && !app._sourceDummyPanelApp)
+      console.log(app);
+      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp)
         WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderItemSheet', function (app, elem) {
-      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp && !app._sourceDummyPanelApp)
+      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp)
         WindowControls.renderDummyPanelApp(app);
     });
   }
