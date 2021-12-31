@@ -472,7 +472,7 @@ class WindowControls {
         "persistentBottom": game.i18n.localize("WindowControls.OrganizedPersistentBottom"),
         "disabled": game.i18n.localize("WindowControls.Disabled")
       },
-      default: "topBar",
+      default: "persistentTop",
       onChange: WindowControls.debouncedReload
     });
     game.settings.register('window-controls', 'minimizeButton', {
