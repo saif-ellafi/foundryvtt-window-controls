@@ -10,7 +10,7 @@ class WindowControls {
   static cssTopBarLeftStart = 120;
   static cssBottomBarLeftStart = 250;
 
-  static persistExceptions = ['Dialog', 'DestinyTracker', 'FilePicker', 'SceneConfig', 'DrawingConfig'];
+  static persistExceptions = ['FilePicker', 'DestinyTracker'];
 
   static debouncedReload = debounce(() => window.location.reload(), 100);
 
@@ -85,6 +85,14 @@ class WindowControls {
         WindowControls.delayUnhide(appDoc);
       }
     }, 1000)
+  }
+
+  static appliesForPersistentMode(app, elem) {
+    return !WindowControls.persistExceptions.includes(app.constructor.name) &&
+      !app.constructor.name.includes('Config') &&
+      !app.constructor.name.includes('Dialog') &&
+      app.popOut && elem.hasClass('window-app') &&
+      !app.targetApp
   }
 
   static toggleMovement(app) {
@@ -416,6 +424,38 @@ class WindowControls {
     taskbarApp.element.css('visibility', 'visible')
   }
 
+  static organizedMinimize(app, settings) {
+    if (['topBar', 'bottomBar'].includes(settings))
+      WindowControls.toggleMovement(app);
+    WindowControls.setMinimizedPosition(app);
+    WindowControls.setMinimizedStyle(app);
+    WindowControls.refreshMinimizeBar();
+  }
+
+  static organizedRestore(app, settings) {
+    if (this._minimized) {
+      if (['bottom', 'bottomBar'].includes(settings))
+        this.setPosition({top: 0});
+      this.element.css('visibility', 'hidden');
+    }
+    if (['topBar', 'bottomBar'].includes(settings))
+      WindowControls.toggleMovement(app);
+    WindowControls.setRestoredPosition(app);
+    WindowControls.refreshMinimizeBar();
+  }
+
+  static organizedClose(app, settings) {
+    if (this._minimized) {
+      this.element.hide();
+      if (['bottom', 'bottomBar'].includes(settings))
+        this.setPosition({top: 0});
+      // If minimized, remember the maximized state position
+      WindowControls.setRestoredPosition(app);
+      // ToDo: For some reason, setPosition() does not restore width at this point. Investigate.
+      app.sheetWidth = app.constructor.defaultOptions.width;
+    }
+  }
+
   static initSettings() {
     game.settings.register('window-controls', 'organizedMinimize', {
       name: game.i18n.localize("WindowControls.OrganizedMinimizeName"),
@@ -510,41 +550,49 @@ class WindowControls {
               .addClass('fa-window-restore');
             alreadyPersistedWindow.element.css('background-color', '');
             this.element.css('visibility', 'hidden');
+            return wrapped(...args);
+          } else {
+            return wrapped(...args).then(() => {
+              WindowControls.organizedMinimize(this, settingOrganized);
+            })
           }
-          return wrapped(...args);
         }, 'WRAPPER');
         libWrapper.register('window-controls', 'Application.prototype.maximize', function (wrapped, ...args) {
+          if (this._sourceDummyPanelApp) {
+            return wrapped(...args).then(() => {
+              if (!this.element.length) return;
+              WindowControls.setRestoredStyle(this);
+              this.element.css('visibility', '');
+            })
+          } else {
+            if (!this.element.length) return wrapped(...args);
+            WindowControls.organizedRestore(this, settingOrganized);
+            return wrapped(...args).then(() => {
+              WindowControls.setRestoredStyle(this);
+              this.element.css('visibility', '');
+            });
+          }
+        }, 'WRAPPER');
+        libWrapper.register('window-controls', 'Application.prototype.close', function (wrapped, ...args) {
+          if (!this.element.length) return wrapped(...args);
+          if (this._minimized && !this._sourceDummyPanelApp) {
+            WindowControls.organizedClose(this, settingOrganized);
+          }
           return wrapped(...args).then(() => {
-            if (!this.element.length) return;
-            WindowControls.setRestoredStyle(this);
-            this.element.css('visibility', '');
-          })
+            WindowControls.refreshMinimizeBar();
+          });
         }, 'WRAPPER');
       } else if (settingOrganized !== 'disabled') {
         libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
           return wrapped(...args).then(() => {
             if (!this.element.length) return;
-            if (['topBar', 'bottomBar'].includes(settingOrganized)) {
-              WindowControls.toggleMovement(this);
-            }
-            WindowControls.setMinimizedPosition(this);
-            WindowControls.setMinimizedStyle(this);
-            WindowControls.refreshMinimizeBar();
+            WindowControls.organizedMinimize(this, settingOrganized);
           })
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.maximize', function (wrapped, ...args) {
           if (!this.element.length) return wrapped(...args);
-          if (this._minimized) {
-            if (['bottom', 'bottomBar'].includes(settingOrganized))
-              this.setPosition({top: 0});
-            this.element.css('visibility', 'hidden');
-          }
-          if (['topBar', 'bottomBar'].includes(settingOrganized)) {
-            WindowControls.toggleMovement(this);
-          }
-          WindowControls.setRestoredPosition(this);
-          WindowControls.refreshMinimizeBar();
+          WindowControls.organizedRestore(this, settingOrganized);
           return wrapped(...args).then(() => {
             WindowControls.setRestoredStyle(this);
             this.element.css('visibility', '');
@@ -553,15 +601,7 @@ class WindowControls {
 
         libWrapper.register('window-controls', 'Application.prototype.close', function (wrapped, ...args) {
           if (!this.element.length) return wrapped(...args);
-          if (this._minimized) {
-            this.element.hide();
-            if (['bottom', 'bottomBar'].includes(settingOrganized))
-              this.setPosition({top: 0});
-            // If minimized, remember the maximized state position
-            WindowControls.setRestoredPosition(this);
-            // ToDo: For some reason, setPosition() does not restore width at this point. Investigate.
-            this.sheetWidth = this.constructor.defaultOptions.width;
-          }
+          WindowControls.organizedClose(this, settingOrganized);
           return wrapped(...args).then(() => {
             WindowControls.refreshMinimizeBar();
           });
@@ -658,6 +698,11 @@ class WindowControls {
         }
       }
 
+      Hooks.on('PopOut:popout', function(app) {
+        app._sourceDummyPanelApp?.justClose();
+        WindowControls.refreshMinimizeBar();
+      });
+
     });
 
     Hooks.on('closeSidebarTab', function (app) {
@@ -715,21 +760,19 @@ Hooks.once('ready', () => {
   if (settingOrganized === 'persistentBottom' || settingOrganized === 'persistentTop') {
 
     Hooks.on('renderApplication', function (app, elem) {
-      console.log(app);
-      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp)
+      if (WindowControls.appliesForPersistentMode(app, elem))
         WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderSidebarTab', function (app, elem) {
-      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp)
+      if (WindowControls.appliesForPersistentMode(app, elem))
         WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderActorSheet', function (app, elem) {
-      console.log(app);
-      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp)
+      if (WindowControls.appliesForPersistentMode(app, elem))
         WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderItemSheet', function (app, elem) {
-      if (!WindowControls.persistExceptions.includes(app.constructor.name) && app.popOut && elem.hasClass('window-app') && !app.targetApp)
+      if (WindowControls.appliesForPersistentMode(app, elem))
         WindowControls.renderDummyPanelApp(app);
     });
   }
