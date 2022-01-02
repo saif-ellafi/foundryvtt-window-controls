@@ -1,3 +1,6 @@
+### 1.6.2
+* Enhancement: Adjust Top bar positioning alongside Minimal UI Logo and Navigation settings
+
 ### 1.6.1
 * Bugfix: Fixed a specific bug when restoring loaded windows that cannot be opened again
 * Bugfix: Rolled back some risky decisions in favor of compatibility over functionality

@@ -132,9 +132,6 @@ class WindowControls {
       case 'topBar':
       case 'persistentTop': {
         rootStyle.setProperty('--minibarbot', 'unset');
-        let sceneNavigationSetting;
-        if (game.modules.get('minimal-ui')?.active)
-          sceneNavigationSetting = game.settings.get('minimal-ui', 'sceneNavigation');
         rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition() - 4) + 'px');
         rootStyle.setProperty('--minibarleft', WindowControls.cssTopBarLeftStart + 'px');
         if (bar.length === 0)
@@ -171,20 +168,17 @@ class WindowControls {
       else
         return availableHeight - WindowControls.cssMinimizedBottomBaseline - 40;
     } else {
-      let logoSetting;
-      if (game.modules.get('minimal-ui')?.active)
-        logoSetting = game.settings.get('minimal-ui', 'foundryLogoSize');
       let sceneNavigationSetting;
-      if (game.modules.get('minimal-ui')?.active)
+      let logoSetting;
+      if (game.modules.get('minimal-ui')?.active) {
         sceneNavigationSetting = game.settings.get('minimal-ui', 'sceneNavigation');
+        logoSetting = game.settings.get('minimal-ui', 'foundryLogoSize');
+      }
       let offset;
-      if (sceneNavigationSetting === 'hidden')
-        offset = document.querySelector("#navigation").offsetHeight + WindowControls.cssMinimizedTopBaseline - 20;
+      if (logoSetting === 'hidden' && sceneNavigationSetting === 'hidden')
+        offset = WindowControls.cssMinimizedTopBaseline + 6;
       else
         offset = document.querySelector("#navigation").offsetHeight + WindowControls.cssMinimizedTopBaseline + 20;
-      // 65px is Rough estimate for standard logo size, to not overlap
-      if (logoSetting && logoSetting === 'standard')
-        offset = Math.max(65, offset);
       return offset;
     }
   }
