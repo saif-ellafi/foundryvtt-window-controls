@@ -14,6 +14,7 @@ Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar
 This was formerly part of **Minimal UI**, but it was ripped off for better flexibility and independence.
 
 **Recommended Together with [Minimal UI](https://github.com/saif-ellafi/foundryvtt-minimal-ui)**
+![img.png](with_minui.png)
 
 ## Features
 ### Minimize button (Default: On)
