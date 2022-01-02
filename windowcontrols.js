@@ -132,9 +132,6 @@ class WindowControls {
       case 'topBar':
       case 'persistentTop': {
         rootStyle.setProperty('--minibarbot', 'unset');
-        let sceneNavigationSetting;
-        if (game.modules.get('minimal-ui')?.active)
-          sceneNavigationSetting = game.settings.get('minimal-ui', 'sceneNavigation');
         rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition() - 4) + 'px');
         if (game.modules.get('minimal-ui')?.active && game.settings.get('minimal-ui', 'foundryLogoSize') !== 'standard') {
           WindowControls.cssTopBarLeftStart = 5;
@@ -183,9 +180,9 @@ class WindowControls {
         sceneNavigationSetting = game.settings.get('minimal-ui', 'sceneNavigation');
       let offset;
       if (sceneNavigationSetting === 'hidden')
-        offset = document.querySelector("#navigation").offsetHeight + WindowControls.cssMinimizedTopBaseline - 20;
+        offset = document.querySelector("#navigation").offsetHeight + WindowControls.cssMinimizedTopBaseline - 10;
       else
-        offset = document.querySelector("#navigation").offsetHeight + WindowControls.cssMinimizedTopBaseline + 20;
+        offset = document.querySelector("#navigation").offsetHeight + WindowControls.cssMinimizedTopBaseline + 30;
       // 65px is Rough estimate for standard logo size, to not overlap
       if (logoSetting && logoSetting === 'standard')
         offset = Math.max(65, offset);
@@ -195,7 +192,7 @@ class WindowControls {
 
   static getLeftPosition(app) {
     const minimizedSetting = game.settings.get('window-controls', 'organizedMinimize');
-    const minGap = ['top', 'topBar', 'persistentTop'].includes(minimizedSetting) ? WindowControls.cssTopBarLeftStart + 10 : WindowControls.cssBottomBarLeftStart + 10;
+    const minGap = ['top', 'topBar', 'persistentTop'].includes(minimizedSetting) ? WindowControls.cssTopBarLeftStart : WindowControls.cssBottomBarLeftStart + 10;
     const jumpGap = WindowControls.cssMinimizedSize + 10;
     const maxGap = WindowControls.getCurrentMaxGap();
     let targetPos;
