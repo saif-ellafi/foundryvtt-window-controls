@@ -10,8 +10,6 @@ class WindowControls {
   static cssTopBarLeftStart = 120;
   static cssBottomBarLeftStart = 250;
 
-  static persistExceptions = ['FilePicker', 'DestinyTracker'];
-
   static debouncedReload = debounce(() => window.location.reload(), 100);
 
   static getStashedKeys() {
@@ -85,18 +83,6 @@ class WindowControls {
         WindowControls.delayUnhide(appDoc);
       }
     }, 1000)
-  }
-
-  static appliesForPersistentMode(app, elem) {
-    // For "increased" universal compatibility support - Some applications should not be persistable
-    // This is to 1. Avoid bloating the application bar in persisted mode with dialogs, forms and popups and 2. Reduce conflicts
-    // An overarching "assumption" is that Config, Dialog and FormApplications fall in these categories, plus manually provided exceptions
-    return !WindowControls.persistExceptions.includes(app.constructor.name) &&
-      !(app instanceof FormApplication) &&
-      !app.constructor.name.includes('Config') &&
-      !app.constructor.name.includes('Dialog') &&
-      app.popOut && elem.hasClass('window-app') &&
-      !app.targetApp
   }
 
   static toggleMovement(app) {
@@ -763,21 +749,24 @@ Hooks.once('ready', () => {
   const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
   if (settingOrganized === 'persistentBottom' || settingOrganized === 'persistentTop') {
 
-    Hooks.on('renderApplication', function (app, elem) {
-      if (WindowControls.appliesForPersistentMode(app, elem))
+    Hooks.on('renderSidebarTab', function (app) {
+      if (app._original) // Avoids launching ghost applications on internal hooks
         WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderSidebarTab', function (app, elem) {
-      if (WindowControls.appliesForPersistentMode(app, elem))
-        WindowControls.renderDummyPanelApp(app);
+    Hooks.on('renderCompendium', function (app) {
+      WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderActorSheet', function (app, elem) {
-      if (WindowControls.appliesForPersistentMode(app, elem))
-        WindowControls.renderDummyPanelApp(app);
+    Hooks.on('renderJournalSheet', function (app) {
+      WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderItemSheet', function (app, elem) {
-      if (WindowControls.appliesForPersistentMode(app, elem))
-        WindowControls.renderDummyPanelApp(app);
+    Hooks.on('renderRollTableConfig', function (app) {
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderActorSheet', function (app) {
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderItemSheet', function (app) {
+      WindowControls.renderDummyPanelApp(app);
     });
   }
 

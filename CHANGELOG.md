@@ -1,3 +1,7 @@
+### 1.6.1
+* Bugfix: Fixed a specific bug when restoring loaded windows that cannot be opened again
+* Bugfix: Rolled back some risky decisions in favor of compatibility over functionality
+
 ### 1.6.0
 * Enhancement: Persistent Window mode will now work universally (Can detect module apps like Fate Utilities, Inline WebViewer, FXMaster, etc.)
 * Enhancement: Persistent Mode of Windows will now minimize "non-important" windows into the bar as well, as opposed to leave them floating
