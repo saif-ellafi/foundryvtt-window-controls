@@ -51,7 +51,7 @@ class WindowControls {
   }
 
   static unpersistPinned(app) {
-    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows").filter(a => a.docId !== app.document?.id);
+    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows")?.filter(a => a.docId !== app.document?.id) ?? [];
     game.user.setFlag("window-controls", "persisted-pinned-windows", filtered);
   }
 
@@ -88,7 +88,11 @@ class WindowControls {
   }
 
   static appliesForPersistentMode(app, elem) {
+    // For "increased" universal compatibility support - Some applications should not be persistable
+    // This is to 1. Avoid bloating the application bar in persisted mode with dialogs, forms and popups and 2. Reduce conflicts
+    // An overarching "assumption" is that Config, Dialog and FormApplications fall in these categories, plus manually provided exceptions
     return !WindowControls.persistExceptions.includes(app.constructor.name) &&
+      !(app instanceof FormApplication) &&
       !app.constructor.name.includes('Config') &&
       !app.constructor.name.includes('Dialog') &&
       app.popOut && elem.hasClass('window-app') &&
