@@ -136,7 +136,11 @@ class WindowControls {
         if (game.modules.get('minimal-ui')?.active)
           sceneNavigationSetting = game.settings.get('minimal-ui', 'sceneNavigation');
         rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition() - 4) + 'px');
-        rootStyle.setProperty('--minibarleft', WindowControls.cssTopBarLeftStart + 'px');
+        if (game.modules.get('minimal-ui')?.active && game.settings.get('minimal-ui', 'foundryLogoSize') !== 'standard') {
+          WindowControls.cssTopBarLeftStart = 5;
+          rootStyle.setProperty('--minibarleft', WindowControls.cssTopBarLeftStart + 'px');
+        } else
+          rootStyle.setProperty('--minibarleft', WindowControls.cssTopBarLeftStart + 'px');
         if (bar.length === 0)
           barHtml.appendTo('body');
         break;
@@ -266,7 +270,10 @@ class WindowControls {
       const setting = game.settings.get('window-controls', 'organizedMinimize');
       const rootStyle = document.querySelector(':root').style;
       if (setting === 'topBar' || setting === 'persistentTop') {
-        rootStyle.setProperty('--minibarw', maxPosition + 40 + 'px');
+        if (game.modules.get('minimal-ui')?.active && game.settings.get('minimal-ui', 'foundryLogoSize') !== 'standard') {
+          rootStyle.setProperty('--minibarw', maxPosition + 152 + 'px');
+        } else
+          rootStyle.setProperty('--minibarw', maxPosition + 40 + 'px');
       } else
         rootStyle.setProperty('--minibarw', maxPosition - 90 + 'px');
       minimized.show();
