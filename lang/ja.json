@@ -1,0 +1,32 @@
+{
+    "I18N.LANGUAGE": "日本語",
+    "I18N.MAINTAINERS": "@Brother Sharp#6921",
+  
+    "WindowControls.Enabled": "有効",
+    "WindowControls.Disabled": "無効",
+  
+    "WindowControls.MinimizeButtonName": "最小化ボタン",
+    "WindowControls.MinimizeButtonHint": "開かれているすべてのウィンドウに最小化ボタンを追加します。",
+  
+    "WindowControls.OrganizedMinimizeName": "ウィンドウ整理",
+    "WindowControls.OrganizedMinimizeHint": "最小化されたウィンドウは画面の下または上の枠に整理された状態で並べられます。",
+  
+    "WindowControls.OrganizedMinimizeBottom": "下",
+    "WindowControls.OrganizedMinimizeBottomBar": "下（移動不可）",
+    "WindowControls.OrganizedMinimizeTop": "上",
+    "WindowControls.OrganizedMinimizeTopBar": "上（移動不可）",
+    "WindowControls.OrganizedPersistentTop": "上（自動＋移動不可）",
+    "WindowControls.OrganizedPersistentBottom": "下（自動＋移動不可）",
+  
+    "WindowControls.PinnedButtonName": "ピン留めボタン",
+    "WindowControls.PinnedButtonHint": "ウィンドウにピン留めボタンを追加します。ピンされたウィンドウは閉じることが不可能になり最小化のみできます。",
+    "WindowControls.PinnedDoubleTappingName": "ESCキー2回でピン留めされたすべてのウィンドウを最小化",
+    "WindowControls.PinnedDoubleTappingHint": "ピン留めされているウィンドウはESCキーを2回押したときにのみ最小化されます（従来はESCキー1回ですべてを閉じます）。",
+    "WindowControls.RememberPinnedName": "ピン留め記憶",
+    "WindowControls.RememberPinnedHint": "ログイン時、前のセッションでピン留めされたウィンドウは自動的に開きます。",
+  
+    "WindowControls.MaximizeButtonName": "最大化ボタン",
+    "WindowControls.MaximizeButtonHint": "サイズ変更可能なウィンドウに最大化ボタンを追加します。システムによっては正しく動作しないかも知れませんので、ご注意ください。"
+  
+  }
+  
