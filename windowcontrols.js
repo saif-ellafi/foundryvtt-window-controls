@@ -17,7 +17,7 @@ class WindowControls {
   }
 
   static curateId(text) {
-    return text.replace(/\W/g,'_');
+    return text.replace(/\W/g, '_');
   }
 
   static curateTitle(title) {
@@ -97,15 +97,15 @@ class WindowControls {
     }
 
     if (app._canBeMoved === undefined) {
-      elementJS.addEventListener('mousemove', function(ev) {
+      elementJS.addEventListener('mousemove', function (ev) {
         if (!app._canBeMoved)
           ev.stopImmediatePropagation();
       }, true)
-      elementJS.addEventListener('mousedown', function(ev) {
+      elementJS.addEventListener('mousedown', function (ev) {
         if (!app._canBeMoved)
           ev.stopImmediatePropagation();
       }, true)
-      elementJS.addEventListener('mouseup', function(ev) {
+      elementJS.addEventListener('mouseup', function (ev) {
         if (!app._canBeMoved)
           ev.stopImmediatePropagation();
       }, true)
@@ -300,11 +300,11 @@ class WindowControls {
       app._pinned = true;
       app._closeBkp = app.close;
       if (game.settings.get('window-controls', 'pinnedDoubleTapping') === false) {
-        app.close = async function() {
+        app.close = async function () {
           if (!this._minimized) await this.minimize();
         };
       } else {
-        app.close = function() {
+        app.close = function () {
           if (this._minimized)
             return;
           if (app._pinned_marked) {
@@ -312,7 +312,9 @@ class WindowControls {
             this.minimize();
           } else {
             app._pinned_marked = true;
-            setTimeout(() => {delete app._pinned_marked}, 2000) // Give 2 seconds to attempt to close again
+            setTimeout(() => {
+              delete app._pinned_marked
+            }, 2000) // Give 2 seconds to attempt to close again
           }
         };
       }
@@ -329,7 +331,8 @@ class WindowControls {
       delete app._closeBkp;
       // Dirty hack to prevent very fast minimization (messes up windows size)
       var _bkpMinimize = app.minimize;
-      app.minimize = function () {};
+      app.minimize = function () {
+      };
       setTimeout(() => {
         app.minimize = _bkpMinimize;
       }, 1000)
@@ -401,7 +404,7 @@ class WindowControls {
     } else {
       taskbarApp.element.css('background-color', '#ff640080');
     }
-    taskbarApp.element.find('header').click(function() {
+    taskbarApp.element.find('header').click(function () {
       if (!taskbarApp.targetApp._minimized)
         taskbarApp.targetApp.bringToTop();
     })
@@ -513,7 +516,9 @@ class WindowControls {
       config: true,
       type: Boolean,
       default: true,
-      onChange: () => {game.user.unsetFlag("window-controls", "persisted-pinned-windows")}
+      onChange: () => {
+        game.user.unsetFlag("window-controls", "persisted-pinned-windows")
+      }
     });
   }
 
@@ -525,7 +530,7 @@ class WindowControls {
 
       if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
         libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
-          if (!this.element.length) return wrapped(...args);
+          if (!this.element?.length) return wrapped(...args);
           const alreadyPersistedWindow = Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId);
           if (alreadyPersistedWindow) {
             alreadyPersistedWindow.element
@@ -544,12 +549,12 @@ class WindowControls {
         libWrapper.register('window-controls', 'Application.prototype.maximize', function (wrapped, ...args) {
           if (this._sourceDummyPanelApp) {
             return wrapped(...args).then(() => {
-              if (!this.element.length) return;
+              if (!this.element?.length) return;
               WindowControls.setRestoredStyle(this);
               this.element.css('visibility', '');
             })
           } else {
-            if (!this.element.length) return wrapped(...args);
+            if (!this.element?.length) return wrapped(...args);
             WindowControls.organizedRestore(this, settingOrganized);
             return wrapped(...args).then(() => {
               WindowControls.setRestoredStyle(this);
@@ -558,7 +563,7 @@ class WindowControls {
           }
         }, 'WRAPPER');
         libWrapper.register('window-controls', 'Application.prototype.close', function (wrapped, ...args) {
-          if (!this.element.length) return wrapped(...args);
+          if (!this.element?.length) return wrapped(...args);
           if (this._minimized && !this._sourceDummyPanelApp) {
             WindowControls.organizedClose(this, settingOrganized);
           }
@@ -569,13 +574,13 @@ class WindowControls {
       } else if (settingOrganized !== 'disabled') {
         libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
           return wrapped(...args).then(() => {
-            if (!this.element.length) return;
+            if (!this.element?.length) return;
             WindowControls.organizedMinimize(this, settingOrganized);
           })
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.maximize', function (wrapped, ...args) {
-          if (!this.element.length) return wrapped(...args);
+          if (!this.element?.length) return wrapped(...args);
           WindowControls.organizedRestore(this, settingOrganized);
           return wrapped(...args).then(() => {
             WindowControls.setRestoredStyle(this);
@@ -584,7 +589,7 @@ class WindowControls {
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.close', function (wrapped, ...args) {
-          if (!this.element.length) return wrapped(...args);
+          if (!this.element?.length) return wrapped(...args);
           WindowControls.organizedClose(this, settingOrganized);
           return wrapped(...args).then(() => {
             WindowControls.refreshMinimizeBar();
@@ -594,23 +599,27 @@ class WindowControls {
 
       libWrapper.register('window-controls', 'Application.prototype._getHeaderButtons', function (wrapped, ...args) {
         let result = wrapped(...args);
+        if (this.constructor.name === 'QuestTracker')
+          return result;
         const close = result.find(b => b.class === 'close');
         close.label = '';
         const newButtons = [];
         const minimizeSetting = game.settings.get('window-controls', 'minimizeButton');
+        // Exception for Forien Quest Log - Is there any way of identifying such kind of windows?
         if (minimizeSetting === 'enabled') {
           const minimizeButton = {
             label: "",
             class: "minimize",
             icon: "far fa-window-minimize",
-            onclick: function() {
+            onclick: function () {
               if (this._minimized)
                 this.maximize();
               else {
                 this.minimize();
                 //* Dirty hack to prevent "double minimize" after rapidly double-clicking on the minimize button
                 var _bkpMinimize = this.minimize;
-                this.minimize = () => {};
+                this.minimize = () => {
+                };
                 setTimeout(() => {
                   this.minimize = _bkpMinimize;
                   // delete this._bkpMinimize;
@@ -670,10 +679,6 @@ class WindowControls {
                 WindowControls.persistRender(persisted, game.tables);
                 break
               }
-              case "InlineViewer": {
-                WindiwControls.persistRender(persisted, game.tables);
-                break
-              }
             }
           })
         } catch (error) {
@@ -682,7 +687,7 @@ class WindowControls {
         }
       }
 
-      Hooks.on('PopOut:popout', function(app) {
+      Hooks.on('PopOut:popout', function (app) {
         app._sourceDummyPanelApp?.justClose();
         WindowControls.refreshMinimizeBar();
       });
