@@ -1,5 +1,5 @@
 ### 1.6.3
-* Compatibility: Forien's Quest Log
+* Compatibility: Forien's Quest Log V9+
 
 ### 1.6.2
 * Enhancement: Adjust Top bar positioning alongside Minimal UI Logo and Navigation settings
