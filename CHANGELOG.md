@@ -1,3 +1,6 @@
+### 1.7.3
+* Bugfix: Better support for multiple screen resolution sizes with Taskbar mode
+
 ### 1.7.2
 * Bugfix: Organized Minimize is now a setting per user and not global (i.e. per client)
 

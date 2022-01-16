@@ -740,7 +740,7 @@ Hooks.once('setup', () => {
     rootStyle.setProperty('--minimizedpos', 'fixed');
     rootStyle.setProperty('--sidebaradj', '99%');
     rootStyle.setProperty('--taskbarcolor', game.settings.get('window-controls', 'taskbarColor'));
-    $("body:not(.background)").css('top', `${top}%`);
+    $("body:not(.background)").css('top', `${top * 10}px`);
     $("body:not(.background)").css('height', `${dedHeight}%`);
     $("body").append('<section id="window-controls-persistent"></section>');
   }
