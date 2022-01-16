@@ -5,7 +5,7 @@
 	"description": "Improves Minimized window organization, style and adds Maximize and Pin window buttons",
 	"version": "1.7.0",
 	"minimumCoreVersion": "0.8.9",
-	"compatibleCoreVersion": "9.238",
+	"compatibleCoreVersion": "9.242",
 	"dependencies": [
 		{"name": "lib-wrapper"}
 	],
