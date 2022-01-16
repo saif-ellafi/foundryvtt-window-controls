@@ -8,6 +8,7 @@ class WindowControls {
   static cssMinimizedBottomBaseline = 70;
   static cssMinimizedTopBaseline = 0;
   static cssTopBarLeftStart = 120;
+  static cssTopBarPersistentLeftStart = 0;
   static cssBottomBarLeftStart = 250;
 
   static debouncedReload = debounce(() => window.location.reload(), 100);
@@ -29,7 +30,8 @@ class WindowControls {
   }
 
   static getCurrentMaxGap() {
-    const sidebarGap = WindowControls.cssMinimizedSize * 4;
+    const setting = game.settings.get('window-controls', 'organizedMinimize');
+    const sidebarGap = WindowControls.cssMinimizedSize * (setting === 'persistentTop' ? 2 : 4);
     const boardSize = parseInt($("#board").css('width'));
     return boardSize - sidebarGap;
   }
@@ -124,13 +126,14 @@ class WindowControls {
   }
 
   static positionMinimizeBar() {
-    const rootStyle = document.querySelector(':root').style;
     const setting = game.settings.get('window-controls', 'organizedMinimize');
+    if (!['topBar', 'bottomBar'].includes(setting))
+      return;
+    const rootStyle = document.querySelector(':root').style;
     const bar = $('#minimized-bar').hide();
     const barHtml = $(`<div id="minimized-bar" class="app" style="display: none;"></div>`);
     switch (setting) {
-      case 'topBar':
-      case 'persistentTop': {
+      case 'topBar': {
         rootStyle.setProperty('--minibarbot', 'unset');
         rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition() - 4) + 'px');
         rootStyle.setProperty('--minibarleft', WindowControls.cssTopBarLeftStart + 'px');
@@ -138,8 +141,7 @@ class WindowControls {
           barHtml.appendTo('body');
         break;
       }
-      case 'bottomBar':
-      case 'persistentBottom': {
+      case 'bottomBar': {
         let hotbarSetting;
         if (game.modules.get('minimal-ui')?.active)
           hotbarSetting = game.settings.get('minimal-ui', 'hotbar');
@@ -158,15 +160,15 @@ class WindowControls {
 
   static getTopPosition() {
     const minimizedSetting = game.settings.get('window-controls', 'organizedMinimize');
-    if (['bottomBar', 'bottom', 'persistentBottom'].includes(minimizedSetting)) {
+    if (['bottomBar', 'bottom'].includes(minimizedSetting)) {
       let hotbarSetting;
       if (game.modules.get('minimal-ui')?.active)
         hotbarSetting = game.settings.get('minimal-ui', 'hotbar');
       let availableHeight = parseInt($("#board").css('height'));
       if (hotbarSetting && (hotbarSetting === 'hidden' || (hotbarSetting === 'onlygm' && !game.user?.isGM)))
-        return availableHeight - WindowControls.cssMinimizedBottomBaseline + 65 - 40;
+        return availableHeight - WindowControls.cssMinimizedBottomBaseline + 65 - 41;
       else
-        return availableHeight - WindowControls.cssMinimizedBottomBaseline - 40;
+        return availableHeight - WindowControls.cssMinimizedBottomBaseline - 41;
     } else {
       let sceneNavigationSetting;
       let logoSetting;
@@ -185,7 +187,7 @@ class WindowControls {
 
   static getLeftPosition(app) {
     const minimizedSetting = game.settings.get('window-controls', 'organizedMinimize');
-    const minGap = ['top', 'topBar', 'persistentTop'].includes(minimizedSetting) ? WindowControls.cssTopBarLeftStart + 10 : WindowControls.cssBottomBarLeftStart + 10;
+    const minGap = ['top', 'topBar'].includes(minimizedSetting) ? WindowControls.cssTopBarLeftStart + 10 : (minimizedSetting === 'persistentTop' ? WindowControls.cssTopBarPersistentLeftStart + 10 : WindowControls.cssBottomBarLeftStart + 10);
     const jumpGap = WindowControls.cssMinimizedSize + 10;
     const maxGap = WindowControls.getCurrentMaxGap();
     let targetPos;
@@ -207,13 +209,14 @@ class WindowControls {
   }
 
   static setMinimizedPosition(app) {
+    const setting = game.settings.get('window-controls', 'organizedMinimize');
     const alreadyStashedWindow = Object.values(WindowControls.minimizedStash).find(m => m.app.appId === app.appId);
     if (!alreadyStashedWindow && WindowControls.getOverflowedState()) return;
     const leftPos = WindowControls.getLeftPosition(app);
     const topPos = WindowControls.getTopPosition();
     app.setPosition({
       left: leftPos ?? app.position.left,
-      top: topPos ?? app.position.top,
+      top: setting === 'persistentTop' ? 2 : (topPos ?? app.position.top),
       width: WindowControls.cssMinimizedSize
     });
     app.element.css({'z-index': WindowControls.getOverflowedState() ? 10 : 1});
@@ -394,7 +397,6 @@ class WindowControls {
     await taskbarApp.minimize();
     WindowControls.setMinimizedPosition(taskbarApp);
     WindowControls.setMinimizedStyle(taskbarApp);
-    WindowControls.refreshMinimizeBar();
     taskbarApp.element
       .find(".fa-window-restore")
       .removeClass('fa-window-restore')
@@ -412,11 +414,13 @@ class WindowControls {
   }
 
   static organizedMinimize(app, settings) {
-    if (['topBar', 'bottomBar'].includes(settings))
+    const isPersistent = ['topBar', 'bottomBar'].includes(settings);
+    if (isPersistent)
       WindowControls.toggleMovement(app);
     WindowControls.setMinimizedPosition(app);
     WindowControls.setMinimizedStyle(app);
-    WindowControls.refreshMinimizeBar();
+    if (isPersistent)
+      WindowControls.refreshMinimizeBar();
   }
 
   static organizedRestore(app, settings) {
@@ -425,10 +429,12 @@ class WindowControls {
         this.setPosition({top: 0});
       this.element.css('visibility', 'hidden');
     }
-    if (['topBar', 'bottomBar'].includes(settings))
+    const isPersistent = ['topBar', 'bottomBar'].includes(settings);
+    if (isPersistent)
       WindowControls.toggleMovement(app);
     WindowControls.setRestoredPosition(app);
-    WindowControls.refreshMinimizeBar();
+    if (isPersistent)
+      WindowControls.refreshMinimizeBar();
   }
 
   static organizedClose(app, settings) {
@@ -456,10 +462,9 @@ class WindowControls {
         "topBar": game.i18n.localize("WindowControls.OrganizedMinimizeTopBar"),
         "bottomBar": game.i18n.localize("WindowControls.OrganizedMinimizeBottomBar"),
         "persistentTop": game.i18n.localize("WindowControls.OrganizedPersistentTop"),
-        "persistentBottom": game.i18n.localize("WindowControls.OrganizedPersistentBottom"),
         "disabled": game.i18n.localize("WindowControls.Disabled")
       },
-      default: "persistentTop",
+      default: "topBar",
       onChange: WindowControls.debouncedReload
     });
     game.settings.register('window-controls', 'minimizeButton', {
@@ -528,7 +533,7 @@ class WindowControls {
 
       const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
 
-      if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
+      if (settingOrganized === 'persistentTop') {
         libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
           if (!this.element?.length) return wrapped(...args);
           const alreadyPersistedWindow = Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId);
@@ -714,6 +719,20 @@ class WindowControls {
 
 }
 
+Hooks.once('setup', () => {
+  if (game.settings.get('window-controls', 'organizedMinimize') === 'persistentTop') {
+    const rootStyle = document.querySelector(':root').style;
+    const top = 4;
+    const dedHeight = 100 - top;
+    window.innerHeight = window.innerHeight * dedHeight / 100; // This is to adjust the available space for floating windows, side effects?
+    rootStyle.setProperty('--minimizedpos', 'fixed');
+    rootStyle.setProperty('--sidebaradj', '99%');
+    $("body:not(.background)").css('top', `${top}%`);
+    $("body:not(.background)").css('height', `${dedHeight}%`);
+    $("body").append('<section id="window-controls-persistent"></section>');
+  }
+})
+
 Hooks.once('init', () => {
   if (!game.modules.get('lib-wrapper')?.active) {
     WindowControls.noLibWrapper = true;
@@ -746,8 +765,7 @@ Hooks.once('ready', () => {
   }
 
   const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
-  if (settingOrganized === 'persistentBottom' || settingOrganized === 'persistentTop') {
-
+  if (settingOrganized === 'persistentTop') {
     Hooks.on('renderSidebarTab', function (app) {
       if (app._original) // Avoids launching ghost applications on internal hooks
         WindowControls.renderDummyPanelApp(app);
@@ -781,12 +799,18 @@ class WindowControlsPersistentDummy extends Application {
       id: `dummy-${WindowControls.curateId(targetApp.title)}-${targetApp.appId}`
     });
     this.targetApp = targetApp;
-    var oldClose = this.targetApp.close;
-    var thisMagic = this;
+    const oldClose = this.targetApp.close;
+    const thisMagic = this;
     this.targetApp.close = async function () {
       await thisMagic.justClose();
       await oldClose.apply(this);
     }
+  }
+
+  _injectHTML(html) {
+    $('#window-controls-persistent').append(html);
+    this._element = html;
+    html.hide().fadeIn(200);
   }
 
   static get defaultOptions() {

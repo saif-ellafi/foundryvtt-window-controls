@@ -6,6 +6,8 @@
     --wcbordercolor: unset;
     --wcshadowcolor: unset;
     --wcshadowstrength: unset;
+    --minimizedpos: absolute;
+    --sidebaradj: 100%;
 }
 
 #minimized-bar {
@@ -23,7 +25,20 @@
     transition: 0.25s ease-out 0.25s;
 }
 
+#window-controls-persistent {
+    position: absolute;
+    width: 100%;
+    display: table-row;
+    height: 28px;
+    top: -30px;
+}
+
+#sidebar {
+    height: var(--sidebaradj);
+}
+
 .window-app.minimized.undraggable-minimized {
+    position: var(--minimizedpos);
     transition: 0.10s ease-out 0.25s;
 }
 
