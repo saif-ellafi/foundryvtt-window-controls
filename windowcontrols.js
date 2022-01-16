@@ -31,7 +31,7 @@ class WindowControls {
 
   static getCurrentMaxGap() {
     const setting = game.settings.get('window-controls', 'organizedMinimize');
-    const sidebarGap = WindowControls.cssMinimizedSize * (setting === 'persistentTop' ? 2 : 4);
+    const sidebarGap = WindowControls.cssMinimizedSize * (setting === 'persistentTop' ? 3 : 4);
     const boardSize = parseInt($("#board").css('width'));
     return boardSize - sidebarGap;
   }
@@ -525,6 +525,18 @@ class WindowControls {
         game.user.unsetFlag("window-controls", "persisted-pinned-windows")
       }
     });
+    game.settings.register('window-controls', 'taskbarColor', {
+      name: game.i18n.localize("WindowControls.TaskbarColorName"),
+      hint: game.i18n.localize("WindowControls.TaskbarColorHint"),
+      scope: 'world',
+      config: true,
+      type: String,
+      default: "#0000",
+      onChange: (newValue) => {
+        const rootStyle = document.querySelector(':root').style;
+        rootStyle.setProperty('--taskbarcolor', newValue);
+      }
+    });
   }
 
   static initHooks() {
@@ -727,6 +739,7 @@ Hooks.once('setup', () => {
     window.innerHeight = window.innerHeight * dedHeight / 100; // This is to adjust the available space for floating windows, side effects?
     rootStyle.setProperty('--minimizedpos', 'fixed');
     rootStyle.setProperty('--sidebaradj', '99%');
+    rootStyle.setProperty('--taskbarcolor', game.settings.get('window-controls', 'taskbarColor'));
     $("body:not(.background)").css('top', `${top}%`);
     $("body:not(.background)").css('height', `${dedHeight}%`);
     $("body").append('<section id="window-controls-persistent"></section>');

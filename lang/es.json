@@ -15,7 +15,7 @@
   "WindowControls.OrganizedMinimizeBottomBar": "Abajo con barra (Ventanas inamovibles)",
   "WindowControls.OrganizedMinimizeTop": "Arriba",
   "WindowControls.OrganizedMinimizeTopBar": "Arriba con barra (Ventanas inamovibles)",
-  "WindowControls.OrganizedPersistentTop": "Barra Persistente Arriba (Ventanas inamovibles)",
+  "WindowControls.OrganizedPersistentTop": "Barra de Tareas Arriba (Experimental)",
   "WindowControls.OrganizedPersistentBottom": "Barra Persistente Abajo (Ventanas inamovibles)",
 
   "WindowControls.PinnedButtonName": "Botón Fijado",
@@ -26,6 +26,9 @@
   "WindowControls.RememberPinnedHint": "Las ventanas fijadas se reabrirán automáticamente cuando se inicie una nueva sesión",
 
   "WindowControls.MaximizeButtonName": "Botón Maximizar",
-  "WindowControls.MaximizeButtonHint": "Añade un botón para maximizar las ventanas. Puede no funcionar correctamente en todos los sistemas."
+  "WindowControls.MaximizeButtonHint": "Añade un botón para maximizar las ventanas. Puede no funcionar correctamente en todos los sistemas.",
+
+  "WindowControls.TaskbarColorName": "Color de la barra de tareas",
+  "WindowControls.TaskbarColorHint": "Color de la barra de tareas cuando el modo organizado 'Barra de tareas superior' está activado"
 
 }

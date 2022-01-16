@@ -11,10 +11,11 @@ Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar
 
 ![full-mode.png](full-mode.png)
 
-This was formerly part of **Minimal UI**, but it was ripped off for better flexibility and independence.
+**New Top Taskbar mode!** 
+![new-persistent-mode.png](new-persistent-mode.png)
 
 **Recommended Together with [Minimal UI](https://github.com/saif-ellafi/foundryvtt-minimal-ui)**
-![img.png](with_minui.png)
+![with_minui.png](with_minui.png)
 
 ## Features
 ### Minimize button (Default: On)
@@ -26,9 +27,8 @@ Allows minimizing windows into a horizontal taskbar. Possible options are:
 * **Bottom**: Minimizes all windows on an invisible horizontal taskbar located at the bottom of the screen
 * **Top with Bar (Default)**: Minimize all windows inside a bar at the top in which minimized windows will be locked
 * **Bottom with Bar**: Minimize all windows inside a bar at the bottom in which minimized windows will be locked
+* **Top Taskbar**: All open windows (within supported) are shown on a dedicated space on top of the canvas.
 * **Disabled**: Default behavior in Foundry. Minimizes wherever the window was originally.
-* **Persistent Top Bar**: All windows (both minimized and open) are visible in a Bar located on top from which windows cannot move
-* **Persistent Bottom Bar**: All windows (both minimized and open) are visible in a Bar located on Bottom from which windows cannot move
 
 ### Pinned Button (Default: On)
 * Adds a pin button on window controls, to prevent them from being closed while pinned.

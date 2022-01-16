@@ -8,6 +8,7 @@
     --wcshadowstrength: unset;
     --minimizedpos: absolute;
     --sidebaradj: 100%;
+    --taskbarcolor: #0000;
 }
 
 #minimized-bar {
@@ -29,8 +30,9 @@
     position: absolute;
     width: 100%;
     display: table-row;
-    height: 28px;
-    top: -30px;
+    height: 40px;
+    top: -40px;
+    background-color: var(--taskbarcolor);
 }
 
 #sidebar {

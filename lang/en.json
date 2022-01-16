@@ -15,7 +15,7 @@
   "WindowControls.OrganizedMinimizeBottomBar": "Bottom with Bar (Windows cannot move)",
   "WindowControls.OrganizedMinimizeTop": "Top",
   "WindowControls.OrganizedMinimizeTopBar": "Top with Bar (Windows cannot move)",
-  "WindowControls.OrganizedPersistentTop": "Persistent Top Bar (Windows cannot move)",
+  "WindowControls.OrganizedPersistentTop": "Top Taskbar (Experimental)",
   "WindowControls.OrganizedPersistentBottom": "Persistent Bottom Bar (Windows cannot move)",
 
   "WindowControls.PinnedButtonName": "Pinned Button",
@@ -26,6 +26,9 @@
   "WindowControls.RememberPinnedHint": "Pinned Windows will automatically reopen when starting a new session",
 
   "WindowControls.MaximizeButtonName": "Maximize Button",
-  "WindowControls.MaximizeButtonHint": "Add a maximize button on resizeable windows. May not work well with all systems"
+  "WindowControls.MaximizeButtonHint": "Add a maximize button on resizeable windows. May not work well with all systems",
+
+  "WindowControls.TaskbarColorName": "Taskbar Color",
+  "WindowControls.TaskbarColorHint": "Color of the Taskbar when 'Top Taskbar' Organized Mode is enabled"
 
 }

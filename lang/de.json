@@ -15,7 +15,7 @@
   "WindowControls.OrganizedMinimizeTop": "Oben (frei beweglich)",
   "WindowControls.OrganizedMinimizeBottomBar": "In Bereich unten (nicht verschiebbar)",
   "WindowControls.OrganizedMinimizeTopBar": "In Bereich oben (nicht verschiebbar)",
-  "WindowControls.OrganizedPersistentTop": "Persistenter Bereich oben (nicht verschiebbar)",
+  "WindowControls.OrganizedPersistentTop": "Obere Taskleiste (Experimentell)",
   "WindowControls.OrganizedPersistentBottom": "Persistenter Bereich unten (nicht verschiebbar)",
 
   "WindowControls.PinnedButtonName": "Gepinnt Knopf",
@@ -26,6 +26,9 @@
   "WindowControls.RememberPinnedHint": "Angepinnte Fenster werden beim Starten einer neuen Sitzung",
 
   "WindowControls.MaximizeButtonName": "Maximieren Knopf",
-  "WindowControls.MaximizeButtonHint": "Bei Fenstern, die in ihrer Größe änderbar sind, einen Maximieren Knopf hinzufügen. Funktioniert nicht unbedingt mit allen Systemen."
+  "WindowControls.MaximizeButtonHint": "Bei Fenstern, die in ihrer Größe änderbar sind, einen Maximieren Knopf hinzufügen. Funktioniert nicht unbedingt mit allen Systemen.",
+
+  "WindowControls.TaskbarColorName": "Taskbar-Farbe",
+  "WindowControls.TaskbarColorHint": "Farbe der Taskleiste, wenn der Organisationsmodus 'Top Taskbar' aktiviert ist"
 
 }

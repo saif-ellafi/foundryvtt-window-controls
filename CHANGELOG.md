@@ -1,3 +1,9 @@
+### 1.7.0
+* Enhancement: New Organized Minimize Mode "Taskbar Top" fixes a taskbar on top of all canvas for minimized windows (Check screenshot!)
+* Deprecation: Persistent modes now deprecated in favor of Tasbkar mode. Earlier persistent mode did not give the experience I hoped for.
+
+Feedback is welcome and consider a ko-fi!
+
 ### 1.6.3
 * Compatibility: Forien's Quest Log V9+
 
