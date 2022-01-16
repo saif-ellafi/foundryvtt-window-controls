@@ -1,3 +1,7 @@
+### 1.7.1
+* Bugfix: Top Taskbar mode corrected an issue in calculation of unsupported windows minimization
+* Bugfix: Top Taskbar mode limited height of minimum height for settings
+
 ### 1.7.0
 * Enhancement: New Organized Minimize Mode "Taskbar Top" fixes a taskbar on top of all canvas for minimized windows (Check screenshot!)
 * Deprecation: Persistent modes now deprecated in favor of Tasbkar mode. Earlier persistent mode did not give the experience I hoped for.
