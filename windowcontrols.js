@@ -453,7 +453,7 @@ class WindowControls {
     game.settings.register('window-controls', 'organizedMinimize', {
       name: game.i18n.localize("WindowControls.OrganizedMinimizeName"),
       hint: game.i18n.localize("WindowControls.OrganizedMinimizeHint"),
-      scope: 'world',
+      scope: 'client',
       config: true,
       type: String,
       choices: {

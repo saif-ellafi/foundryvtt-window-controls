@@ -1,3 +1,6 @@
+### 1.7.2
+* Bugfix: Organized Minimize is now a setting per user and not global (i.e. per client)
+
 ### 1.7.1
 * Bugfix: Top Taskbar mode corrected an issue in calculation of unsupported windows minimization
 * Bugfix: Top Taskbar mode limited height of minimum height for settings
