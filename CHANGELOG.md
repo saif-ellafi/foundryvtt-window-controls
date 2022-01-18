@@ -1,3 +1,6 @@
+### 1.7.4
+* Bugfix: Use libwrapper to reposition windows rather than innerHeight
+
 ### 1.7.3
 * Bugfix: Better support for multiple screen resolution sizes with Taskbar mode
 

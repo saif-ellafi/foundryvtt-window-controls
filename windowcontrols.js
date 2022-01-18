@@ -414,12 +414,12 @@ class WindowControls {
   }
 
   static organizedMinimize(app, settings) {
-    const isPersistent = ['topBar', 'bottomBar'].includes(settings);
-    if (isPersistent)
+    const barEnabled = ['topBar', 'bottomBar'].includes(settings);
+    if (barEnabled)
       WindowControls.toggleMovement(app);
     WindowControls.setMinimizedPosition(app);
     WindowControls.setMinimizedStyle(app);
-    if (isPersistent)
+    if (barEnabled)
       WindowControls.refreshMinimizeBar();
   }
 
@@ -429,11 +429,11 @@ class WindowControls {
         this.setPosition({top: 0});
       this.element.css('visibility', 'hidden');
     }
-    const isPersistent = ['topBar', 'bottomBar'].includes(settings);
-    if (isPersistent)
+    const barEnabled = ['topBar', 'bottomBar'].includes(settings);
+    if (barEnabled)
       WindowControls.toggleMovement(app);
     WindowControls.setRestoredPosition(app);
-    if (isPersistent)
+    if (barEnabled)
       WindowControls.refreshMinimizeBar();
   }
 
@@ -735,14 +735,27 @@ Hooks.once('setup', () => {
   if (game.settings.get('window-controls', 'organizedMinimize') === 'persistentTop') {
     const rootStyle = document.querySelector(':root').style;
     const top = 4;
+    const margin = top * 10;
     const dedHeight = 100 - top;
-    window.innerHeight = window.innerHeight * dedHeight / 100; // This is to adjust the available space for floating windows, side effects?
     rootStyle.setProperty('--minimizedpos', 'fixed');
     rootStyle.setProperty('--sidebaradj', '99%');
     rootStyle.setProperty('--taskbarcolor', game.settings.get('window-controls', 'taskbarColor'));
-    $("body:not(.background)").css('top', `${top * 10}px`);
-    $("body:not(.background)").css('height', `${dedHeight}%`);
+    const nonBackBody = $("body:not(.background)");
+    nonBackBody.css('top', `${margin}px`);
+    nonBackBody.css('height', `${dedHeight}%`);
     $("body").append('<section id="window-controls-persistent"></section>');
+    libWrapper.register('window-controls', 'Application.prototype.setPosition', function (wrapped, ...args) {
+      const expectedPosition = wrapped(...args);
+      if (!expectedPosition || !this.element.length)
+        return expectedPosition;
+      const el = this.element[0];
+      const marginMaxValue = window.innerHeight - el.offsetHeight - margin;
+      if (expectedPosition.top >= marginMaxValue) {
+        el.style.top = marginMaxValue+'px';
+        expectedPosition.top = marginMaxValue;
+      }
+      return expectedPosition;
+    }, 'WRAPPER');
   }
 })
 
