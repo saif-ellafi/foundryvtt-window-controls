@@ -7,7 +7,7 @@
     --wcshadowcolor: unset;
     --wcshadowstrength: unset;
     --minimizedpos: absolute;
-    --sidebaradj: 100%;
+    --sidebaradj: calc(100vh - 10px);
     --taskbarcolor: #0000;
 }
 

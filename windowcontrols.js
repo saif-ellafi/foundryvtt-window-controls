@@ -738,7 +738,7 @@ Hooks.once('setup', () => {
     const margin = top * 10;
     const dedHeight = 100 - top;
     rootStyle.setProperty('--minimizedpos', 'fixed');
-    rootStyle.setProperty('--sidebaradj', '99%');
+    rootStyle.setProperty('--sidebaradj', `calc(100vh - ${10 + margin}px)`);
     rootStyle.setProperty('--taskbarcolor', game.settings.get('window-controls', 'taskbarColor'));
     const nonBackBody = $("body:not(.background)");
     nonBackBody.css('top', `${margin}px`);

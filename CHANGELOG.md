@@ -1,3 +1,7 @@
+### 1.7.5
+* Bugfix: Fixed an issue with the right sidebar margins in relation to taskbar mode
+* Build: Support for Foundry V9 as a major release
+
 ### 1.7.4
 * Bugfix: Use libwrapper to reposition windows rather than innerHeight
 
