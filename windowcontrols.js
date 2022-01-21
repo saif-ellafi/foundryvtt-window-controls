@@ -616,7 +616,7 @@ class WindowControls {
 
       libWrapper.register('window-controls', 'Application.prototype._getHeaderButtons', function (wrapped, ...args) {
         let result = wrapped(...args);
-        if (this.constructor.name === 'QuestTracker')
+        if (this.constructor.name === 'QuestTracker' || (game.modules.get('one-journal')?.active) && this.constructor.name === 'JournalSheet')
           return result;
         const close = result.find(b => b.class === 'close');
         close.label = '';
@@ -800,7 +800,8 @@ Hooks.once('ready', () => {
       WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderJournalSheet', function (app) {
-      WindowControls.renderDummyPanelApp(app);
+      if (!(game.modules.get('one-journal')?.active || game.modules.get('monks-enhanced-journal')?.active))
+        WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderRollTableConfig', function (app) {
       WindowControls.renderDummyPanelApp(app);

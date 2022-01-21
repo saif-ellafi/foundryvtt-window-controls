@@ -1,3 +1,6 @@
+### 1.7.6
+* Compatibility: OneJournal and Monk's Enhanced Journal
+
 ### 1.7.5
 * Bugfix: Fixed an issue with the right sidebar margins in relation to taskbar mode
 * Build: Support for Foundry V9 as a major release
