@@ -616,7 +616,7 @@ class WindowControls {
 
       libWrapper.register('window-controls', 'Application.prototype._getHeaderButtons', function (wrapped, ...args) {
         let result = wrapped(...args);
-        if (this.constructor.name === 'QuestTracker' || (game.modules.get('one-journal')?.active) && this.constructor.name === 'JournalSheet')
+        if (this.constructor.name === 'QuestTracker' || (game.modules.get('one-journal')?.active && this.constructor.name === 'JournalSheet') || this.constructor.name === 'ee') // yes, ee is Simple Calendar
           return result;
         const close = result.find(b => b.class === 'close');
         close.label = '';
@@ -800,7 +800,7 @@ Hooks.once('ready', () => {
       WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderJournalSheet', function (app) {
-      if (!(game.modules.get('one-journal')?.active || game.modules.get('monks-enhanced-journal')?.active))
+      if (!(game.modules.get('one-journal')?.active || app.enhancedjournal))
         WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderRollTableConfig', function (app) {
@@ -810,6 +810,25 @@ Hooks.once('ready', () => {
       WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderItemSheet', function (app) {
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('activateControls', function(app) {
+      if (app.constructor.name === 'EnhancedJournal')
+        WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderInlineViewer', function(app) {
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderee', function(app) { // yes, ee is Simple Calendar
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderQuestLog', function(app) { // yes, ee is Simple Calendar
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderQuestPreview', function(app) { // yes, ee is Simple Calendar
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderSoundBoardApplication', function(app) { // yes, ee is Simple Calendar
       WindowControls.renderDummyPanelApp(app);
     });
   }

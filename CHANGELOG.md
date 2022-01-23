@@ -1,3 +1,6 @@
+### 1.7.7
+* Compatibility: Taskbar mode support for: Monk's Enhanced Journal, SoundBoard by Blitz, Simple Calendar, Inline WebViewer, Forien's Quest Log
+
 ### 1.7.6
 * Compatibility: OneJournal and Monk's Enhanced Journal
 
