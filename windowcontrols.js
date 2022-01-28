@@ -57,14 +57,8 @@ class WindowControls {
 
   static async persistRender(persisted, collection) {
     const appDoc = collection.contents.find(d => d.id === persisted.docId).sheet;
-    await appDoc._render(true);
-    appDoc.element.css('visibility', 'hidden');
+    appDoc.render(true);
     WindowControls.persistRenderMinimizeRetry(appDoc, false, persisted.position)
-  }
-
-  static delayUnhide(app) {
-    if (!app._sourceDummyPanelApp)
-      setTimeout(() => app.element.css('visibility', ''), 500);
   }
 
   static persistRenderMinimizeRetry(appDoc, stop, position) {
@@ -75,14 +69,12 @@ class WindowControls {
           WindowControls.applyPinnedMode(appDoc._sourceDummyPanelApp);
         appDoc.setPosition(position);
         appDoc.minimize();
-        WindowControls.delayUnhide(appDoc);
       } else if (!stop) {
         console.warn("Window Controls: Too slow to render persisted Windows... Retrying...");
         WindowControls.persistRenderMinimizeRetry(appDoc, true, position);
       } else {
         console.warn("Window Controls: Too slow to render persisted Windows... I give up!");
         game.user.unsetFlag("window-controls", "persisted-pinned-windows");
-        WindowControls.delayUnhide(appDoc);
       }
     }, 1000)
   }
@@ -334,11 +326,10 @@ class WindowControls {
       delete app._closeBkp;
       // Dirty hack to prevent very fast minimization (messes up windows size)
       var _bkpMinimize = app.minimize;
-      app.minimize = function () {
-      };
+      app.minimize = function () {};
       setTimeout(() => {
         app.minimize = _bkpMinimize;
-      }, 1000)
+      }, 200)
       header.find(".entry-image").show();
       header.find(".entry-text").show();
       header.find(".close").show();
@@ -635,12 +626,10 @@ class WindowControls {
                 this.minimize();
                 //* Dirty hack to prevent "double minimize" after rapidly double-clicking on the minimize button
                 var _bkpMinimize = this.minimize;
-                this.minimize = () => {
-                };
+                this.minimize = () => {};
                 setTimeout(() => {
                   this.minimize = _bkpMinimize;
-                  // delete this._bkpMinimize;
-                }, 1000)
+                }, 200)
               }
             }.bind(this)
           };
@@ -787,7 +776,7 @@ Hooks.once('ready', () => {
     rootStyle.setProperty('--wcshadowcolor', game.settings.get('minimal-ui', 'shadowColor'));
     rootStyle.setProperty('--wcshadowstrength', game.settings.get('minimal-ui', 'shadowStrength') + 'px');
   } else {
-    rootStyle.setProperty('--wcbordercolor', '#ff640080');
+    rootStyle.setProperty('--wcbordercolor', '#ff71003b');
   }
 
   const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');

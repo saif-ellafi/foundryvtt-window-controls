@@ -1,3 +1,9 @@
+### 1.7.8
+* Bugfix: Fixed an issue with remember pinned windows on startup where some events did not trigger in some system actors
+* Bugfix: Fixed an issue where minimizing a window too fast, would disable the minimize button
+* Bugfix: Added color to pinned icon to make it clear the window pinned
+* Bugfix: Shifted default colors to users without Minimal UI to be softer
+
 ### 1.7.7
 * Compatibility: Taskbar mode support for: Monk's Enhanced Journal, SoundBoard by Blitz, Simple Calendar, Inline WebViewer, Forien's Quest Log
 
