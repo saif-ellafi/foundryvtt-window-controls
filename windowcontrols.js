@@ -515,7 +515,7 @@ class WindowControls {
       scope: 'world',
       config: true,
       type: Boolean,
-      default: true,
+      default: false,
       onChange: WindowControls.debouncedReload
     });
     game.settings.register('window-controls', 'pinnedDoubleTapping', {
@@ -532,7 +532,7 @@ class WindowControls {
       scope: 'world',
       config: true,
       type: Boolean,
-      default: true,
+      default: false,
       onChange: () => {
         game.user.unsetFlag("window-controls", "persisted-pinned-windows")
       }

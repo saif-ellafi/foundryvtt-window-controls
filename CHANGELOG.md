@@ -1,3 +1,6 @@
+### 1.8.1
+* Defaults: Reverted to some more conservative defaults for "Click Outside" and "Remember Pinned Windows" to be disabled
+
 ### 1.8.0
 * Enhancement: New setting 'Minimize Everything on Outside Click', enabled by default
 * Enhancement: 'Remember Pinned Windows' will now also remember sidebar tabs (floating chat, playlists, etc)

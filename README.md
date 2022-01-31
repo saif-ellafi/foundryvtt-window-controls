@@ -35,10 +35,10 @@ Allows minimizing windows into a horizontal taskbar. Possible options are:
 * Pressing `ESC` will close all windows except Pinned windows. Double tapping `ESC` will minimize them instead (Configurable)
 * This is useful for very important sheets that we never want to lose, and find them quickly.
 
-### Remember Pinned Windows
+### Remember Pinned Windows (Default: Off)
 * Setting `Remember Pinned Windows` will restore pinned windows across sessions, so they will open up again automatically next time.
 
-### Minimize everything when clicking outside a Window
+### Minimize everything when clicking outside a Window (Default: Off)
 * Allows quick cleanup of your screen when clicking on the board, without closing anything (except Config and Dialogs)
 
 ### Maximize Button (Default: Off)
