@@ -56,7 +56,7 @@ class WindowControls {
   }
 
   static unpersistPinned(app) {
-    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows")?.filter(a => a.docId !== app.document?.id) ?? [];
+    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows")?.filter(a => (a.docId !== app.document?.id && a.docId !== app.tabName)) ?? [];
     game.user.setFlag("window-controls", "persisted-pinned-windows", filtered);
   }
 

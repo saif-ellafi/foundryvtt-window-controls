@@ -1,4 +1,4 @@
-### 1.7.9
+### 1.8.0
 * Enhancement: New setting 'Minimize Everything on Outside Click', enabled by default
 * Enhancement: 'Remember Pinned Windows' will now also remember sidebar tabs (floating chat, playlists, etc)
 * Bugfix: Fixed a bug where minimized windows could be moved out of the bar
