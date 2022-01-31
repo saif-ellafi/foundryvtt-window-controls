@@ -25,6 +25,9 @@
   "WindowControls.RememberPinnedName": "Remember Pinned Windows",
   "WindowControls.RememberPinnedHint": "Pinned Windows will automatically reopen when starting a new session",
 
+  "WindowControls.ClickOutsideMinimizeName": "Minimize Everything on Outside Click",
+  "WindowControls.ClickOutsideMinimizeHint": "Minimize all windows when clicking on the game board. Except for Dialogs and Configs.",
+
   "WindowControls.MaximizeButtonName": "Maximize Button",
   "WindowControls.MaximizeButtonHint": "Add a maximize button on resizeable windows. May not work well with all systems",
 

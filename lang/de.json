@@ -25,6 +25,9 @@
   "WindowControls.RememberPinnedName": "Angepinnte Fenster merken",
   "WindowControls.RememberPinnedHint": "Angepinnte Fenster werden beim Starten einer neuen Sitzung",
 
+  "WindowControls.ClickOutsideMinimizeName": "Klick auf Board minimiert alles",
+  "WindowControls.ClickOutsideMinimizeHint": "Minimiere alle Fenster, wenn du auf das Spielbrett klickst. Außer Dialoge und Konfigurationen",
+
   "WindowControls.MaximizeButtonName": "Maximieren Knopf",
   "WindowControls.MaximizeButtonHint": "Bei Fenstern, die in ihrer Größe änderbar sind, einen Maximieren Knopf hinzufügen. Funktioniert nicht unbedingt mit allen Systemen.",
 

@@ -41,10 +41,15 @@ class WindowControls {
   }
 
   static persistPinned(app) {
+    const currentPersisted = game.user.getFlag("window-controls", "persisted-pinned-windows") ?? [];
     if (app.document?.id) {
-      const currentPersisted = game.user.getFlag("window-controls", "persisted-pinned-windows") ?? [];
       if (!currentPersisted.find(p => p.docId === app.document.id)) {
         currentPersisted.push({docId: app.document.id, docName: app.document.documentName, position: app.position});
+        game.user.setFlag("window-controls", "persisted-pinned-windows", currentPersisted);
+      }
+    } else if (app.tabName) {
+      if (!currentPersisted.find(p => p.docId === app.tabName)) {
+        currentPersisted.push({docId: app.tabName, docName: 'SidebarTab', position: app.position});
         game.user.setFlag("window-controls", "persisted-pinned-windows", currentPersisted);
       }
     }
@@ -56,9 +61,15 @@ class WindowControls {
   }
 
   static async persistRender(persisted, collection) {
-    const appDoc = collection.contents.find(d => d.id === persisted.docId).sheet;
-    appDoc.render(true);
-    WindowControls.persistRenderMinimizeRetry(appDoc, false, persisted.position)
+    if (collection.contents) {
+      const appDoc = collection.contents.find(d => d.id === persisted.docId).sheet;
+      appDoc.render(true);
+      WindowControls.persistRenderMinimizeRetry(appDoc, false, persisted.position)
+    } else if (collection.tabs) {
+      const tab = collection.tabs[persisted.docId];
+      tab.renderPopout();
+      WindowControls.persistRenderMinimizeRetry(tab._popout, false, persisted.position)
+    }
   }
 
   static persistRenderMinimizeRetry(appDoc, stop, position) {
@@ -68,7 +79,8 @@ class WindowControls {
         if (appDoc._sourceDummyPanelApp)
           WindowControls.applyPinnedMode(appDoc._sourceDummyPanelApp);
         appDoc.setPosition(position);
-        appDoc.minimize();
+        if (!appDoc._minimized)
+          appDoc.minimize();
       } else if (!stop) {
         console.warn("Window Controls: Too slow to render persisted Windows... Retrying...");
         WindowControls.persistRenderMinimizeRetry(appDoc, true, position);
@@ -497,6 +509,15 @@ class WindowControls {
       default: "disabled",
       onChange: WindowControls.debouncedReload
     });
+    game.settings.register('window-controls', 'clickOutsideMinimize', {
+      name: game.i18n.localize("WindowControls.ClickOutsideMinimizeName"),
+      hint: game.i18n.localize("WindowControls.ClickOutsideMinimizeHint"),
+      scope: 'world',
+      config: true,
+      type: Boolean,
+      default: true,
+      onChange: WindowControls.debouncedReload
+    });
     game.settings.register('window-controls', 'pinnedDoubleTapping', {
       name: game.i18n.localize("WindowControls.PinnedDoubleTappingName"),
       hint: game.i18n.localize("WindowControls.PinnedDoubleTappingHint"),
@@ -599,6 +620,7 @@ class WindowControls {
         libWrapper.register('window-controls', 'Application.prototype.close', function (wrapped, ...args) {
           if (!this.element?.length) return wrapped(...args);
           WindowControls.organizedClose(this, settingOrganized);
+          delete this._canBeMoved;
           return wrapped(...args).then(() => {
             WindowControls.refreshMinimizeBar();
           });
@@ -685,6 +707,10 @@ class WindowControls {
                 WindowControls.persistRender(persisted, game.tables);
                 break
               }
+              case "SidebarTab": {
+                WindowControls.persistRender(persisted, ui.sidebar);
+                break
+              }
             }
           })
         } catch (error) {
@@ -697,6 +723,21 @@ class WindowControls {
         app._sourceDummyPanelApp?.justClose();
         WindowControls.refreshMinimizeBar();
       });
+
+      if (game.settings.get('window-controls', 'clickOutsideMinimize')) {
+        $("#board").click(() => {
+          for (const w of Object.values(ui.windows)) {
+            if (w._minimized)
+              continue;
+            const ctr = w.constructor.name;
+            if (ctr === 'RollTableConfig' || !(ctr.includes('Config') ||
+              ctr.includes('Dialog') || ctr === 'ee' || ctr === 'FilePicker'))
+              w.minimize();
+            if (game.modules.get('gm-screen')?.active && $(".gm-screen-app").hasClass('expanded'))
+              $(".gm-screen-button").click();
+          }
+        });
+      }
 
     });
 
@@ -821,6 +862,8 @@ Hooks.once('ready', () => {
       WindowControls.renderDummyPanelApp(app);
     });
   }
+
+
 
 })
 
