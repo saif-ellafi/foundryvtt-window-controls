@@ -11,8 +11,11 @@ Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar
 
 ![full-mode.png](full-mode.png)
 
-**New Top Taskbar mode!** 
+**Top Taskbar mode!** 
 ![new-persistent-mode.png](new-persistent-mode.png)
+
+**Bottom Taskbar mode!**
+![bot-persistent-mode.png](bot-persistent-mode.png)
 
 **Recommended Together with [Minimal UI](https://github.com/saif-ellafi/foundryvtt-minimal-ui)**
 ![with_minui.png](with_minui.png)
