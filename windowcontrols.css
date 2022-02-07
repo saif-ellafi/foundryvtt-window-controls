@@ -30,8 +30,6 @@
     position: absolute;
     width: 100%;
     display: table-row;
-    height: 40px;
-    top: -40px;
     background-color: var(--taskbarcolor);
 }
 

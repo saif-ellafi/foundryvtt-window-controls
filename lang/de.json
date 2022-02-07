@@ -15,8 +15,8 @@
   "WindowControls.OrganizedMinimizeTop": "Oben (frei beweglich)",
   "WindowControls.OrganizedMinimizeBottomBar": "In Bereich unten (nicht verschiebbar)",
   "WindowControls.OrganizedMinimizeTopBar": "In Bereich oben (nicht verschiebbar)",
-  "WindowControls.OrganizedPersistentTop": "Obere Taskleiste (Experimentell)",
-  "WindowControls.OrganizedPersistentBottom": "Persistenter Bereich unten (nicht verschiebbar)",
+  "WindowControls.OrganizedPersistentTop": "Obere Taskleiste",
+  "WindowControls.OrganizedPersistentBottom": "Unter Taskleiste",
 
   "WindowControls.PinnedButtonName": "Gepinnt Knopf",
   "WindowControls.PinnedButtonHint": "Einen 'angepinnt' Knopf den Fenstern hínzufügen. Wenn geklickt, werden Fenster nie geschlossen sondern minimiert.",

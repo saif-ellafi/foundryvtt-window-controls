@@ -15,8 +15,8 @@
   "WindowControls.OrganizedMinimizeBottomBar": "Bottom with Bar (Windows cannot move)",
   "WindowControls.OrganizedMinimizeTop": "Top",
   "WindowControls.OrganizedMinimizeTopBar": "Top with Bar (Windows cannot move)",
-  "WindowControls.OrganizedPersistentTop": "Top Taskbar (Experimental)",
-  "WindowControls.OrganizedPersistentBottom": "Persistent Bottom Bar (Windows cannot move)",
+  "WindowControls.OrganizedPersistentTop": "Top Taskbar",
+  "WindowControls.OrganizedPersistentBottom": "Bottom Taskbar",
 
   "WindowControls.PinnedButtonName": "Pinned Button",
   "WindowControls.PinnedButtonHint": "Add a pin button on windows. If clicked, such windows may not be closed, only minimized.",

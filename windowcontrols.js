@@ -8,7 +8,7 @@ class WindowControls {
   static cssMinimizedBottomBaseline = 70;
   static cssMinimizedTopBaseline = 0;
   static cssTopBarLeftStart = 120;
-  static cssTopBarPersistentLeftStart = 0;
+  static cssTopBarPersistentLeftStart = -5;
   static cssBottomBarLeftStart = 250;
 
   static debouncedReload = debounce(() => window.location.reload(), 100);
@@ -31,7 +31,7 @@ class WindowControls {
 
   static getCurrentMaxGap() {
     const setting = game.settings.get('window-controls', 'organizedMinimize');
-    const sidebarGap = WindowControls.cssMinimizedSize * (setting === 'persistentTop' ? 3 : 4);
+    const sidebarGap = WindowControls.cssMinimizedSize * (setting === 'persistentTop' || setting === 'persistentBottom' ? 3 : 4);
     const boardSize = parseInt($("#board").css('width'));
     return boardSize - sidebarGap;
   }
@@ -191,7 +191,7 @@ class WindowControls {
 
   static getLeftPosition(app) {
     const minimizedSetting = game.settings.get('window-controls', 'organizedMinimize');
-    const minGap = ['top', 'topBar'].includes(minimizedSetting) ? WindowControls.cssTopBarLeftStart + 10 : (minimizedSetting === 'persistentTop' ? WindowControls.cssTopBarPersistentLeftStart + 10 : WindowControls.cssBottomBarLeftStart + 10);
+    const minGap = ['top', 'topBar'].includes(minimizedSetting) ? WindowControls.cssTopBarLeftStart + 10 : (minimizedSetting === 'persistentTop' || minimizedSetting === 'persistentBottom' ? WindowControls.cssTopBarPersistentLeftStart + 10 : WindowControls.cssBottomBarLeftStart + 10);
     const jumpGap = WindowControls.cssMinimizedSize + 10;
     const maxGap = WindowControls.getCurrentMaxGap();
     let targetPos;
@@ -220,7 +220,7 @@ class WindowControls {
     const topPos = WindowControls.getTopPosition();
     app.setPosition({
       left: leftPos ?? app.position.left,
-      top: setting === 'persistentTop' ? 2 : (topPos ?? app.position.top),
+      top: setting === 'persistentTop' ? 2 : setting === 'persistentBottom' ? $("#board").height() - 40 : (topPos ?? app.position.top),
       width: WindowControls.cssMinimizedSize
     });
     app.element.css({'z-index': WindowControls.getOverflowedState() ? 10 : 1});
@@ -465,6 +465,7 @@ class WindowControls {
         "topBar": game.i18n.localize("WindowControls.OrganizedMinimizeTopBar"),
         "bottomBar": game.i18n.localize("WindowControls.OrganizedMinimizeBottomBar"),
         "persistentTop": game.i18n.localize("WindowControls.OrganizedPersistentTop"),
+        "persistentBottom": game.i18n.localize("WindowControls.OrganizedPersistentBottom"),
         "disabled": game.i18n.localize("WindowControls.Disabled")
       },
       default: "topBar",
@@ -557,7 +558,7 @@ class WindowControls {
 
       const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
 
-      if (settingOrganized === 'persistentTop') {
+      if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
         libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
           if (!this.element?.length) return wrapped(...args);
           const alreadyPersistedWindow = Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId);
@@ -762,7 +763,8 @@ class WindowControls {
 }
 
 Hooks.once('setup', () => {
-  if (game.settings.get('window-controls', 'organizedMinimize') === 'persistentTop') {
+  const settings = game.settings.get('window-controls', 'organizedMinimize');
+  if (settings === 'persistentTop') {
     const rootStyle = document.querySelector(':root').style;
     const top = 4;
     const margin = top * 10;
@@ -774,6 +776,8 @@ Hooks.once('setup', () => {
     nonBackBody.css('top', `${margin}px`);
     nonBackBody.css('height', `${dedHeight}%`);
     $("body").append('<section id="window-controls-persistent"></section>');
+    $("#window-controls-persistent").css('top', '-40px');
+    $("#window-controls-persistent").css('height', '40px');
     libWrapper.register('window-controls', 'Application.prototype.setPosition', function (wrapped, ...args) {
       const expectedPosition = wrapped(...args);
       if (!expectedPosition || !this.element.length)
@@ -783,6 +787,32 @@ Hooks.once('setup', () => {
       if (expectedPosition.top >= marginMaxValue) {
         el.style.top = marginMaxValue+'px';
         expectedPosition.top = marginMaxValue;
+      }
+      return expectedPosition;
+    }, 'WRAPPER');
+  } else if (settings === 'persistentBottom') {
+    const rootStyle = document.querySelector(':root').style;
+    const top = -4;
+    const margin = top * 10;
+    const dedHeight = 100 + top;
+    rootStyle.setProperty('--minimizedpos', 'fixed');
+    rootStyle.setProperty('--sidebaradj', `calc(100vh - ${8 - margin}px)`);
+    rootStyle.setProperty('--taskbarcolor', game.settings.get('window-controls', 'taskbarColor'));
+    const nonBackBody = $("body:not(.background)");
+    nonBackBody.css('top', `${margin}px`);
+    nonBackBody.css('padding-top', `${-margin}px`);
+    $("body").append('<section id="window-controls-persistent"></section>');
+    $("#window-controls-persistent").css('bottom', '-40px');
+    $("#window-controls-persistent").css('height', '40px');
+    libWrapper.register('window-controls', 'Application.prototype.setPosition', function (wrapped, ...args) {
+      const expectedPosition = wrapped(...args);
+      if (!expectedPosition || !this.element.length)
+        return expectedPosition;
+      const el = this.element[0];
+      const marginMinValue = 42;
+      if (expectedPosition.top <= marginMinValue) {
+        el.style.top = marginMinValue+'px';
+        expectedPosition.top = marginMinValue;
       }
       return expectedPosition;
     }, 'WRAPPER');
@@ -821,7 +851,7 @@ Hooks.once('ready', () => {
   }
 
   const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
-  if (settingOrganized === 'persistentTop') {
+  if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
     Hooks.on('renderSidebarTab', function (app) {
       if (app._original) // Avoids launching ghost applications on internal hooks
         WindowControls.renderDummyPanelApp(app);

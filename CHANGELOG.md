@@ -1,3 +1,6 @@
+### 1.9.0
+* Enhancement: New setting 'Bottom Taskbar' allows for bottom dedicated area for open windows. Feedback welcome!
+
 ### 1.8.1
 * Defaults: Reverted to some more conservative defaults for "Click Outside" and "Remember Pinned Windows" to be disabled
 

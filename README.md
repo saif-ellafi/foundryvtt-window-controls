@@ -28,6 +28,7 @@ Allows minimizing windows into a horizontal taskbar. Possible options are:
 * **Top with Bar (Default)**: Minimize all windows inside a bar at the top in which minimized windows will be locked
 * **Bottom with Bar**: Minimize all windows inside a bar at the bottom in which minimized windows will be locked
 * **Top Taskbar**: All open windows (within supported) are shown on a dedicated space on top of the canvas.
+* **Bottom Taskbar**: All open windows (within supported) are shown on a dedicated space bottom of the canvas.
 * **Disabled**: Default behavior in Foundry. Minimizes wherever the window was originally.
 
 ### Pinned Button (Default: On)
