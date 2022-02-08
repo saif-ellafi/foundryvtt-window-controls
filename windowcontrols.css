@@ -7,7 +7,9 @@
     --wcshadowcolor: unset;
     --wcshadowstrength: unset;
     --minimizedpos: absolute;
-    --sidebaradj: calc(100vh - 10px);
+    --minisidebaradj: calc(100vh - 10px);
+    --miniminh: unset;
+    --minimaxh: unset;
     --taskbarcolor: #0000;
 }
 
@@ -34,11 +36,12 @@
 }
 
 #sidebar {
-    height: var(--sidebaradj);
+    height: var(--minisidebaradj);
 }
 
 #client-settings {
-    min-height: 95vh;
+    min-height: var(--miniminh);
+    max-height: var(--minimaxh);
 }
 
 .window-app.minimized {

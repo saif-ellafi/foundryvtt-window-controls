@@ -1,3 +1,7 @@
+### 1.9.1
+* Localization: Japanese thanks to Brother Sharp
+* Bugfix: Fixed minimum and maximum window heights when using Taskbar mode
+
 ### 1.9.0
 * Enhancement: New setting 'Bottom Taskbar' allows for bottom dedicated area for open windows. Feedback welcome!
 

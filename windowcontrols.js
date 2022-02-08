@@ -770,7 +770,9 @@ Hooks.once('setup', () => {
     const margin = top * 10;
     const dedHeight = 100 - top;
     rootStyle.setProperty('--minimizedpos', 'fixed');
-    rootStyle.setProperty('--sidebaradj', `calc(100vh - ${10 + margin}px)`);
+    rootStyle.setProperty('--miniminh', `65vh`);
+    rootStyle.setProperty('--minimaxh', `85vh`);
+    rootStyle.setProperty('--minisidebaradj', `calc(100vh - ${10 + margin}px)`);
     rootStyle.setProperty('--taskbarcolor', game.settings.get('window-controls', 'taskbarColor'));
     const nonBackBody = $("body:not(.background)");
     nonBackBody.css('top', `${margin}px`);
@@ -796,7 +798,9 @@ Hooks.once('setup', () => {
     const margin = top * 10;
     const dedHeight = 100 + top;
     rootStyle.setProperty('--minimizedpos', 'fixed');
-    rootStyle.setProperty('--sidebaradj', `calc(100vh - ${8 - margin}px)`);
+    rootStyle.setProperty('--miniminh', `65vh`);
+    rootStyle.setProperty('--minimaxh', `85vh`);
+    rootStyle.setProperty('--minisidebaradj', `calc(100vh - ${8 - margin}px)`);
     rootStyle.setProperty('--taskbarcolor', game.settings.get('window-controls', 'taskbarColor'));
     const nonBackBody = $("body:not(.background)");
     nonBackBody.css('top', `${margin}px`);
