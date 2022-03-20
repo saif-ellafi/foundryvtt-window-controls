@@ -1,3 +1,8 @@
+### 1.9.2
+* Compatibility: PDFoundry now works well with bar modes
+* Bugfix: Limited height of windows when using Taskbar modes
+* Bugfix: Resolved problem with Bottom Taskbar when browser size changes
+
 ### 1.9.1
 * Localization: Japanese thanks to Brother Sharp
 * Bugfix: Fixed minimum and maximum window heights when using Taskbar mode

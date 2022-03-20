@@ -11,6 +11,9 @@ class WindowControls {
   static cssTopBarPersistentLeftStart = -5;
   static cssBottomBarLeftStart = 250;
 
+  static getTaskbarTop = () => 2;
+  static getTaskbarBot = () => $("#board").height() - 40;
+
   static debouncedReload = debounce(() => window.location.reload(), 100);
 
   static getStashedKeys() {
@@ -168,7 +171,7 @@ class WindowControls {
       let hotbarSetting;
       if (game.modules.get('minimal-ui')?.active)
         hotbarSetting = game.settings.get('minimal-ui', 'hotbar');
-      let availableHeight = parseInt($("#board").css('height'));
+      let availableHeight = $("#board").height();
       if (hotbarSetting && (hotbarSetting === 'hidden' || (hotbarSetting === 'onlygm' && !game.user?.isGM)))
         return availableHeight - WindowControls.cssMinimizedBottomBaseline + 65 - 41;
       else
@@ -220,7 +223,7 @@ class WindowControls {
     const topPos = WindowControls.getTopPosition();
     app.setPosition({
       left: leftPos ?? app.position.left,
-      top: setting === 'persistentTop' ? 2 : setting === 'persistentBottom' ? $("#board").height() - 40 : (topPos ?? app.position.top),
+      top: setting === 'persistentTop' ? WindowControls.getTaskbarTop() : setting === 'persistentBottom' ? WindowControls.getTaskbarBot() : (topPos ?? app.position.top),
       width: WindowControls.cssMinimizedSize
     });
     app.element.css({'z-index': WindowControls.getOverflowedState() ? 10 : 1});
@@ -782,13 +785,20 @@ Hooks.once('setup', () => {
     $("#window-controls-persistent").css('height', '40px');
     libWrapper.register('window-controls', 'Application.prototype.setPosition', function (wrapped, ...args) {
       const expectedPosition = wrapped(...args);
-      if (!expectedPosition || !this.element.length)
-        return expectedPosition;
-      const el = this.element[0];
-      const marginMaxValue = window.innerHeight - el.offsetHeight - margin;
-      if (expectedPosition.top >= marginMaxValue) {
-        el.style.top = marginMaxValue+'px';
-        expectedPosition.top = marginMaxValue;
+      if (this.constructor.name !== 'WindowControlsPersistentDummy') {
+        if (!expectedPosition || !this.element.length)
+          return expectedPosition;
+        const el = this.element[0];
+        const marginMaxValue = window.innerHeight - el.offsetHeight - margin;
+        if (expectedPosition.top >= marginMaxValue) {
+          el.style.top = marginMaxValue+'px';
+          expectedPosition.top = marginMaxValue;
+        }
+        const maxHeight = $("#board").height() - 42;
+        if (expectedPosition.height > maxHeight) {
+          el.style.height = maxHeight+'px';
+          expectedPosition.height = maxHeight;
+        }
       }
       return expectedPosition;
     }, 'WRAPPER');
@@ -810,13 +820,26 @@ Hooks.once('setup', () => {
     $("#window-controls-persistent").css('height', '40px');
     libWrapper.register('window-controls', 'Application.prototype.setPosition', function (wrapped, ...args) {
       const expectedPosition = wrapped(...args);
-      if (!expectedPosition || !this.element.length)
-        return expectedPosition;
-      const el = this.element[0];
-      const marginMinValue = 42;
-      if (expectedPosition.top <= marginMinValue) {
-        el.style.top = marginMinValue+'px';
-        expectedPosition.top = marginMinValue;
+      if (this.constructor.name === 'WindowControlsPersistentDummy') {
+        setTimeout(() => {
+          const botPos = WindowControls.getTaskbarBot();
+          if (this.position.top != botPos)
+            this.setPosition({top: botPos});
+        }, 500);
+      } else {
+        if (!expectedPosition || !this.element.length)
+          return expectedPosition;
+        const el = this.element[0];
+        const marginMinValue = 42;
+        if (expectedPosition.top <= marginMinValue) {
+          el.style.top = marginMinValue+'px';
+          expectedPosition.top = marginMinValue;
+        }
+        const maxHeight = $("#board").height() - marginMinValue;
+        if (expectedPosition.height > maxHeight) {
+          el.style.height = maxHeight+'px';
+          expectedPosition.height = maxHeight;
+        }
       }
       return expectedPosition;
     }, 'WRAPPER');
@@ -880,19 +903,25 @@ Hooks.once('ready', () => {
       if (app.constructor.name === 'EnhancedJournal')
         WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderInlineViewer', function(app) {
+    Hooks.on('renderInlineViewer', function(app) { // Inline Web Viewer
       WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('renderee', function(app) { // yes, ee is Simple Calendar
       WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderQuestLog', function(app) { // yes, ee is Simple Calendar
+    Hooks.on('renderQuestLog', function(app) { // Quest Log
       WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderQuestPreview', function(app) { // yes, ee is Simple Calendar
+    Hooks.on('renderQuestPreview', function(app) { // Quest Log
       WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderSoundBoardApplication', function(app) { // yes, ee is Simple Calendar
+    Hooks.on('renderSoundBoardApplication', function(app) { // Soundboard
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderStaticViewer', function(app) { // PDFoundry
+      WindowControls.renderDummyPanelApp(app);
+    });
+    Hooks.on('renderFillableViewer', function(app) { // PDFoundry
       WindowControls.renderDummyPanelApp(app);
     });
   }
