@@ -95,7 +95,6 @@ class WindowControls {
   }
 
   static toggleMovement(app) {
-    console.log(app);
     const elementJS = app.element[0];
     const stashOverflowed = WindowControls.getOverflowedState();
     if (stashOverflowed) {
@@ -600,8 +599,6 @@ class WindowControls {
             if (!this.element?.length) return;
             WindowControls.organizedMinimize(this, settingOrganized);
             const stashOverflowed = WindowControls.getOverflowedState();
-            console.log(WindowControls.minimizedStash);
-            console.log(this.appId);
             if (settingOrganized.includes('Bar') && (!stashOverflowed || WindowControls.appInStash(this.appId)))
               this.element.find("header").removeClass("draggable");
           })
