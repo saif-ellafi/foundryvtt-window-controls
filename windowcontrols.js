@@ -724,12 +724,10 @@ class WindowControls {
       if (game.settings.get('window-controls', 'clickOutsideMinimize')) {
         $("#board").click(() => {
           for (const w of Object.values(ui.windows)) {
-            if (w._minimized)
-              continue;
             const ctr = w.constructor.name;
-            if (ctr === 'RollTableConfig' || !(ctr.includes('Config') ||
-              ctr.includes('Dialog') || ctr === 'ee' || ctr === 'FilePicker'))
-              w.minimize();
+            if (w._minimized === true || w._pinned === true || ctr === 'DestinyTracker' || ctr === 'ee')
+              continue;
+            w.minimize();
             if (game.modules.get('gm-screen')?.active && $(".gm-screen-app").hasClass('expanded'))
               $(".gm-screen-button").click();
           }

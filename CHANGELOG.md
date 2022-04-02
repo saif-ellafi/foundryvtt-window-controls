@@ -1,3 +1,7 @@
+### 1.9.4
+* Enhancement: Minimize on click outside won't minimize pinned windows
+* Compatibility: Minimize on click outside won't minimize 'Destiny Tracker' From StarWarsFFG
+
 ### 1.9.3
 * Enhancement: Simplified logic for locking window movement
 * Bugfix: Fixed Forien Quest window not moving (Thanks XtraButtery)
