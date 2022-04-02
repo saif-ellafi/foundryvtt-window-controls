@@ -95,41 +95,26 @@ class WindowControls {
   }
 
   static toggleMovement(app) {
+    console.log(app);
     const elementJS = app.element[0];
     const stashOverflowed = WindowControls.getOverflowedState();
     if (stashOverflowed) {
-      if (app._canBeMoved === false) {
-        app.element.find("header").addClass("draggable");
-        app._canBeMoved = true;
-      }
       return;
     }
 
-    if (app._canBeMoved === undefined) {
-      elementJS.addEventListener('mousemove', function (ev) {
-        if (!app._canBeMoved)
-          ev.stopImmediatePropagation();
-      }, true)
-      elementJS.addEventListener('mousedown', function (ev) {
-        if (!app._canBeMoved)
-          ev.stopImmediatePropagation();
-      }, true)
-      elementJS.addEventListener('mouseup', function (ev) {
-        if (!app._canBeMoved)
-          ev.stopImmediatePropagation();
-      }, true)
-      app.element.find("header").removeClass("draggable");
-      app.element.addClass("undraggable-minimized");
-      app._canBeMoved = false;
-    } else if (app._canBeMoved === true) {
-      app.element.find("header").removeClass("draggable");
-      app.element.addClass("undraggable-minimized");
-      app._canBeMoved = false;
-    } else {
-      app.element.find("header").addClass("draggable");
-      app.element.removeClass("undraggable-minimized");
-      app._canBeMoved = true;
-    }
+    elementJS.addEventListener('mousemove', function (ev) {
+      if (app._minimized)
+        ev.stopImmediatePropagation();
+    }, true)
+    elementJS.addEventListener('mousedown', function (ev) {
+      if (app._minimized)
+        ev.stopImmediatePropagation();
+    }, true)
+    elementJS.addEventListener('mouseup', function (ev) {
+      if (app._minimized)
+        ev.stopImmediatePropagation();
+    }, true)
+
   }
 
   static positionMinimizeBar() {
@@ -199,7 +184,7 @@ class WindowControls {
     const maxGap = WindowControls.getCurrentMaxGap();
     let targetPos;
     for (let i = minGap; i < maxGap + jumpGap; i = i + jumpGap) {
-      if (WindowControls.minimizedStash[i]?.app.appId === app.appId) {
+      if (WindowControls.minimizedStash[i]?.app.appId === app?.appId) {
         WindowControls.minimizedStash[i].oldPosition = Object.assign({}, app.position);
         targetPos = i;
         return targetPos;
@@ -217,7 +202,7 @@ class WindowControls {
 
   static setMinimizedPosition(app) {
     const setting = game.settings.get('window-controls', 'organizedMinimize');
-    const alreadyStashedWindow = Object.values(WindowControls.minimizedStash).find(m => m.app.appId === app.appId);
+    const alreadyStashedWindow = WindowControls.appInStash(app?.appId);
     if (!alreadyStashedWindow && WindowControls.getOverflowedState()) return;
     const leftPos = WindowControls.getLeftPosition(app);
     const topPos = WindowControls.getTopPosition();
@@ -230,9 +215,7 @@ class WindowControls {
   }
 
   static setRestoredPosition(app) {
-    const minimizedStash = Object.values(WindowControls.minimizedStash);
-    const matchedStash = minimizedStash.find(a => a.app.appId === app?.appId);
-    app.setPosition(matchedStash?.oldPosition ?? app.position);
+    app.setPosition(WindowControls.appInStash(app?.appId)?.oldPosition ?? app.position);
   }
 
   static deleteFromStash(app, keys) {
@@ -250,6 +233,10 @@ class WindowControls {
         delete WindowControls.minimizedStash[i];
       }
     });
+  }
+
+  static appInStash(targetId) {
+    return Object.values(WindowControls.minimizedStash).find(a => a.app?.appId === targetId)
   }
 
   static refreshMinimizeBar() {
@@ -407,6 +394,9 @@ class WindowControls {
       .find(".fa-window-restore")
       .removeClass('fa-window-restore')
       .addClass('fa-window-minimize');
+    taskbarApp.element
+      .find("header")
+      .removeClass("draggable");
     if (game.modules.get('minimal-ui')?.active) {
       taskbarApp.element.css('background-color', game.settings.get('minimal-ui', 'shadowColor'));
     } else {
@@ -609,6 +599,11 @@ class WindowControls {
           return wrapped(...args).then(() => {
             if (!this.element?.length) return;
             WindowControls.organizedMinimize(this, settingOrganized);
+            const stashOverflowed = WindowControls.getOverflowedState();
+            console.log(WindowControls.minimizedStash);
+            console.log(this.appId);
+            if (settingOrganized.includes('Bar') && (!stashOverflowed || WindowControls.appInStash(this.appId)))
+              this.element.find("header").removeClass("draggable");
           })
         }, 'WRAPPER');
 
@@ -618,13 +613,14 @@ class WindowControls {
           return wrapped(...args).then(() => {
             WindowControls.setRestoredStyle(this);
             this.element.css('visibility', '');
+            if (settingOrganized.includes('Bar'))
+              this.element.find("header").addClass("draggable");
           });
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.close', function (wrapped, ...args) {
           if (!this.element?.length) return wrapped(...args);
           WindowControls.organizedClose(this, settingOrganized);
-          delete this._canBeMoved;
           return wrapped(...args).then(() => {
             WindowControls.refreshMinimizeBar();
           });

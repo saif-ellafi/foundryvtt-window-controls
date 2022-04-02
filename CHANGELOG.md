@@ -1,3 +1,8 @@
+### 1.9.3
+* Enhancement: Simplified logic for locking window movement
+* Bugfix: Fixed Forien Quest window not moving (Thanks XtraButtery)
+* Bugfix: Fixed some issues in window movements lock when reopening (Thanks roguedevjake)
+
 ### 1.9.2
 * Compatibility: PDFoundry now works well with bar modes
 * Bugfix: Limited height of windows when using Taskbar modes
