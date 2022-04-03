@@ -1,3 +1,7 @@
+### 1.9.5
+* Bugfix: Minimize on click outside won't minimize anything if any token is active
+* Compatibility: Minimize on click outside won't minimize dialogs
+
 ### 1.9.4
 * Enhancement: Minimize on click outside won't minimize pinned windows
 * Compatibility: Minimize on click outside won't minimize 'Destiny Tracker' From StarWarsFFG

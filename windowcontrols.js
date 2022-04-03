@@ -20,6 +20,22 @@ class WindowControls {
     return Object.keys(WindowControls.minimizedStash).map(w => parseInt(w));
   }
 
+  static minimizeAll() {
+    for (const w of Object.values(ui.windows)) {
+      const ctr = w.constructor.name;
+      if (w._minimized === true || w._pinned === true || ctr === 'DestinyTracker' || ctr === 'ee')
+        continue;
+      if ( // Do not minimize Dialogs
+        !(ctr.includes('Config') ||
+          ctr === 'RollTableConfig' ||
+          ctr.includes('Dialog') ||
+          ctr === 'FilePicker')
+      ) w.minimize();
+      if (game.modules.get('gm-screen')?.active && $(".gm-screen-app").hasClass('expanded'))
+        $(".gm-screen-button").click();
+    }
+  }
+
   static curateId(text) {
     return text.replace(/\W/g, '_');
   }
@@ -605,7 +621,7 @@ class WindowControls {
         }, 'WRAPPER');
 
         libWrapper.register('window-controls', 'Application.prototype.maximize', function (wrapped, ...args) {
-          if (!this.element?.length) return wrapped(...args);
+          if (!this.element?.length || !this._minimized) return wrapped(...args);
           WindowControls.organizedRestore(this, settingOrganized);
           return wrapped(...args).then(() => {
             WindowControls.setRestoredStyle(this);
@@ -723,14 +739,9 @@ class WindowControls {
 
       if (game.settings.get('window-controls', 'clickOutsideMinimize')) {
         $("#board").click(() => {
-          for (const w of Object.values(ui.windows)) {
-            const ctr = w.constructor.name;
-            if (w._minimized === true || w._pinned === true || ctr === 'DestinyTracker' || ctr === 'ee')
-              continue;
-            w.minimize();
-            if (game.modules.get('gm-screen')?.active && $(".gm-screen-app").hasClass('expanded'))
-              $(".gm-screen-button").click();
-          }
+          if (canvas.tokens.controlled.length)
+            return;
+          WindowControls.minimizeAll();
         });
       }
 

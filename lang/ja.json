@@ -26,7 +26,7 @@
     "WindowControls.RememberPinnedHint": "ログイン時、前のセッションでピン留めされたウィンドウは自動的に開きます。",
 
     "WindowControls.ClickOutsideMinimizeName": "外側のクリックですべてを最小化",
-    "WindowControls.ClickOutsideMinimizeHint": "ゲームボード上をクリックすると、すべてのウィンドウが最小化されます。ただし、ダイアログとコンフィグを除く。",
+    "WindowControls.ClickOutsideMinimizeHint": "ボード上をクリックすると、すべてのウィンドウを最小化します。左クリックでオブジェクトを解放する」設定で最適に動作します。",
 
     "WindowControls.MaximizeButtonName": "最大化ボタン",
     "WindowControls.MaximizeButtonHint": "サイズ変更可能なウィンドウに最大化ボタンを追加します。システムによっては正しく動作しないかも知れませんので、ご注意ください。",

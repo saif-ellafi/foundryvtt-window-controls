@@ -26,7 +26,7 @@
   "WindowControls.RememberPinnedHint": "Las ventanas fijadas se reabrirán automáticamente cuando se inicie una nueva sesión",
 
   "WindowControls.ClickOutsideMinimizeName": "Minimizar Todo al Clickear Afuera",
-  "WindowControls.ClickOutsideMinimizeHint": "Minimizar todas las ventanas al hacer clic en el tablero. Excepto dialogos y configuraciones.",
+  "WindowControls.ClickOutsideMinimizeHint": "Minimiza todas las ventanas al hacer clic en el tablero. Funciona mejor con la configuración: 'clic izquierdo para liberar Objetos'.",
 
   "WindowControls.MaximizeButtonName": "Botón Maximizar",
   "WindowControls.MaximizeButtonHint": "Añade un botón para maximizar las ventanas. Puede no funcionar correctamente en todos los sistemas.",
