@@ -1,3 +1,6 @@
+### 1.9.6
+* Rollback: Click outside to minimize all windows, includes pinned windows too again
+
 ### 1.9.5
 * Bugfix: Minimize on click outside won't minimize anything if any token is active
 * Compatibility: Minimize on click outside won't minimize dialogs

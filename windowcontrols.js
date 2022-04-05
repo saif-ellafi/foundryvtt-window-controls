@@ -23,7 +23,7 @@ class WindowControls {
   static minimizeAll() {
     for (const w of Object.values(ui.windows)) {
       const ctr = w.constructor.name;
-      if (w._minimized === true || w._pinned === true || ctr === 'DestinyTracker' || ctr === 'ee')
+      if (w._minimized === true || ctr === 'DestinyTracker' || ctr === 'ee')
         continue;
       if ( // Do not minimize Dialogs
         !(ctr.includes('Config') ||
