@@ -1,3 +1,8 @@
+### 1.9.7
+* Compatibility: Support PDFoundry when restoring open windows enabled on session start
+* Enhancement: Simple click on Taskbar mode now maximizes clicked window
+* Bugfix: Corrected some issues in the behavior of minimize/restore header buttons
+
 ### 1.9.6
 * Rollback: Click outside to minimize all windows, includes pinned windows too again
 

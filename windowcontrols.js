@@ -80,7 +80,13 @@ class WindowControls {
   }
 
   static async persistRender(persisted, collection) {
-    if (collection.contents) {
+    if (ui.PDFoundry && game.journal.get(persisted.docId)?.data.flags.pdfoundry) {
+      const pdf = game.journal.get(persisted.docId);
+      ui.PDFoundry.openPDFByName(
+        pdf.name,
+        {entity: pdf}
+      ).then(pf => pf.minimize());
+    } else if (collection.contents) {
       const appDoc = collection.contents.find(d => d.id === persisted.docId).sheet;
       appDoc.render(true);
       WindowControls.persistRenderMinimizeRetry(appDoc, false, persisted.position)
@@ -93,13 +99,14 @@ class WindowControls {
 
   static persistRenderMinimizeRetry(appDoc, stop, position) {
     setTimeout(() => {
-      if (appDoc.rendered) {
+      if (appDoc?.rendered) {
         WindowControls.applyPinnedMode(appDoc);
         if (appDoc._sourceDummyPanelApp)
           WindowControls.applyPinnedMode(appDoc._sourceDummyPanelApp);
         appDoc.setPosition(position);
         if (!appDoc._minimized)
           appDoc.minimize();
+        setTimeout(() => WindowControls.setMinimizedStyle(appDoc._sourceDummyPanelApp), 500);
       } else if (!stop) {
         console.warn("Window Controls: Too slow to render persisted Windows... Retrying...");
         WindowControls.persistRenderMinimizeRetry(appDoc, true, position);
@@ -418,8 +425,11 @@ class WindowControls {
       taskbarApp.element.css('background-color', '#ff640080');
     }
     taskbarApp.element.find('header').click(function () {
-      if (!taskbarApp.targetApp._minimized)
-        taskbarApp.targetApp.bringToTop();
+      if (taskbarApp.targetApp._minimized) {
+        taskbarApp.targetApp.maximize();
+        WindowControls.setRestoredStyle(taskbarApp);
+      }
+      taskbarApp.targetApp.bringToTop();
     })
     taskbarApp.element.css('visibility', 'visible')
   }
