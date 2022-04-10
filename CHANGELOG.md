@@ -1,3 +1,6 @@
+### 1.9.8
+* Reintroduce: Click outside to minimize all windows, does not include pinned windows
+
 ### 1.9.7
 * Compatibility: Support PDFoundry when restoring open windows enabled on session start
 * Enhancement: Simple click on Taskbar mode now maximizes clicked window
