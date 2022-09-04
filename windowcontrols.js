@@ -294,6 +294,7 @@ class WindowControls {
   }
 
   static setMinimizedStyle(app) {
+    if (!app?.element) return;
     app.element.find(".window-header > h4").text(WindowControls.curateTitle(app.title));
     app.element.find(".minimize").empty();
     app.element.find(".minimize").append(`<i class="far fa-window-restore"></i>`);
