@@ -1,3 +1,6 @@
+### 1.10.0
+* Compatibility: Foundry V10 support
+
 ### 1.9.8
 * Reintroduce: Click outside to minimize all windows, does not include pinned windows
 
