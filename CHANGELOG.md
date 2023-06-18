@@ -1,3 +1,6 @@
+### 1.11.0
+* Compatibility: Foundry V11 support
+
 ### 1.10.0
 * Compatibility: Foundry V10 support
 

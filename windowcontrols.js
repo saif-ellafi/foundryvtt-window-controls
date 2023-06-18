@@ -124,15 +124,7 @@ class WindowControls {
       return;
     }
 
-    elementJS.addEventListener('mousemove', function (ev) {
-      if (app._minimized)
-        ev.stopImmediatePropagation();
-    }, true)
-    elementJS.addEventListener('mousedown', function (ev) {
-      if (app._minimized)
-        ev.stopImmediatePropagation();
-    }, true)
-    elementJS.addEventListener('mouseup', function (ev) {
+    elementJS.addEventListener('pointerdown', function (ev) {
       if (app._minimized)
         ev.stopImmediatePropagation();
     }, true)
@@ -667,7 +659,7 @@ class WindowControls {
             icon: "far fa-window-minimize",
             onclick: function () {
               if (this._minimized)
-                this.maximize();
+                this.maximize(true); // 'clicked' hack for V11 - to not minimize dummy windows on render
               else {
                 this.minimize();
                 //* Dirty hack to prevent "double minimize" after rapidly double-clicking on the minimize button
@@ -974,7 +966,7 @@ class WindowControlsPersistentDummy extends Application {
     });
   }
 
-  async maximize() {
+  async maximize(clicked) {
     if (this.targetApp._minimized) {
       await this.targetApp.maximize();
       this.element
@@ -985,8 +977,9 @@ class WindowControlsPersistentDummy extends Application {
         this.element.css('background-color', game.settings.get('minimal-ui', 'shadowColor'));
       } else {
         this.element.css('background-color', '#ff640080');
-      }
-    } else {
+      };
+      this.targetApp.bringToTop();
+    } else if (clicked) {  // Hack for V11 - to not minimize dummy windows on render
       await this.targetApp.minimize();
       this.element
         .find(".fa-window-minimize")
@@ -994,7 +987,6 @@ class WindowControlsPersistentDummy extends Application {
         .addClass('fa-window-restore');
       return
     }
-    this.targetApp.bringToTop();
   }
 
   async justClose() {
