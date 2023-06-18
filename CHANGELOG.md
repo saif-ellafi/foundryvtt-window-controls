@@ -1,3 +1,6 @@
+### 1.11.1
+* Compatibility: Fixed module metadata
+
 ### 1.11.0
 * Compatibility: Foundry V11 support
 
