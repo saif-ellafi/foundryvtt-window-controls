@@ -1,5 +1,5 @@
 {
-	"name": "window-controls",
+	"id": "window-controls",
 	"title": "Window Controls",
 	"author": "JeansenVaars#2857",
 	"authors": [
@@ -18,9 +18,12 @@
 		"verified": "11.302",
 		"maximum": "11"
 	},
-	"dependencies": [
-		{"name": "lib-wrapper"}
-	],
+	"relationships": {
+		"requires":  [{
+			"id": "lib-wrapper",
+			"type": "module"
+		}]
+	},
 	"esmodules": [ "windowcontrols.js" ],
 	"styles": [ "windowcontrols.css" ],
 	"languages": [
