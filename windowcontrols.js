@@ -933,11 +933,11 @@ Hooks.once('ready', () => {
     // ugly, but works. correct the offsets on drop
     if (settingOrganized === 'persistentTop') {
       Hooks.on('dropCanvasData', function(canvas, data) {
-        data.y = data.y -= 80;
+        data.y = data.y -= 40;
       });
     } else {
       Hooks.on('dropCanvasData', function(canvas, data) {
-        data.y = data.y += 80;
+        data.y = data.y += 40;
       });
     }
 
