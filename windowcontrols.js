@@ -571,7 +571,7 @@ class WindowControls {
 
       if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
         libWrapper.register('window-controls', 'Application.prototype.minimize', function (wrapped, ...args) {
-          if (!this.element?.length) return wrapped(...args);
+          if (!this.element?.length || this.id === 'tokenizer-control') return wrapped(...args);
           const alreadyPersistedWindow = Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId);
           if (alreadyPersistedWindow) {
             alreadyPersistedWindow.element
@@ -588,7 +588,7 @@ class WindowControls {
           }
         }, 'WRAPPER');
         libWrapper.register('window-controls', 'Application.prototype.maximize', function (wrapped, ...args) {
-          if (this._sourceDummyPanelApp) {
+          if (this._sourceDummyPanelApp || this.id === 'tokenizer-control') {
             return wrapped(...args).then(() => {
               if (!this.element?.length) return;
               WindowControls.setRestoredStyle(this);
@@ -604,7 +604,7 @@ class WindowControls {
           }
         }, 'WRAPPER');
         libWrapper.register('window-controls', 'Application.prototype.close', function (wrapped, ...args) {
-          if (!this.element?.length) return wrapped(...args);
+          if (!this.element?.length || this.id === 'tokenizer-control') return wrapped(...args);
           if (this._minimized && !this._sourceDummyPanelApp) {
             WindowControls.organizedClose(this, settingOrganized);
           }
@@ -929,6 +929,18 @@ Hooks.once('ready', () => {
     Hooks.on('renderFillableViewer', function(app) { // PDFoundry
       WindowControls.renderDummyPanelApp(app);
     });
+
+    // ugly, but works. correct the offsets on drop
+    if (settingOrganized === 'persistentTop') {
+      Hooks.on('dropCanvasData', function(canvas, data) {
+        data.y = data.y -= 80;
+      });
+    } else {
+      Hooks.on('dropCanvasData', function(canvas, data) {
+        data.y = data.y += 80;
+      });
+    }
+
   }
 
 

@@ -1,3 +1,7 @@
+### 1.11.2
+* Bugfix: Fixed placement in canvas with taskbar
+* Compatibility: Fixed Tokenizer window
+
 ### 1.11.1
 * Compatibility: Fixed module metadata
 
