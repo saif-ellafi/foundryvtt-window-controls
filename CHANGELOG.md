@@ -1,4 +1,4 @@
-### 1.11.2
+### 1.11.3
 * Bugfix: Fixed placement in canvas with taskbar
 * Compatibility: Fixed Tokenizer window
 
