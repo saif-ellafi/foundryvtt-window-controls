@@ -1,3 +1,6 @@
+### 1.11.5
+* Bugfix: Fixed placement of Camera Views with Taskbar mode
+
 ### 1.11.4
 * Bugfix: Fixed placement in canvas with taskbar
 

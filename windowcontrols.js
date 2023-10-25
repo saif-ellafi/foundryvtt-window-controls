@@ -930,15 +930,23 @@ Hooks.once('ready', () => {
       WindowControls.renderDummyPanelApp(app);
     });
 
-    // ugly, but works. correct the offsets on drop
+    // ugly, but works. correct the offsets on drop, and camera view
     if (settingOrganized === 'persistentTop') {
       Hooks.on('dropCanvasData', function(canvas, data) {
         data.y = data.y -= 40;
       });
+      Hooks.on('renderCameraViews', function() {
+        $("#camera-views").css("top", "0px");
+        $("div#camera-views.camera-position-left, div#camera-views.camera-position-right").css("min-height", "96.5vh");
+      })
     } else {
       Hooks.on('dropCanvasData', function(canvas, data) {
         data.y = data.y += 40;
       });
+      Hooks.on('renderCameraViews', function() {
+        $("#camera-views").css("top", "0px");
+        $("div#camera-views.camera-position-left, div#camera-views.camera-position-right").css("min-height", "96.5vh");
+      })
     }
 
   }
