@@ -316,7 +316,7 @@ class WindowControls {
           if (!this._minimized) await this.minimize();
         };
       } else {
-        app.close = function () {
+        app.close = async function () {
           if (this._minimized)
             return;
           if (app._pinned_marked) {
@@ -980,7 +980,7 @@ class WindowControlsPersistentDummy extends Application {
   }
 
   static get defaultOptions() {
-    return mergeObject(Dialog.defaultOptions, {
+    return foundry.utils.mergeObject(Dialog.defaultOptions, {
       classes: ['hidden-placeholder'],
       resizable: false
     });

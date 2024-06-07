@@ -1,6 +1,6 @@
 {
   "name": "foundryvtt-window-controls",
-  "version": "1.11.5",
+  "version": "1.12.0",
   "description": "Improves Minimized window organization, style and adds Maximize and Pin window buttons",
   "main": "windowcontrols.js",
   "scripts": {

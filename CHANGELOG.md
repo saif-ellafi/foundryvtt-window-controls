@@ -1,3 +1,6 @@
+### 1.12.5
+* Compatibility: Foundry V12 support
+
 ### 1.11.5
 * Bugfix: Fixed placement of Camera Views with Taskbar mode
 
