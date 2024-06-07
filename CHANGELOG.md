@@ -1,4 +1,4 @@
-### 1.12.5
+### 1.12.0
 * Compatibility: Foundry V12 support
 
 ### 1.11.5
