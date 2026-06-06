@@ -8,13 +8,54 @@ class WindowControls {
   static cssMinimizedBottomBaseline = 70;
   static cssMinimizedTopBaseline = 0;
   static cssTopBarLeftStart = 120;
+  static cssTopBarPadding = 10;
+  static cssTopBarChromeGap = 6;
+  static cssMinimizedBarHeight = 38;
+  static cssMinimizedHeaderHeight = 30;
   static cssTopBarPersistentLeftStart = -5;
   static cssBottomBarLeftStart = 250;
 
   static getTaskbarTop = () => 2;
   static getTaskbarBot = () => $("#board").height() - 40;
 
-  static debouncedReload = debounce(() => window.location.reload(), 100);
+  static debouncedReload = foundry.utils.debounce(() => window.location.reload(), 100);
+
+  static get ApplicationV2() {
+    return foundry.applications.api.ApplicationV2;
+  }
+
+  static isV2(app) {
+    return WindowControls.ApplicationV2 && app instanceof WindowControls.ApplicationV2;
+  }
+
+  static $el(app) {
+    const el = app?.element;
+    if (!el) return $();
+    return el instanceof HTMLElement ? $(el) : el;
+  }
+
+  static hasRenderedElement(app) {
+    const el = app?.element;
+    if (!el) return false;
+    return el instanceof HTMLElement ? true : !!el.length;
+  }
+
+  static getAppId(app) {
+    return app?.appId ?? app?.id;
+  }
+
+  static isMinimized(app) {
+    return app?._minimized === true || app?.minimized === true;
+  }
+
+  static isResizable(app) {
+    return app?.options?.resizable || app?.options?.window?.resizable;
+  }
+
+  static bringAppToTop(app) {
+    if (typeof app?.bringToFront === "function") app.bringToFront();
+    else if (typeof app?.bringToTop === "function") app.bringToTop();
+  }
 
   static getStashedKeys() {
     return Object.keys(WindowControls.minimizedStash).map(w => parseInt(w));
@@ -118,7 +159,8 @@ class WindowControls {
   }
 
   static toggleMovement(app) {
-    const elementJS = app.element[0];
+    const elementJS = app.element instanceof HTMLElement ? app.element : app.element?.[0];
+    if (!elementJS) return;
     const stashOverflowed = WindowControls.getOverflowedState();
     if (stashOverflowed) {
       return;
@@ -141,8 +183,8 @@ class WindowControls {
     switch (setting) {
       case 'topBar': {
         rootStyle.setProperty('--minibarbot', 'unset');
-        rootStyle.setProperty('--minibartop', (WindowControls.getTopPosition() - 4) + 'px');
-        rootStyle.setProperty('--minibarleft', WindowControls.cssTopBarLeftStart + 'px');
+        rootStyle.setProperty('--minibartop', WindowControls.getTopPosition() + 'px');
+        rootStyle.setProperty('--minibarleft', WindowControls.getTopBarLeftStart() + 'px');
         if (bar.length === 0)
           barHtml.appendTo('body');
         break;
@@ -164,6 +206,52 @@ class WindowControls {
     }
   }
 
+  static getSceneNavigationElement() {
+    const navApps = [ui.nav, ui.navigation].filter(Boolean);
+    for (const navApp of navApps) {
+      const el = navApp.element;
+      if (el instanceof HTMLElement) return el;
+      if (el?.[0] instanceof HTMLElement) return el[0];
+    }
+    return document.querySelector("#scene-navigation") ?? document.querySelector("#navigation");
+  }
+
+  static getSceneNavigationHeight() {
+    const navElement = WindowControls.getSceneNavigationElement();
+    if (!navElement) return 0;
+    const {offsetHeight, offsetWidth} = navElement;
+    // v13+ scene navigation is vertical; its height is not a top-bar inset.
+    if (offsetHeight > offsetWidth * 1.5) return 0;
+    return offsetHeight;
+  }
+
+  static getTopChromeBottom() {
+    const navViewed = document.querySelector('#scene-navigation-viewed');
+    if (navViewed)
+      return navViewed.getBoundingClientRect().bottom;
+    const navigation = document.querySelector('#navigation');
+    if (navigation && navigation.offsetHeight <= navigation.offsetWidth * 1.5)
+      return navigation.getBoundingClientRect().bottom;
+    const navHeight = WindowControls.getSceneNavigationHeight();
+    if (navHeight)
+      return navHeight;
+    return 0;
+  }
+
+  static getTopBarLeftStart() {
+    const navViewed = document.querySelector('#scene-navigation-viewed');
+    if (navViewed)
+      return Math.ceil(navViewed.getBoundingClientRect().right) + 10;
+    const navigation = document.querySelector('#navigation');
+    if (navigation && navigation.offsetHeight <= navigation.offsetWidth * 1.5)
+      return navigation.offsetLeft + navigation.offsetWidth + 10;
+    return WindowControls.cssTopBarLeftStart;
+  }
+
+  static getTaskbarVerticalInset() {
+    return Math.floor((WindowControls.cssMinimizedBarHeight - WindowControls.cssMinimizedHeaderHeight) / 2);
+  }
+
   static getTopPosition() {
     const minimizedSetting = game.settings.get('window-controls', 'organizedMinimize');
     if (['bottomBar', 'bottom'].includes(minimizedSetting)) {
@@ -176,29 +264,24 @@ class WindowControls {
       else
         return availableHeight - WindowControls.cssMinimizedBottomBaseline - 41;
     } else {
-      let sceneNavigationSetting;
-      let logoSetting;
-      if (game.modules.get('minimal-ui')?.active) {
-        sceneNavigationSetting = game.settings.get('minimal-ui', 'sceneNavigation');
-        logoSetting = game.settings.get('minimal-ui', 'foundryLogoSize');
-      }
-      let offset;
-      if (logoSetting === 'hidden' && sceneNavigationSetting === 'hidden')
-        offset = WindowControls.cssMinimizedTopBaseline + 6;
-      else
-        offset = document.querySelector("#navigation").offsetHeight + WindowControls.cssMinimizedTopBaseline + 20;
-      return offset;
+      const chromeBottom = WindowControls.getTopChromeBottom();
+      if (chromeBottom)
+        return chromeBottom + WindowControls.cssTopBarChromeGap;
+      const navHeight = WindowControls.getSceneNavigationHeight();
+      if (navHeight)
+        return navHeight + WindowControls.cssMinimizedTopBaseline + 20;
+      return WindowControls.cssTopBarPadding;
     }
   }
 
   static getLeftPosition(app) {
     const minimizedSetting = game.settings.get('window-controls', 'organizedMinimize');
-    const minGap = ['top', 'topBar'].includes(minimizedSetting) ? WindowControls.cssTopBarLeftStart + 10 : (minimizedSetting === 'persistentTop' || minimizedSetting === 'persistentBottom' ? WindowControls.cssTopBarPersistentLeftStart + 10 : WindowControls.cssBottomBarLeftStart + 10);
+    const minGap = ['top', 'topBar'].includes(minimizedSetting) ? WindowControls.getTopBarLeftStart() + 10 : (minimizedSetting === 'persistentTop' || minimizedSetting === 'persistentBottom' ? WindowControls.cssTopBarPersistentLeftStart + 10 : WindowControls.cssBottomBarLeftStart + 10);
     const jumpGap = WindowControls.cssMinimizedSize + 10;
     const maxGap = WindowControls.getCurrentMaxGap();
     let targetPos;
     for (let i = minGap; i < maxGap + jumpGap; i = i + jumpGap) {
-      if (WindowControls.minimizedStash[i]?.app.appId === app?.appId) {
+      if (WindowControls.getAppId(WindowControls.minimizedStash[i]?.app) === WindowControls.getAppId(app)) {
         WindowControls.minimizedStash[i].oldPosition = Object.assign({}, app.position);
         targetPos = i;
         return targetPos;
@@ -214,34 +297,44 @@ class WindowControls {
     return appI;
   }
 
+  static getMinimizedTop(setting, app) {
+    if (setting === 'persistentTop') return WindowControls.getTaskbarTop();
+    if (setting === 'persistentBottom') return WindowControls.getTaskbarBot();
+    const topPos = WindowControls.getTopPosition();
+    if (['top', 'topBar'].includes(setting))
+      return topPos + WindowControls.getTaskbarVerticalInset();
+    return topPos;
+  }
+
   static setMinimizedPosition(app) {
     const setting = game.settings.get('window-controls', 'organizedMinimize');
-    const alreadyStashedWindow = WindowControls.appInStash(app?.appId);
+    const alreadyStashedWindow = WindowControls.appInStash(WindowControls.getAppId(app));
     if (!alreadyStashedWindow && WindowControls.getOverflowedState()) return;
     const leftPos = WindowControls.getLeftPosition(app);
-    const topPos = WindowControls.getTopPosition();
-    app.setPosition({
+    const position = {
       left: leftPos ?? app.position.left,
-      top: setting === 'persistentTop' ? WindowControls.getTaskbarTop() : setting === 'persistentBottom' ? WindowControls.getTaskbarBot() : (topPos ?? app.position.top),
+      top: WindowControls.getMinimizedTop(setting, app) ?? app.position.top,
       width: WindowControls.cssMinimizedSize
-    });
-    app.element.css({'z-index': WindowControls.getOverflowedState() ? 10 : 1});
+    };
+    position.height = WindowControls.cssMinimizedHeaderHeight;
+    app.setPosition(position);
+    WindowControls.$el(app).css({'z-index': WindowControls.getOverflowedState() ? 10 : 1});
   }
 
   static setRestoredPosition(app) {
-    app.setPosition(WindowControls.appInStash(app?.appId)?.oldPosition ?? app.position);
+    app.setPosition(WindowControls.appInStash(WindowControls.getAppId(app))?.oldPosition ?? app.position);
   }
 
   static deleteFromStash(app, keys) {
     let lastDeleted;
     keys.forEach(i => {
       const stash = WindowControls.minimizedStash[i];
-      if (stash?.app && stash.app.appId === app.appId) {
+      if (stash?.app && WindowControls.getAppId(stash.app) === WindowControls.getAppId(app)) {
         lastDeleted = i;
         delete WindowControls.minimizedStash[i];
       } else if (stash && lastDeleted) {
         WindowControls.minimizedStash[lastDeleted] = stash;
-        if (stash.app._minimized)
+        if (WindowControls.isMinimized(stash.app))
           stash.app.setPosition({left: lastDeleted});
         lastDeleted = i;
         delete WindowControls.minimizedStash[i];
@@ -249,12 +342,53 @@ class WindowControls {
     });
   }
 
+  static purgeStash() {
+    for (const key of WindowControls.getStashedKeys()) {
+      const app = WindowControls.minimizedStash[key]?.app;
+      if (!app?.rendered || !WindowControls.isMinimized(app))
+        delete WindowControls.minimizedStash[key];
+    }
+  }
+
+  static compactStash() {
+    const setting = game.settings.get('window-controls', 'organizedMinimize');
+    const minGap = ['top', 'topBar'].includes(setting)
+      ? WindowControls.getTopBarLeftStart() + 10
+      : (setting === 'persistentTop' || setting === 'persistentBottom'
+        ? WindowControls.cssTopBarPersistentLeftStart + 10
+        : WindowControls.cssBottomBarLeftStart + 10);
+    const jumpGap = WindowControls.cssMinimizedSize + 10;
+    const entries = WindowControls.getStashedKeys()
+      .sort((a, b) => a - b)
+      .map(key => WindowControls.minimizedStash[key])
+      .filter(entry => entry?.app?.rendered && WindowControls.isMinimized(entry.app));
+    WindowControls.minimizedStash = {};
+    let slot = minGap;
+    for (const entry of entries) {
+      WindowControls.minimizedStash[slot] = entry;
+      entry.app.setPosition({...entry.app.position, left: slot});
+      slot += jumpGap;
+    }
+  }
+
   static appInStash(targetId) {
-    return Object.values(WindowControls.minimizedStash).find(a => a.app?.appId === targetId)
+    return Object.values(WindowControls.minimizedStash).find(a => WindowControls.getAppId(a.app) === targetId)
+  }
+
+  static getMinimizeBarWidth(setting) {
+    const keys = WindowControls.getStashedKeys();
+    if (!keys.length) return 0;
+    const maxLeft = Math.max(...keys);
+    const barLeft = (setting === 'topBar' || setting === 'persistentTop')
+      ? WindowControls.getTopBarLeftStart()
+      : WindowControls.cssBottomBarLeftStart;
+    return maxLeft - barLeft + WindowControls.cssMinimizedSize + 10;
   }
 
   static refreshMinimizeBar() {
-    const minimized = $(".minimized");
+    WindowControls.purgeStash();
+    WindowControls.compactStash();
+    const minimized = $(".window-app.minimized, .application.minimized");
     const stashSize = WindowControls.getStashedKeys().length;
     if (minimized.length === 0 || Object.values(WindowControls.minimizedStash).every(w => w.app.rendered === false)) {
       WindowControls.minimizedStash = {};
@@ -262,18 +396,9 @@ class WindowControls {
     } else if (stashSize > 0) {
       if (stashSize === 1)
         WindowControls.positionMinimizeBar();
-      const maxPosition = Math.max(
-        ...Object.entries(WindowControls.minimizedStash)
-          .filter(([_, app]) => app.app.rendered && app.app._minimized)
-          .map(([pos, _]) => Number(pos))
-          .concat(0)
-      );
       const setting = game.settings.get('window-controls', 'organizedMinimize');
       const rootStyle = document.querySelector(':root').style;
-      if (setting === 'topBar' || setting === 'persistentTop') {
-        rootStyle.setProperty('--minibarw', maxPosition + 40 + 'px');
-      } else
-        rootStyle.setProperty('--minibarw', maxPosition - 90 + 'px');
+      rootStyle.setProperty('--minibarw', WindowControls.getMinimizeBarWidth(setting) + 'px');
       minimized.show();
       $("#minimized-bar").show();
     }
@@ -286,27 +411,30 @@ class WindowControls {
   }
 
   static setMinimizedStyle(app) {
-    if (!app?.element) return;
-    app.element.find(".window-header > h4").text(WindowControls.curateTitle(app.title));
-    app.element.find(".minimize").empty();
-    app.element.find(".minimize").append(`<i class="far fa-window-restore"></i>`);
-    app.element.find(".minimize").show();
+    if (!WindowControls.hasRenderedElement(app)) return;
+    const $root = WindowControls.$el(app);
+    const $title = app.window?.title ? $(app.window.title) : $root.find(".window-header > h4");
+    $title.text(WindowControls.curateTitle(app.title));
+    const $minimize = $root.find(".minimize, [data-action='minimize']");
+    $minimize.empty().append(`<i class="far fa-window-restore"></i>`).show();
   }
 
   static setRestoredStyle(app) {
-    app.element.find(".window-header > h4").text(WindowControls.uncurateTitle(app.title));
-    app.element.find(".minimize").empty();
-    app.element.find(".minimize").append(`<i class="far fa-window-minimize"></i>`);
+    const $root = WindowControls.$el(app);
+    const $title = app.window?.title ? $(app.window.title) : $root.find(".window-header > h4");
+    $title.text(WindowControls.uncurateTitle(app.title));
+    const $minimize = $root.find(".minimize, [data-action='minimize']");
+    $minimize.empty().append(`<i class="far fa-window-minimize"></i>`);
     if (app._pinned === true) {
-      app.element.find(".entry-image").hide();
-      app.element.find(".entry-text").hide();
-      app.element.find(".close").hide();
+      $root.find(".entry-image").hide();
+      $root.find(".entry-text").hide();
+      $root.find(".close, [data-action='close']").hide();
     }
   }
 
   static applyPinnedMode(app) {
-    if (!app?.element) return;
-    const header = app.element.find(".window-header");
+    if (!WindowControls.hasRenderedElement(app)) return;
+    const header = WindowControls.$el(app).find(".window-header");
     if (!header.hasClass('minimized-pinned')) {
       header.addClass('minimized-pinned');
       app._pinned = true;
@@ -365,10 +493,10 @@ class WindowControls {
   }
 
   static maximizeWindow(app) {
+    const $root = WindowControls.$el(app);
     if (app._maximized) {
       app.setPosition(app._maximized);
-      app.element
-        .find(".fa-window-restore")
+      $root.find(".fa-window-restore")
         .removeClass('fa-window-restore')
         .addClass('fa-window-maximize');
       delete app._maximized;
@@ -380,8 +508,7 @@ class WindowControls {
       Object.assign(app._maximized, app.position);
       WindowControls.reapplyMaximize(app, availableHeight, availableWidth);
       WindowControls.reapplyMaximize(app, availableHeight, availableWidth);
-      app.element
-        .find(".fa-window-maximize")
+      $root.find(".fa-window-maximize")
         .removeClass('fa-window-maximize')
         .addClass('fa-window-restore');
     }
@@ -438,10 +565,10 @@ class WindowControls {
   }
 
   static organizedRestore(app, settings) {
-    if (this._minimized) {
+    if (WindowControls.isMinimized(app)) {
       if (['bottom', 'bottomBar'].includes(settings))
-        this.setPosition({top: 0});
-      this.element.css('visibility', 'hidden');
+        app.setPosition({top: 0});
+      WindowControls.$el(app).css('visibility', 'hidden');
     }
     const barEnabled = ['topBar', 'bottomBar'].includes(settings);
     if (barEnabled)
@@ -452,15 +579,158 @@ class WindowControls {
   }
 
   static organizedClose(app, settings) {
-    if (this._minimized) {
-      this.element.hide();
-      if (['bottom', 'bottomBar'].includes(settings))
-        this.setPosition({top: 0});
-      // If minimized, remember the maximized state position
-      WindowControls.setRestoredPosition(app);
-      // ToDo: For some reason, setPosition() does not restore width at this point. Investigate.
-      app.sheetWidth = app.constructor.defaultOptions.width;
+    WindowControls.cleanupMinimizeBar(app);
+    if (!WindowControls.isMinimized(app)) return;
+    WindowControls.$el(app).hide();
+    if (['bottom', 'bottomBar'].includes(settings))
+      app.setPosition({top: 0});
+    WindowControls.setRestoredPosition(app);
+    // ApplicationV1-only width restore hack; V2 has no defaultOptions.width.
+    if (!WindowControls.isV2(app)) {
+      const defaultWidth = app.constructor.defaultOptions?.width;
+      if (defaultWidth != null)
+        app.sheetWidth = defaultWidth;
     }
+  }
+
+  static shouldSkipHeaderControls(app) {
+    return app.constructor.name === 'QuestTracker'
+      || (game.modules.get('one-journal')?.active && app.constructor.name === 'JournalSheet')
+      || app.constructor.name === 'ee';
+  }
+
+  static buildHeaderControlButtons(app) {
+    if (WindowControls.shouldSkipHeaderControls(app)) return [];
+    const newButtons = [];
+    const minimizeSetting = game.settings.get('window-controls', 'minimizeButton');
+    if (minimizeSetting === 'enabled') {
+      const minimizeHandler = function () {
+        if (WindowControls.isMinimized(this))
+          this.maximize(true);
+        else {
+          this.minimize();
+          const _bkpMinimize = this.minimize;
+          this.minimize = () => {};
+          setTimeout(() => {
+            this.minimize = _bkpMinimize;
+          }, 200);
+        }
+      };
+      newButtons.push({
+        label: "",
+        class: "minimize",
+        icon: "far fa-window-minimize",
+        onclick: minimizeHandler.bind(app),
+        onClick: minimizeHandler.bind(app),
+        button: true
+      });
+    }
+    const maximizeSetting = game.settings.get('window-controls', 'maximizeButton');
+    if (maximizeSetting === 'enabled' && WindowControls.isResizable(app)) {
+      newButtons.push({
+        label: "",
+        class: "maximize",
+        icon: app._maximized ? "far fa-window-restore" : "far fa-window-maximize",
+        onclick: () => WindowControls.maximizeWindow(app),
+        onClick: () => WindowControls.maximizeWindow(app),
+        button: true
+      });
+    }
+    const pinnedSetting = game.settings.get('window-controls', 'pinnedButton');
+    if (pinnedSetting === 'enabled') {
+      const pinHandler = () => {
+        WindowControls.applyPinnedMode(app);
+        WindowControls.applyPinnedMode(
+          Object.values(ui.windows).find(w => WindowControls.getAppId(w.targetApp) === WindowControls.getAppId(app))
+        );
+      };
+      newButtons.push({
+        label: "",
+        class: "pin",
+        icon: "fas fa-map-pin",
+        onclick: pinHandler,
+        onClick: pinHandler,
+        button: true
+      });
+    }
+    return newButtons;
+  }
+
+  static registerApplicationV2Hooks(settingOrganized) {
+    const AppV2 = WindowControls.ApplicationV2;
+    if (!AppV2) return;
+
+    if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
+      libWrapper.register('window-controls', 'foundry.applications.api.ApplicationV2.prototype.minimize', function (wrapped, ...args) {
+        if (!WindowControls.hasRenderedElement(this) || this.id === 'tokenizer-control') return wrapped(...args);
+        const alreadyPersistedWindow = Object.values(ui.windows).find(w => WindowControls.getAppId(w.targetApp) === WindowControls.getAppId(this));
+        if (alreadyPersistedWindow) {
+          WindowControls.$el(alreadyPersistedWindow)
+            .find(".fa-window-minimize")
+            .removeClass('fa-window-minimize')
+            .addClass('fa-window-restore');
+          WindowControls.$el(alreadyPersistedWindow).css('background-color', '');
+          WindowControls.$el(this).css('visibility', 'hidden');
+          return wrapped(...args);
+        }
+        return wrapped(...args).then(() => WindowControls.organizedMinimize(this, settingOrganized));
+      }, 'WRAPPER');
+      libWrapper.register('window-controls', 'foundry.applications.api.ApplicationV2.prototype.maximize', function (wrapped, ...args) {
+        if (this._sourceDummyPanelApp || this.id === 'tokenizer-control') {
+          return wrapped(...args).then(() => {
+            if (!WindowControls.hasRenderedElement(this)) return;
+            WindowControls.setRestoredStyle(this);
+            WindowControls.$el(this).css('visibility', '');
+          });
+        }
+        if (!WindowControls.hasRenderedElement(this)) return wrapped(...args);
+        WindowControls.organizedRestore(this, settingOrganized);
+        return wrapped(...args).then(() => {
+          WindowControls.setRestoredStyle(this);
+          WindowControls.$el(this).css('visibility', '');
+        });
+      }, 'WRAPPER');
+      libWrapper.register('window-controls', 'foundry.applications.api.ApplicationV2.prototype.close', function (wrapped, ...args) {
+        if (!WindowControls.hasRenderedElement(this) || this.id === 'tokenizer-control') return wrapped(...args);
+        if (WindowControls.isMinimized(this) && !this._sourceDummyPanelApp)
+          WindowControls.organizedClose(this, settingOrganized);
+        return wrapped(...args).then(() => WindowControls.refreshMinimizeBar());
+      }, 'WRAPPER');
+    } else if (settingOrganized !== 'disabled') {
+      libWrapper.register('window-controls', 'foundry.applications.api.ApplicationV2.prototype.minimize', function (wrapped, ...args) {
+        return wrapped(...args).then(() => {
+          if (!WindowControls.hasRenderedElement(this)) return;
+          WindowControls.organizedMinimize(this, settingOrganized);
+          const stashOverflowed = WindowControls.getOverflowedState();
+          if (settingOrganized.includes('Bar') && (!stashOverflowed || WindowControls.appInStash(WindowControls.getAppId(this))))
+            WindowControls.$el(this).find("header").removeClass("draggable");
+        });
+      }, 'WRAPPER');
+      libWrapper.register('window-controls', 'foundry.applications.api.ApplicationV2.prototype.maximize', function (wrapped, ...args) {
+        if (!WindowControls.hasRenderedElement(this) || !WindowControls.isMinimized(this)) return wrapped(...args);
+        WindowControls.organizedRestore(this, settingOrganized);
+        return wrapped(...args).then(() => {
+          WindowControls.setRestoredStyle(this);
+          WindowControls.$el(this).css('visibility', '');
+          if (settingOrganized.includes('Bar'))
+            WindowControls.$el(this).find("header").addClass("draggable");
+        });
+      }, 'WRAPPER');
+      libWrapper.register('window-controls', 'foundry.applications.api.ApplicationV2.prototype.close', function (wrapped, ...args) {
+        if (!WindowControls.hasRenderedElement(this)) return wrapped(...args);
+        WindowControls.organizedClose(this, settingOrganized);
+        return wrapped(...args).then(() => WindowControls.refreshMinimizeBar());
+      }, 'WRAPPER');
+    }
+
+    libWrapper.register('window-controls', 'foundry.applications.api.ApplicationV2.prototype._getHeaderControls', function (wrapped, ...args) {
+      const result = wrapped(...args);
+      if (WindowControls.shouldSkipHeaderControls(this)) return result;
+      const close = result.find(b => b.class === 'close' || b.action === 'close');
+      if (close) close.label = '';
+      const newButtons = WindowControls.buildHeaderControlButtons(this);
+      return newButtons.concat(result);
+    }, 'WRAPPER');
   }
 
   static initSettings() {
@@ -644,64 +914,14 @@ class WindowControls {
       }
 
       libWrapper.register('window-controls', 'Application.prototype._getHeaderButtons', function (wrapped, ...args) {
-        let result = wrapped(...args);
-        if (this.constructor.name === 'QuestTracker' || (game.modules.get('one-journal')?.active && this.constructor.name === 'JournalSheet') || this.constructor.name === 'ee') // yes, ee is Simple Calendar
-          return result;
+        const result = wrapped(...args);
+        if (WindowControls.shouldSkipHeaderControls(this)) return result;
         const close = result.find(b => b.class === 'close');
-        close.label = '';
-        const newButtons = [];
-        const minimizeSetting = game.settings.get('window-controls', 'minimizeButton');
-        // Exception for Forien Quest Log - Is there any way of identifying such kind of windows?
-        if (minimizeSetting === 'enabled') {
-          const minimizeButton = {
-            label: "",
-            class: "minimize",
-            icon: "far fa-window-minimize",
-            onclick: function () {
-              if (this._minimized)
-                this.maximize(true); // 'clicked' hack for V11 - to not minimize dummy windows on render
-              else {
-                this.minimize();
-                //* Dirty hack to prevent "double minimize" after rapidly double-clicking on the minimize button
-                var _bkpMinimize = this.minimize;
-                this.minimize = () => {};
-                setTimeout(() => {
-                  this.minimize = _bkpMinimize;
-                }, 200)
-              }
-            }.bind(this)
-          };
-          newButtons.push(minimizeButton)
-        }
-        const maximizeSetting = game.settings.get('window-controls', 'maximizeButton');
-        if (maximizeSetting === 'enabled' && this.options.resizable) {
-          const maximizeButton = {
-            label: "",
-            class: "maximize",
-            icon: this._maximized ? "far fa-window-restore" : "far fa-window-maximize",
-            onclick: () => {
-              WindowControls.maximizeWindow(this)
-            }
-          }
-          newButtons.push(maximizeButton)
-        }
-        const pinnedSetting = game.settings.get('window-controls', 'pinnedButton');
-        if (pinnedSetting === 'enabled') {
-          const pinButton = {
-            label: "",
-            class: "pin",
-            icon: "fas fa-map-pin",
-            onclick: () => {
-              WindowControls.applyPinnedMode(this);
-              WindowControls.applyPinnedMode(
-                Object.values(ui.windows).find(w => w.targetApp?.appId === this.appId)
-              );
-            }
-          }
-          newButtons.push(pinButton)
-        }
-        return newButtons.concat(result)
+        if (close) close.label = '';
+        return WindowControls.buildHeaderControlButtons(this).concat(result);
       }, 'WRAPPER');
+
+      WindowControls.registerApplicationV2Hooks(settingOrganized);
 
       if (game.settings.get('window-controls', 'rememberPinnedWindows')) {
         try {
@@ -755,6 +975,10 @@ class WindowControls {
     });
 
     Hooks.on('closeApplication', function (app) {
+      WindowControls.cleanupMinimizeBar(app);
+    });
+
+    Hooks.on('closeApplicationV2', function (app) {
       WindowControls.cleanupMinimizeBar(app);
     });
 

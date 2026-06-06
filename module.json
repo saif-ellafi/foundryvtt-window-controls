@@ -12,11 +12,11 @@
 	"description": "Improves Minimized window organization, style and adds Maximize and Pin window buttons",
 	"version": "1.12.0",
 	"minimumCoreVersion": "12",
-	"compatibleCoreVersion": "12",
+	"compatibleCoreVersion": "14",
 	"compatibility": {
 		"minimum": "12",
-		"verified": "12.326",
-		"maximum": "12"
+		"verified": "14.363",
+		"maximum": "14"
 	},
 	"relationships": {
 		"requires":  [{

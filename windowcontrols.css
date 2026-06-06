@@ -17,6 +17,7 @@
     position: absolute;
     width: var(--minibarw);
     height: 38px;
+    box-sizing: border-box;
     bottom: var(--minibarbot);
     top: var(--minibartop);
     border-radius: 5px;
@@ -44,16 +45,72 @@
     max-height: var(--minimaxh);
 }
 
-.window-app.minimized {
+.window-app.minimized,
+.application.minimized {
     position: var(--minimizedpos);
 }
 
+/* ApplicationV1 keeps full window height when minimized; clip to header only */
+.window-app.minimized {
+    min-height: unset !important;
+    height: 30px !important;
+    max-height: 30px !important;
+    overflow: hidden;
+    box-sizing: border-box;
+    box-shadow: none !important;
+}
+
+.window-app.minimized .window-content,
+.window-app.minimized .window-resizable-handle {
+    display: none !important;
+}
+
 .window-app.minimized .window-header {
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box;
+    align-items: center;
+    border-radius: 5px;
+}
+
+/* ApplicationV2 minimized windows default taller than the taskbar */
+.application.minimized {
+    min-height: unset !important;
+    height: 30px !important;
+    max-height: 30px !important;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.application.minimized .window-content,
+.application.minimized .window-resize-handle {
+    display: none !important;
+}
+
+.application.minimized .window-header,
+.application.minimized header {
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box;
+    align-items: center;
+    border-radius: 5px;
+    overflow: visible;
+}
+
+.window-app.minimized .window-header,
+.application.minimized .window-header {
     border: 1px solid var(--wcbordercolor);
     box-shadow: 0 0 var(--wcshadowstrength) 0 var(--wcshadowcolor);
 }
 
-.minimized.window-app .window-header a {
+.minimized.window-app .window-header a,
+.minimized.application .window-header a {
     margin: 0 0 0 2px;
 }
 
