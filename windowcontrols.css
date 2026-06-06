@@ -30,10 +30,55 @@
 }
 
 #window-controls-persistent {
-    position: absolute;
+    position: fixed;
+    left: 0;
+    right: 0;
     width: 100%;
-    display: table-row;
+    height: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    overflow: hidden;
     background-color: var(--taskbarcolor);
+    z-index: 100;
+}
+
+body.wc-persistent-top #window-controls-persistent {
+    top: 0;
+}
+
+body.wc-persistent-bottom #window-controls-persistent {
+    bottom: 0;
+}
+
+#window-controls-persistent > .window-app.minimized,
+#window-controls-persistent > .application.minimized {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    flex: 0 0 auto;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+
+#window-controls-persistent .window-app.minimized .window-header,
+#window-controls-persistent .application.minimized .window-header,
+#window-controls-persistent .application.minimized header {
+    box-shadow: none !important;
+}
+
+body.wc-persistent-top .wc-persistent-tab.application.minimized,
+body.wc-persistent-top .wc-persistent-tab.window-app.minimized {
+    box-shadow: none !important;
+}
+
+body.wc-persistent-top .wc-persistent-tab.application.minimized header,
+body.wc-persistent-top .wc-persistent-tab.window-app.minimized .window-header {
+    box-shadow: none !important;
 }
 
 #sidebar {
@@ -48,48 +93,25 @@
 .window-app.minimized,
 .application.minimized {
     position: var(--minimizedpos);
-}
-
-/* ApplicationV1 keeps full window height when minimized; clip to header only */
-.window-app.minimized {
     min-height: unset !important;
     height: 30px !important;
     max-height: 30px !important;
     overflow: hidden;
     box-sizing: border-box;
+}
+
+.window-app.minimized {
     box-shadow: none !important;
 }
 
 .window-app.minimized .window-content,
-.window-app.minimized .window-resizable-handle {
-    display: none !important;
-}
-
-.window-app.minimized .window-header {
-    height: 30px !important;
-    min-height: 30px !important;
-    max-height: 30px !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    box-sizing: border-box;
-    align-items: center;
-    border-radius: 5px;
-}
-
-/* ApplicationV2 minimized windows default taller than the taskbar */
-.application.minimized {
-    min-height: unset !important;
-    height: 30px !important;
-    max-height: 30px !important;
-    overflow: hidden;
-    box-sizing: border-box;
-}
-
 .application.minimized .window-content,
+.window-app.minimized .window-resizable-handle,
 .application.minimized .window-resize-handle {
     display: none !important;
 }
 
+.window-app.minimized .window-header,
 .application.minimized .window-header,
 .application.minimized header {
     height: 30px !important;
@@ -100,6 +122,9 @@
     box-sizing: border-box;
     align-items: center;
     border-radius: 5px;
+}
+
+.application.minimized header {
     overflow: visible;
 }
 
@@ -125,4 +150,10 @@
 
 .hidden-placeholder {
     visibility: hidden;
+}
+
+.wc-persistent-target-hidden {
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
 }

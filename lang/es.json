@@ -8,15 +8,15 @@
   "WindowControls.MinimizeButtonName": "Botón Minimizar",
   "WindowControls.MinimizeButtonHint": "Añade un botón para minimizar las ventanas.",
 
-  "WindowControls.OrganizedMinimizeName": "Modo organizado de Minimizar",
-  "WindowControls.OrganizedMinimizeHint": "Organiza las ventanas que minimice, al colocarlas o bien en una franja en la parte inferior o superior",
+  "WindowControls.OrganizedMinimizeName": "Disposición al minimizar",
+  "WindowControls.OrganizedMinimizeHint": "Organizado: ranuras invisibles, ventanas movibles. Barra fija: barra visible que se redimensiona, ventanas bloqueadas. Barra de tareas: franja permanente para ventanas abiertas y minimizadas.",
 
-  "WindowControls.OrganizedMinimizeBottom": "Abajo",
-  "WindowControls.OrganizedMinimizeBottomBar": "Abajo con barra (Ventanas inamovibles)",
-  "WindowControls.OrganizedMinimizeTop": "Arriba",
-  "WindowControls.OrganizedMinimizeTopBar": "Arriba con barra (Ventanas inamovibles)",
-  "WindowControls.OrganizedPersistentTop": "Barra de Tareas Arriba",
-  "WindowControls.OrganizedPersistentBottom": "Barra de Tareas Abajo",
+  "WindowControls.OrganizedMinimizeTop": "Organizado arriba",
+  "WindowControls.OrganizedMinimizeBottom": "Organizado abajo",
+  "WindowControls.OrganizedMinimizeTopBar": "Barra fija arriba",
+  "WindowControls.OrganizedMinimizeBottomBar": "Barra fija abajo",
+  "WindowControls.OrganizedPersistentTop": "Barra de tareas arriba",
+  "WindowControls.OrganizedPersistentBottom": "Barra de tareas abajo",
 
   "WindowControls.PinnedButtonName": "Botón Fijado",
   "WindowControls.PinnedButtonHint": "Añade un botón para fijar las ventanas. Al activarlo, dichas ventanas no podrán ser cerradas.",
@@ -32,6 +32,6 @@
   "WindowControls.MaximizeButtonHint": "Añade un botón para maximizar las ventanas. Puede no funcionar correctamente en todos los sistemas.",
 
   "WindowControls.TaskbarColorName": "Color de la barra de tareas",
-  "WindowControls.TaskbarColorHint": "Color de la barra de tareas cuando el modo organizado 'Barra de tareas superior' está activado"
+  "WindowControls.TaskbarColorHint": "Color de fondo para los modos Barra de tareas arriba y Barra de tareas abajo."
 
 }

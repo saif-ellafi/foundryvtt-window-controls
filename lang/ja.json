@@ -8,15 +8,15 @@
     "WindowControls.MinimizeButtonName": "最小化ボタン",
     "WindowControls.MinimizeButtonHint": "開かれているすべてのウィンドウに最小化ボタンを追加します。",
 
-    "WindowControls.OrganizedMinimizeName": "ウィンドウ整理",
-    "WindowControls.OrganizedMinimizeHint": "最小化されたウィンドウは画面の下または上の枠に整理された状態で並べられます。",
+    "WindowControls.OrganizedMinimizeName": "最小化レイアウト",
+    "WindowControls.OrganizedMinimizeHint": "整理: 非表示スロット、移動可。固定バー: 表示バーが伸縮、移動不可。タスクバー: 開いている／最小化のウィンドウを常に表示する固定ストリップ。",
 
-    "WindowControls.OrganizedMinimizeBottom": "下",
-    "WindowControls.OrganizedMinimizeBottomBar": "下（移動不可）",
-    "WindowControls.OrganizedMinimizeTop": "上",
-    "WindowControls.OrganizedMinimizeTopBar": "上（移動不可）",
-    "WindowControls.OrganizedPersistentTop": "上（自動＋移動不可）",
-    "WindowControls.OrganizedPersistentBottom": "下（自動＋移動不可）",
+    "WindowControls.OrganizedMinimizeTop": "整理・上",
+    "WindowControls.OrganizedMinimizeBottom": "整理・下",
+    "WindowControls.OrganizedMinimizeTopBar": "固定バー・上",
+    "WindowControls.OrganizedMinimizeBottomBar": "固定バー・下",
+    "WindowControls.OrganizedPersistentTop": "タスクバー・上",
+    "WindowControls.OrganizedPersistentBottom": "タスクバー・下",
 
     "WindowControls.PinnedButtonName": "ピン留めボタン",
     "WindowControls.PinnedButtonHint": "ウィンドウにピン留めボタンを追加します。ピンされたウィンドウは閉じることが不可能になり最小化のみできます。",
@@ -32,6 +32,6 @@
     "WindowControls.MaximizeButtonHint": "サイズ変更可能なウィンドウに最大化ボタンを追加します。システムによっては正しく動作しないかも知れませんので、ご注意ください。",
 
     "WindowControls.TaskbarColorName": "タスクバーの色",
-    "WindowControls.TaskbarColorHint": "トップタスクバー」整理整頓モードが有効な場合のタスクバーの色"
+    "WindowControls.TaskbarColorHint": "タスクバー・上／タスクバー・下レイアウトの背景色。"
 
 }

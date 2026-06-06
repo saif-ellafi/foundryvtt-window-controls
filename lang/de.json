@@ -8,15 +8,15 @@
   "WindowControls.MinimizeButtonName": "Minimieren Knopf",
   "WindowControls.MinimizeButtonHint": "An allen Fenstern einen Minimieren Knopf darstellen.",
 
-  "WindowControls.OrganizedMinimizeName": "Minimierung organisieren",
-  "WindowControls.OrganizedMinimizeHint": "Minimierte Fenster organisieren, indem sie oben oder unten in Bereichen dargestellt werden.",
+  "WindowControls.OrganizedMinimizeName": "Minimierungs-Layout",
+  "WindowControls.OrganizedMinimizeHint": "Organisiert: unsichtbare Slots, Fenster beweglich. Feste Leiste: sichtbare Leiste, Fenster fixiert. Taskleiste: dauerhafte Leiste für offene und minimierte Fenster.",
 
-  "WindowControls.OrganizedMinimizeBottom": "Unten (frei beweglich)",
-  "WindowControls.OrganizedMinimizeTop": "Oben (frei beweglich)",
-  "WindowControls.OrganizedMinimizeBottomBar": "In Bereich unten (nicht verschiebbar)",
-  "WindowControls.OrganizedMinimizeTopBar": "In Bereich oben (nicht verschiebbar)",
-  "WindowControls.OrganizedPersistentTop": "Obere Taskleiste",
-  "WindowControls.OrganizedPersistentBottom": "Unter Taskleiste",
+  "WindowControls.OrganizedMinimizeTop": "Organisiert oben",
+  "WindowControls.OrganizedMinimizeBottom": "Organisiert unten",
+  "WindowControls.OrganizedMinimizeTopBar": "Feste Leiste oben",
+  "WindowControls.OrganizedMinimizeBottomBar": "Feste Leiste unten",
+  "WindowControls.OrganizedPersistentTop": "Taskleiste oben",
+  "WindowControls.OrganizedPersistentBottom": "Taskleiste unten",
 
   "WindowControls.PinnedButtonName": "Gepinnt Knopf",
   "WindowControls.PinnedButtonHint": "Einen 'angepinnt' Knopf den Fenstern hínzufügen. Wenn geklickt, werden Fenster nie geschlossen sondern minimiert.",
@@ -32,6 +32,6 @@
   "WindowControls.MaximizeButtonHint": "Bei Fenstern, die in ihrer Größe änderbar sind, einen Maximieren Knopf hinzufügen. Funktioniert nicht unbedingt mit allen Systemen.",
 
   "WindowControls.TaskbarColorName": "Taskbar-Farbe",
-  "WindowControls.TaskbarColorHint": "Farbe der Taskleiste, wenn der Organisationsmodus 'Top Taskbar' aktiviert ist"
+  "WindowControls.TaskbarColorHint": "Hintergrundfarbe für die Taskleiste-oben- und Taskleiste-unten-Layouts."
 
 }
