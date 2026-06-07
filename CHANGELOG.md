@@ -1,5 +1,6 @@
 ### 1.12.0
-* Compatibility: Foundry V12 support
+* Compatibility: Foundry V12–14 support; module refactor (taskbar, header buttons)
+* Removed: Maximize button setting and canvas-fill maximize (may return if requested)
 
 ### 1.11.5
 * Bugfix: Fixed placement of Camera Views with Taskbar mode

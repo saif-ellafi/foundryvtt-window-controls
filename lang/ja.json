@@ -5,6 +5,8 @@
     "WindowControls.Enabled": "有効",
     "WindowControls.Disabled": "無効",
 
+    "WindowControls.MinimizeControl": "最小化",
+    "WindowControls.RestoreControl": "復元",
     "WindowControls.MinimizeButtonName": "最小化ボタン",
     "WindowControls.MinimizeButtonHint": "開かれているすべてのウィンドウに最小化ボタンを追加します。",
 
@@ -27,9 +29,6 @@
 
     "WindowControls.ClickOutsideMinimizeName": "外側のクリックですべてを最小化",
     "WindowControls.ClickOutsideMinimizeHint": "ボード上をクリックすると、すべてのウィンドウを最小化します。左クリックでオブジェクトを解放する」設定で最適に動作します。",
-
-    "WindowControls.MaximizeButtonName": "最大化ボタン",
-    "WindowControls.MaximizeButtonHint": "サイズ変更可能なウィンドウに最大化ボタンを追加します。システムによっては正しく動作しないかも知れませんので、ご注意ください。",
 
     "WindowControls.TaskbarColorName": "タスクバーの色",
     "WindowControls.TaskbarColorHint": "タスクバー・上／タスクバー・下レイアウトの背景色。"

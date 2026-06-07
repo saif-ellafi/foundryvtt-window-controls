@@ -105,16 +105,18 @@ const taskbarMethods = {
     const $root = WindowControls.$el(dummy);
     const $header = $root.find(".window-header, header");
     let $toggle = $header.find(".wc-taskbar-toggle");
-    if ($toggle.length) return $toggle;
-    $toggle = $(`<a class="wc-taskbar-toggle header-control" aria-label="Toggle"><i class="far fa-window-minimize"></i></a>`);
-    const $controls = $header.find(".header-controls, .window-controls").first();
-    if ($controls.length) $controls.prepend($toggle);
-    else $header.append($toggle);
-    $toggle.on("click.window-controls", ev => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      WindowControls.toggleTaskbarTarget(dummy);
-    });
+    if (!$toggle.length) {
+      $toggle = $(`<button type="button" class="wc-taskbar-toggle header-control icon" aria-label="Toggle"><i class="far fa-window-minimize"></i></button>`);
+      const $close = $header.find('[data-action="close"], a.close, button.close').first();
+      if ($close.length) $close[0].before($toggle[0]);
+      else $header.append($toggle);
+      $toggle.on("click.window-controls", ev => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        WindowControls.toggleTaskbarTarget(dummy);
+        ev.currentTarget.blur();
+      });
+    }
     return $toggle;
   },
 
@@ -249,6 +251,7 @@ const taskbarMethods = {
     if (!dummy || !WindowControls.hasRenderedElement(dummy)) return;
     const $dummy = WindowControls.$el(dummy);
     const $icon = $dummy.find(".wc-taskbar-toggle i, .fa-window-minimize, .fa-window-restore");
+    WindowControls.ensureTaskbarToggleIcon(dummy);
     if (targetMinimized) {
       $icon.removeClass("fa-window-minimize").addClass("fa-window-restore");
       $dummy.css("background-color", "");
@@ -259,6 +262,7 @@ const taskbarMethods = {
       else
         $dummy.css("background-color", "#ff640080");
     }
+    $dummy.find(".wc-taskbar-toggle")[0]?.blur();
   },
 
   isTaskbarTargetHidden(app) {

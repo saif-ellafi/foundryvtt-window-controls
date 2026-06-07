@@ -139,41 +139,30 @@ const wrapperMethods = {
     });
   },
 
-  registerHeaderWrapper(proto, headerMethod, isCloseButton) {
-    WindowControls.lwRegister(`${proto}.${headerMethod}`, function (wrapped, ...args) {
+  registerV1HeaderWrapper() {
+    WindowControls.lwRegister("Application.prototype._getHeaderButtons", function (wrapped, ...args) {
       const result = wrapped(...args);
       if (WindowControls.shouldSkipHeaderControls(this)) return result;
       if (WindowControls.isTaskbarDummy(this)) return result;
-      const close = result.find(isCloseButton);
+      const close = result.find(b => b.class === "close");
       if (close) close.label = "";
-      return WindowControls.buildHeaderControlButtons(this).concat(result);
+      return WindowControls.buildV1HeaderButtons(this).concat(result);
     });
   },
 
   registerApplicationWrappers() {
     if (WindowControls._wrappersRegistered) return;
     WindowControls._wrappersRegistered = true;
-    const targets = [
-      {
-        proto: "Application.prototype",
-        headerMethod: "_getHeaderButtons",
-        isCloseButton: b => b.class === "close"
-      }
-    ];
-    if (WindowControls.ApplicationV2) {
-      targets.push({
-        proto: "foundry.applications.api.ApplicationV2.prototype",
-        headerMethod: "_getHeaderControls",
-        isCloseButton: b => b.class === "close" || b.action === "close"
-      });
-    }
-    for (const { proto, headerMethod, isCloseButton } of targets) {
+    const targets = ["Application.prototype"];
+    if (WindowControls.ApplicationV2)
+      targets.push("foundry.applications.api.ApplicationV2.prototype");
+    for (const proto of targets) {
       WindowControls.registerMinimizeWrapper(proto);
       WindowControls.registerMaximizeWrapper(proto);
       WindowControls.registerCloseWrapper(proto);
       WindowControls.registerSetPositionWrapper(proto);
-      WindowControls.registerHeaderWrapper(proto, headerMethod, isCloseButton);
     }
+    WindowControls.registerV1HeaderWrapper();
   },
 
 };

@@ -1,7 +1,7 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/saif-ellafi/foundryvtt-window-controls/total?logo=GitHub) ![GitHub release (latest by date)](https://img.shields.io/github/downloads/saif-ellafi/foundryvtt-window-controls/latest/total) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/saif-ellafi/foundryvtt-window-controls) ![GitHub issues](https://img.shields.io/github/issues-raw/saif-ellafi/foundryvtt-window-controls) ![GitHub](https://img.shields.io/github/license/saif-ellafi/foundryvtt-window-controls)
 # JV's Window Controls for Foundry VTT
 
-Window Taskbar and Window Buttons: Minimize, Maximize and Pin floating Windows. Configurable.
+Window Taskbar and Window Buttons: Minimize and Pin floating Windows. Configurable.
 
 Organized Minimized mode allows minimizing windows on a fixed horizontal taskbar located on top or bottom.
 
@@ -44,9 +44,6 @@ Allows minimizing windows into a horizontal taskbar. Possible options are:
 
 ### Minimize everything when clicking outside a Window (Default: Off)
 * Allows quick cleanup of your screen when clicking on the board, without closing anything (except Config and Dialogs)
-
-### Maximize Button (Default: Off)
-Adds a maximize button that will expand resizable windows to the maximum available size. Can be restored with the same button.
 
 **minimize and close buttons (Default):**
 

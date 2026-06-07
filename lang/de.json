@@ -5,6 +5,8 @@
   "WindowControls.Enabled": "Eingeschaltet",
   "WindowControls.Disabled": "Ausgeschaltet",
 
+  "WindowControls.MinimizeControl": "Minimieren",
+  "WindowControls.RestoreControl": "Wiederherstellen",
   "WindowControls.MinimizeButtonName": "Minimieren Knopf",
   "WindowControls.MinimizeButtonHint": "An allen Fenstern einen Minimieren Knopf darstellen.",
 
@@ -27,9 +29,6 @@
 
   "WindowControls.ClickOutsideMinimizeName": "Klick auf Board minimiert alles",
   "WindowControls.ClickOutsideMinimizeHint": "Minimieren Sie alle Fenster, wenn Sie auf das Brett klicken. Funktioniert am besten mit der Einstellung: 'Linksklick zum Freigeben von Objekten'.",
-
-  "WindowControls.MaximizeButtonName": "Maximieren Knopf",
-  "WindowControls.MaximizeButtonHint": "Bei Fenstern, die in ihrer Größe änderbar sind, einen Maximieren Knopf hinzufügen. Funktioniert nicht unbedingt mit allen Systemen.",
 
   "WindowControls.TaskbarColorName": "Taskbar-Farbe",
   "WindowControls.TaskbarColorHint": "Hintergrundfarbe für die Taskleiste-oben- und Taskleiste-unten-Layouts."

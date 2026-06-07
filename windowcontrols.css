@@ -83,6 +83,8 @@ body.wc-persistent-bottom #window-controls-persistent {
     min-height: 30px !important;
     max-height: 30px !important;
     box-sizing: border-box;
+    display: flex !important;
+    align-items: center !important;
 }
 
 #window-controls-persistent .window-app.minimized .window-header,
@@ -157,6 +159,40 @@ body.wc-persistent-top .wc-persistent-tab.window-app.minimized .window-header {
 .minimized.window-app .window-header a,
 .minimized.application .window-header a {
     margin: 0 0 0 2px;
+}
+
+.wc-minimize-control {
+    flex: 0 0 auto;
+}
+
+header .wc-minimize-control,
+.window-header .wc-minimize-control {
+    margin: 0 0 0 2px;
+}
+
+/* Foundry core hides `.application.minimized .header-control`; keep ours visible and centered. */
+.application.minimized .header-control.wc-minimize-control,
+.window-app.minimized .header-control.wc-minimize-control,
+#window-controls-persistent .header-control.wc-taskbar-toggle,
+#window-controls-persistent .header-control[data-action="close"],
+.application.wc-persistent-tab.minimized .header-control.wc-taskbar-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    width: 24px !important;
+    height: 24px !important;
+    line-height: 1 !important;
+    flex: 0 0 auto;
+}
+
+#window-controls-persistent .wc-taskbar-toggle i {
+    margin: 0;
+    line-height: 1;
+}
+
+#window-controls-persistent .header-control[data-action="toggleControls"] {
+    display: none !important;
 }
 
 .minimized-pinned {

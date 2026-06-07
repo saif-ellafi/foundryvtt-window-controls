@@ -7,6 +7,8 @@
 
   "WindowControls.MinimizeButtonName": "Minimize Button",
   "WindowControls.MinimizeButtonHint": "Add a minimize button on all floating windows.",
+  "WindowControls.MinimizeControl": "Minimize",
+  "WindowControls.RestoreControl": "Restore",
 
   "WindowControls.OrganizedMinimizeName": "Minimize Layout",
   "WindowControls.OrganizedMinimizeHint": "Organized: invisible slots, windows can move. Fixed Bar: visible bar that resizes, windows locked in place. Taskbar: permanent strip showing open and minimized windows.",
@@ -27,9 +29,6 @@
 
   "WindowControls.ClickOutsideMinimizeName": "Minimize Everything on Outside Click",
   "WindowControls.ClickOutsideMinimizeHint": "Minimize all windows when clicking on the board. Works best with setting: 'left-click to release Objects'.",
-
-  "WindowControls.MaximizeButtonName": "Maximize Button",
-  "WindowControls.MaximizeButtonHint": "Add a maximize button on resizeable windows. May not work well with all systems",
 
   "WindowControls.TaskbarColorName": "Taskbar Color",
   "WindowControls.TaskbarColorHint": "Background color for Taskbar Top and Taskbar Bottom layout modes."

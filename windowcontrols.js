@@ -1,3 +1,4 @@
+import { registerHeaderButtons } from "./scripts/header-buttons.js";
 import { registerTaskbar } from "./scripts/taskbar.js";
 import { registerWrappers } from "./scripts/wrappers.js";
 import { TaskbarState } from "./scripts/taskbar-state.js";
@@ -123,10 +124,6 @@ class WindowControls {
 
   static isMinimized(app) {
     return app?._minimized === true || app?.minimized === true;
-  }
-
-  static isResizable(app) {
-    return app?.options?.resizable || app?.options?.window?.resizable;
   }
 
   static bringAppToTop(app) {
@@ -711,7 +708,12 @@ class WindowControls {
     if (!WindowControls.hasRenderedElement(app)) return;
     const $root = WindowControls.$el(app);
     WindowControls.applyDisplayTitle(app);
-    const $minimize = $root.find(".minimize, [data-action='minimize']");
+    if (WindowControls.isV2(app)) {
+      WindowControls.injectMinimizeControl(app);
+      WindowControls.syncMinimizeControlIcon(app);
+      return;
+    }
+    const $minimize = $root.find(".wc-minimize-control, .minimize, [data-action='minimize']");
     $minimize.empty().append(`<i class="far fa-window-restore"></i>`).show();
   }
 
@@ -719,8 +721,13 @@ class WindowControls {
     const $root = WindowControls.$el(app);
     const $title = WindowControls.$windowTitle(app);
     if ($title.length) $title.text(WindowControls.getNativeWindowTitle(app));
-    const $minimize = $root.find(".minimize, [data-action='minimize']");
-    $minimize.empty().append(`<i class="far fa-window-minimize"></i>`);
+    if (WindowControls.isV2(app)) {
+      WindowControls.injectMinimizeControl(app);
+      WindowControls.syncMinimizeControlIcon(app);
+    } else {
+      const $minimize = $root.find(".wc-minimize-control, .minimize, [data-action='minimize']");
+      $minimize.empty().append(`<i class="far fa-window-minimize"></i>`);
+    }
     if (app._pinned === true) {
       $root.find(".entry-image").hide();
       $root.find(".entry-text").hide();
@@ -776,37 +783,6 @@ class WindowControls {
       header.find(".close").show();
       if (game.settings.get('window-controls', 'rememberPinnedWindows') && app.targetApp === undefined)
         WindowControls.unpersistPinned(app);
-    }
-  }
-
-  static reapplyMaximize(app, h, w) {
-    app.setPosition({
-      width: w - (ui.sidebar._collapsed ? 50 : 325),
-      height: h - 15,
-      left: 10,
-      top: 3
-    });
-  }
-
-  static maximizeWindow(app) {
-    const $root = WindowControls.$el(app);
-    if (app._maximized) {
-      app.setPosition(app._maximized);
-      $root.find(".fa-window-restore")
-        .removeClass('fa-window-restore')
-        .addClass('fa-window-maximize');
-      delete app._maximized;
-    } else {
-      const board = $("#board");
-      const availableHeight = parseInt(board.css('height'));
-      const availableWidth = parseInt(board.css('width'));
-      app._maximized = {};
-      Object.assign(app._maximized, app.position);
-      WindowControls.reapplyMaximize(app, availableHeight, availableWidth);
-      WindowControls.reapplyMaximize(app, availableHeight, availableWidth);
-      $root.find(".fa-window-maximize")
-        .removeClass('fa-window-maximize')
-        .addClass('fa-window-restore');
     }
   }
 
@@ -870,40 +846,16 @@ class WindowControls {
       || app.constructor.name === 'ee';
   }
 
-  static buildHeaderControlButtons(app) {
+  static buildV1HeaderButtons(app) {
     if (WindowControls.shouldSkipHeaderControls(app)) return [];
     const newButtons = [];
     const minimizeSetting = game.settings.get('window-controls', 'minimizeButton');
     if (minimizeSetting === 'enabled') {
-      const minimizeHandler = function () {
-        if (WindowControls.isMinimized(this))
-          this.maximize(true);
-        else {
-          this.minimize();
-          const _bkpMinimize = this.minimize;
-          this.minimize = () => {};
-          setTimeout(() => {
-            this.minimize = _bkpMinimize;
-          }, 200);
-        }
-      };
       newButtons.push({
         label: "",
         class: "minimize",
         icon: "far fa-window-minimize",
-        onclick: minimizeHandler.bind(app),
-        onClick: minimizeHandler.bind(app),
-        button: true
-      });
-    }
-    const maximizeSetting = game.settings.get('window-controls', 'maximizeButton');
-    if (maximizeSetting === 'enabled' && WindowControls.isResizable(app)) {
-      newButtons.push({
-        label: "",
-        class: "maximize",
-        icon: app._maximized ? "far fa-window-restore" : "far fa-window-maximize",
-        onclick: () => WindowControls.maximizeWindow(app),
-        onClick: () => WindowControls.maximizeWindow(app),
+        onclick: () => WindowControls.handleMinimizeClick(app),
         button: true
       });
     }
@@ -1007,19 +959,6 @@ class WindowControls {
         "disabled": game.i18n.localize("WindowControls.Disabled")
       },
       default: "enabled",
-      onChange: WindowControls.debouncedReload
-    });
-    game.settings.register('window-controls', 'maximizeButton', {
-      name: game.i18n.localize("WindowControls.MaximizeButtonName"),
-      hint: game.i18n.localize("WindowControls.MaximizeButtonHint"),
-      scope: 'world',
-      config: true,
-      type: String,
-      choices: {
-        "enabled": game.i18n.localize("WindowControls.Enabled"),
-        "disabled": game.i18n.localize("WindowControls.Disabled")
-      },
-      default: "disabled",
       onChange: WindowControls.debouncedReload
     });
     game.settings.register('window-controls', 'clickOutsideMinimize', {
@@ -1135,12 +1074,15 @@ class WindowControls {
       WindowControls.cleanupMinimizeBar(app);
     });
 
+    WindowControls.registerHeaderButtonHooks();
+
   }
 
 }
 
 registerTaskbar(WindowControls);
 registerWrappers(WindowControls);
+registerHeaderButtons(WindowControls);
 
 // libWrapper.Ready fires *before* init; listener must exist before that hook runs.
 Hooks.once('libWrapper.Ready', () => {

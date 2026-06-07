@@ -9,7 +9,7 @@
 			"ko-fi": "https://ko-fi.com/jeansenvaars"
 		}
 	],
-	"description": "Improves Minimized window organization, style and adds Maximize and Pin window buttons",
+	"description": "Improves Minimized window organization, style and adds Minimize and Pin window buttons",
 	"version": "1.12.0",
 	"minimumCoreVersion": "12",
 	"compatibleCoreVersion": "14",
