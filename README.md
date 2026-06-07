@@ -71,7 +71,11 @@ Background color for Taskbar Top and Taskbar Bottom modes. Supports transparency
 
 ## Related projects
 
-This is the original **Window Controls** module. [Window Controls Next](https://github.com/paulcheeba/window-controls-next) is a separate fork with a different feature set, dependency chain, and package id (`window-controls-next`). The two modules should not be installed together.
+This is the original **Window Controls** module (`window-controls`).
+
+While I was away from the project for a couple of years, the Foundry community kept the idea alive. I'm genuinely grateful for that — especially [Window Controls Next](https://github.com/paulcheeba/window-controls-next) by paulcheeba, who carried the module forward for Foundry v13+ with a thoughtful rework. It is a separate package (`window-controls-next`) with its own feature set and dependencies, and the two modules should not be installed together. If their version fits your table better, use it with my thanks.
+
+Version 2.0.0 is my return to maintaining this original module for Foundry v14, with the layout modes and direction many of you have used for years.
 
 ## By JeansenVaars
 ![JVLogo](logo-small-black.png)
@@ -84,8 +88,9 @@ This is the original **Window Controls** module. [Window Controls Next](https://
 * Super Select
 
 ## Appreciations
+* Thanks to paulcheeba and everyone who maintained, forked, or reported issues on Window Controls while I was absent — you kept it useful
 * Thanks to [libWrapper](https://foundryvtt.com/packages/lib-wrapper) by ruipin — fewer UI conflicts with other modules
-* Thanks to the Foundry VTT Discord community for issue reports and feedback
+* Thanks to the Foundry VTT Discord community for issue reports and feedback over the years
 * Thanks to Grayhead for the German translations
 * Thanks to Brother Sharp for the Japanese translations
 
