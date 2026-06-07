@@ -183,11 +183,147 @@ class WindowControls {
   }
 
   static getAppDocument(app) {
-    return app?.document ?? app?.options?.document ?? null;
+    return app?.document
+      ?? app?.options?.document
+      ?? app?.object
+      ?? app?.entity
+      ?? app?.actor
+      ?? app?.item
+      ?? app?.journal
+      ?? app?.entry
+      ?? null;
   }
 
   static getDocumentTypeName(doc) {
     return doc?.documentName ?? doc?.constructor?.documentName ?? "";
+  }
+
+  static normalizeTokenDocument(token) {
+    if (!token) return null;
+    if (typeof token === "string") return WindowControls.findTokenDocument(token);
+    return token.document ?? token;
+  }
+
+  static resolveSheetToken(app) {
+    const direct = app?.token ?? app?.options?.token ?? app?.object?.token ?? null;
+    if (direct) return WindowControls.normalizeTokenDocument(direct);
+
+    const doc = WindowControls.getAppDocument(app);
+    if (doc?.token) return doc.token;
+
+    if (doc && WindowControls.getDocumentTypeName(doc) === "Actor"
+      && WindowControls.getNativeWindowTitle(app).startsWith("[Token]")) {
+      const tokens = doc.getActiveTokens?.(false, true) ?? [];
+      if (tokens.length === 1) return tokens[0];
+      const controlled = canvas?.tokens?.controlled?.find(t => {
+        const actor = t.document?.actor;
+        return actor?.id === doc.id || actor?.isToken;
+      });
+      if (controlled?.document) return controlled.document;
+    }
+
+    return null;
+  }
+
+  static getSheetTokenId(app) {
+    return WindowControls.resolveSheetToken(app)?.id ?? null;
+  }
+
+  /**
+   * Actor sheet modes (see actor-link-indicator):
+   * - prototype: sidebar / template actor
+   * - linked-actor: unique singleton opened from a linked token (same world actor)
+   * - token-instance: unlinked battle-map instance (independent grunt)
+   */
+  static getActorSheetMode(app) {
+    const doc = WindowControls.getAppDocument(app);
+    if (!doc || WindowControls.getDocumentTypeName(doc) !== "Actor") return "document";
+
+    if (doc.isToken) return "token-instance";
+
+    const tokenDoc = WindowControls.resolveSheetToken(app);
+    if (tokenDoc) return tokenDoc.isLinked ? "linked-actor" : "token-instance";
+
+    return "prototype";
+  }
+
+  static getActorWorldId(doc, app = null) {
+    if (!doc?.id) return null;
+    if (doc.isToken) return doc.token?.actorId ?? doc.id;
+    const tokenDoc = app ? WindowControls.resolveSheetToken(app) : null;
+    return tokenDoc?.actorId ?? doc.id;
+  }
+
+  static getActorPersistData(app) {
+    const doc = WindowControls.getAppDocument(app);
+    const mode = WindowControls.getActorSheetMode(app);
+    const tokenDoc = WindowControls.resolveSheetToken(app);
+    const worldActorId = WindowControls.getActorWorldId(doc, app);
+
+    if (mode === "token-instance") {
+      const tokenId = tokenDoc?.id ?? doc?.token?.id ?? null;
+      const sceneId = tokenDoc?.parent?.id ?? canvas?.scene?.id ?? null;
+      return {
+        docId: worldActorId ?? doc.id,
+        docName: "Actor",
+        sheetMode: "token-instance",
+        sheetIdentityKey: tokenId ? `Token:${tokenId}` : `Actor:${doc.id}:token-unknown`,
+        tokenId,
+        sceneId,
+      };
+    }
+
+    return {
+      docId: worldActorId ?? doc.id,
+      docName: "Actor",
+      sheetMode: mode === "linked-actor" ? "linked-actor" : "prototype",
+      sheetIdentityKey: `Actor:${worldActorId ?? doc.id}:prototype`,
+      tokenId: null,
+      sceneId: null,
+    };
+  }
+
+  static getSheetIdentityKey(app) {
+    const doc = WindowControls.getAppDocument(app);
+    if (!doc?.id) return app?.tabName ? `tab:${app.tabName}` : null;
+
+    const docName = WindowControls.getDocumentTypeName(doc);
+    if (docName !== "Actor") return `${docName}:${doc.id}`;
+
+    return WindowControls.getActorPersistData(app).sheetIdentityKey;
+  }
+
+  static sheetsAreSameInstance(a, b) {
+    if (!a || !b) return false;
+    if (a === b) return true;
+    const keyA = WindowControls.getSheetIdentityKey(a);
+    const keyB = WindowControls.getSheetIdentityKey(b);
+    return !!(keyA && keyB && keyA === keyB);
+  }
+
+  static getPersistedSheetIdentityKey(entry) {
+    if (entry?.sheetIdentityKey) return entry.sheetIdentityKey;
+    if (entry?.sheetMode === "token-instance" && entry?.tokenId)
+      return `Token:${entry.tokenId}`;
+    if (entry?.docName === "Actor" && entry?.docId)
+      return `Actor:${entry.docId}:prototype`;
+    if (entry?.docId) return `${entry.docName ?? "Document"}:${entry.docId}`;
+    return null;
+  }
+
+  static findTokenDocument(tokenId, sceneId = null) {
+    if (!tokenId) return null;
+    if (sceneId) {
+      const sceneToken = game.scenes.get(sceneId)?.tokens?.get(tokenId);
+      if (sceneToken) return sceneToken;
+    }
+    const canvasToken = canvas?.tokens?.get?.(tokenId);
+    if (canvasToken?.document) return canvasToken.document;
+    for (const scene of game.scenes ?? []) {
+      const token = scene.tokens?.get?.(tokenId);
+      if (token) return token;
+    }
+    return null;
   }
 
   static getPersistCollection(docName) {
@@ -206,19 +342,30 @@ class WindowControls {
     const currentPersisted = game.user.getFlag("window-controls", "persisted-pinned-windows") ?? [];
     const doc = WindowControls.getAppDocument(app);
     if (doc?.id) {
-      if (!currentPersisted.find(p => p.docId === doc.id)) {
-        currentPersisted.push({
+      const persistData = WindowControls.getDocumentTypeName(doc) === "Actor"
+        ? WindowControls.getActorPersistData(app)
+        : {
           docId: doc.id,
           docName: WindowControls.getDocumentTypeName(doc),
+          sheetMode: "document",
+          sheetIdentityKey: WindowControls.getSheetIdentityKey(app),
+          tokenId: null,
+          sceneId: null,
+        };
+      if (!currentPersisted.find(p => p.sheetIdentityKey === persistData.sheetIdentityKey)) {
+        currentPersisted.push({
+          ...persistData,
           position: foundry.utils.deepClone(app.position ?? {}),
         });
         await game.user.setFlag("window-controls", "persisted-pinned-windows", currentPersisted);
       }
     } else if (app.tabName) {
-      if (!currentPersisted.find(p => p.docId === app.tabName)) {
+      const sheetIdentityKey = `tab:${app.tabName}`;
+      if (!currentPersisted.find(p => p.sheetIdentityKey === sheetIdentityKey)) {
         currentPersisted.push({
           docId: app.tabName,
           docName: "SidebarTab",
+          sheetIdentityKey,
           position: foundry.utils.deepClone(app.position ?? {}),
         });
         await game.user.setFlag("window-controls", "persisted-pinned-windows", currentPersisted);
@@ -227,15 +374,18 @@ class WindowControls {
   }
 
   static async unpersistPinned(app) {
-    const doc = WindowControls.getAppDocument(app);
+    const sheetIdentityKey = WindowControls.getSheetIdentityKey(app);
     const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows")?.filter(a =>
-      a.docId !== doc?.id && a.docId !== app.tabName
+      a.sheetIdentityKey !== sheetIdentityKey
+      && a.docId !== app.tabName
     ) ?? [];
     await game.user.setFlag("window-controls", "persisted-pinned-windows", filtered);
   }
 
-  static async removePersistedEntry(docId) {
-    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows")?.filter(a => a.docId !== docId) ?? [];
+  static async removePersistedEntry(entryKey) {
+    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows")?.filter(a =>
+      a.sheetIdentityKey !== entryKey && a.docId !== entryKey
+    ) ?? [];
     await game.user.setFlag("window-controls", "persisted-pinned-windows", filtered);
   }
 
@@ -244,26 +394,167 @@ class WindowControls {
     for (const app of WindowControls.getRenderedApplications()) {
       if (!app._pinned || app.targetApp !== undefined) continue;
       if (WindowControls.isTaskbarDummy?.(app)) continue;
-      const doc = WindowControls.getAppDocument(app);
-      const key = doc?.id ?? app.tabName;
+      const key = WindowControls.getSheetIdentityKey(app);
       if (!key || seen.has(key)) continue;
       seen.add(key);
       await WindowControls.persistPinned(app);
     }
   }
 
-  static async renderSheet(sheet) {
-    if (!sheet) return;
-    if (WindowControls.isV2(sheet))
-      await sheet.render({ force: true });
-    else
-      await sheet.render(true);
+  static findOpenDocumentSheet(doc, { exclude = null, matchApp = null, sheetIdentityKey = null } = {}) {
+    const identityRef = matchApp ?? exclude;
+    const key = sheetIdentityKey ?? (identityRef ? WindowControls.getSheetIdentityKey(identityRef) : null);
+
+    if (key?.startsWith("Token:"))
+      return WindowControls.findOpenDocumentSheetByIdentity(key, { exclude });
+
+    if (!doc?.id) return null;
+
+    for (const app of WindowControls.getRenderedApplications()) {
+      if (!app || app === exclude) continue;
+      if (WindowControls.isTaskbarDummy?.(app)) continue;
+      if (key && WindowControls.getSheetIdentityKey(app) !== key) continue;
+      else if (identityRef && !WindowControls.sheetsAreSameInstance(identityRef, app)) continue;
+      const appDoc = WindowControls.getAppDocument(app);
+      const worldId = WindowControls.getActorWorldId(appDoc, app);
+      const targetId = WindowControls.getActorWorldId(doc);
+      if (worldId !== targetId && appDoc?.id !== doc.id) continue;
+      if (WindowControls.hasRenderedElement(app)) return app;
+    }
+
+    return null;
   }
 
-  static async ensureSheetRendered(doc) {
-    if (!doc?.sheet) return null;
-    await WindowControls.renderSheet(doc.sheet);
-    return doc.sheet;
+  static findOpenDocumentSheetByIdentity(sheetIdentityKey, { exclude = null } = {}) {
+    if (!sheetIdentityKey) return null;
+    for (const app of WindowControls.getRenderedApplications()) {
+      if (!app || app === exclude) continue;
+      if (WindowControls.isTaskbarDummy?.(app)) continue;
+      if (WindowControls.getSheetIdentityKey(app) !== sheetIdentityKey) continue;
+      if (WindowControls.hasRenderedElement(app)) return app;
+    }
+    return null;
+  }
+
+  static redirectToExistingDocumentSheet(app) {
+    const doc = WindowControls.getAppDocument(app);
+    if (!doc?.id || WindowControls.isTaskbarDummy?.(app)) return null;
+
+    const sheetIdentityKey = WindowControls.getSheetIdentityKey(app);
+    const existing = sheetIdentityKey?.startsWith("Token:")
+      ? WindowControls.findOpenDocumentSheetByIdentity(sheetIdentityKey, { exclude: app })
+      : WindowControls.findOpenDocumentSheet(doc, { exclude: app, matchApp: app });
+    if (!existing) return null;
+
+    WindowControls.linkDocumentSheet(doc, existing);
+    WindowControls.bringAppToTop(existing);
+    if (WindowControls.isMinimized(existing) && typeof existing.maximize === "function")
+      void existing.maximize(true);
+    if (typeof app.close === "function")
+      void app.close({ force: true }).catch(() => app.close?.());
+    return existing;
+  }
+
+  static linkDocumentSheet(doc, sheet) {
+    if (doc?.apps && sheet)
+      doc.apps.sheet = sheet;
+  }
+
+  static async renderSheet(sheet) {
+    if (!sheet) return;
+    const mount = !WindowControls.hasRenderedElement(sheet);
+    if (WindowControls.isV2(sheet))
+      await sheet.render({ force: mount });
+    else
+      await sheet.render(mount);
+  }
+
+  static async openTokenInstanceSheet(tokenId, sceneId = null, sheetIdentityKey = null) {
+    const tokenDoc = WindowControls.findTokenDocument(tokenId, sceneId);
+    if (!tokenDoc) {
+      console.warn(`Window Controls: pinned token not found (${tokenId}).`);
+      return null;
+    }
+
+    const actor = tokenDoc.actor;
+    if (!actor) return null;
+
+    const identityKey = sheetIdentityKey ?? `Token:${tokenId}`;
+    let sheet = WindowControls.findOpenDocumentSheetByIdentity(identityKey);
+    if (sheet && WindowControls.hasRenderedElement(sheet)) return sheet;
+
+    if (actor.sheet) {
+      await WindowControls.renderSheet(actor.sheet);
+      sheet = WindowControls.findOpenDocumentSheetByIdentity(identityKey) ?? actor.sheet;
+      if (sheet) return sheet;
+    }
+
+    if (typeof actor.render === "function") {
+      try {
+        await actor.render(false, { renderSheet: true });
+      } catch (_) {
+        try { await actor.render(false); } catch (_2) { /* fall through */ }
+      }
+    }
+
+    return WindowControls.findOpenDocumentSheetByIdentity(identityKey)
+      ?? actor.sheet
+      ?? null;
+  }
+
+  static async openDocumentSheet(doc, {
+    sheetIdentityKey = null,
+    tokenId = null,
+    sceneId = null,
+    sheetMode = null,
+  } = {}) {
+    if (!doc) return null;
+
+    let sheet = WindowControls.findOpenDocumentSheetByIdentity(sheetIdentityKey)
+      ?? WindowControls.findOpenDocumentSheet(doc, { sheetIdentityKey });
+    if (sheet && WindowControls.hasRenderedElement(sheet)) {
+      WindowControls.linkDocumentSheet(doc, sheet);
+      return sheet;
+    }
+
+    if (sheetMode === "token-instance" && tokenId) {
+      sheet = await WindowControls.openTokenInstanceSheet(tokenId, sceneId, sheetIdentityKey);
+      if (sheet) {
+        const sheetDoc = WindowControls.getAppDocument(sheet) ?? doc;
+        WindowControls.linkDocumentSheet(sheetDoc, sheet);
+        if (!WindowControls.hasRenderedElement(sheet))
+          await WindowControls.renderSheet(sheet);
+        return sheet;
+      }
+      return null;
+    }
+
+    if (typeof doc.render === "function") {
+      try {
+        await doc.render(false, { renderSheet: true });
+      } catch (_) {
+        try { await doc.render(false); } catch (_2) { /* fall through */ }
+      }
+      sheet = WindowControls.findOpenDocumentSheetByIdentity(sheetIdentityKey)
+        ?? WindowControls.findOpenDocumentSheet(doc, { sheetIdentityKey });
+      if (sheet) {
+        WindowControls.linkDocumentSheet(doc, sheet);
+        if (!WindowControls.hasRenderedElement(sheet))
+          await WindowControls.renderSheet(sheet);
+        return sheet;
+      }
+    }
+
+    sheet = doc.sheet ?? null;
+    if (!sheet) return null;
+    await WindowControls.renderSheet(sheet);
+    WindowControls.linkDocumentSheet(doc, sheet);
+    return sheet;
+  }
+
+  static dedupeDocumentSheet(app) {
+    if (!app || WindowControls.isTaskbarDummy?.(app)) return;
+    WindowControls.redirectToExistingDocumentSheet(app);
   }
 
   static async persistRender(persisted) {
@@ -296,16 +587,30 @@ class WindowControls {
       ?? collection.contents?.find(d => d.id === persisted.docId);
     if (!doc) {
       console.warn(`Window Controls: persisted document not found (${persisted.docName} ${persisted.docId}).`);
-      await WindowControls.removePersistedEntry(persisted.docId);
+      await WindowControls.removePersistedEntry(persisted.sheetIdentityKey ?? persisted.docId);
       return;
     }
 
-    const sheet = await WindowControls.ensureSheetRendered(doc);
+    const sheetIdentityKey = WindowControls.getPersistedSheetIdentityKey(persisted);
+    const sheetMode = persisted.sheetMode
+      ?? (persisted.tokenId ? "token-instance" : "prototype");
+    const sheet = await WindowControls.openDocumentSheet(doc, {
+      sheetIdentityKey,
+      tokenId: persisted.tokenId ?? null,
+      sceneId: persisted.sceneId ?? null,
+      sheetMode,
+    });
     if (!sheet) {
       console.warn(`Window Controls: could not open sheet (${persisted.docName} ${persisted.docId}).`);
       return;
     }
-    WindowControls.persistRenderMinimizeRetry(sheet, false, persisted.position, persisted.docId);
+    WindowControls.linkDocumentSheet(doc, sheet);
+    WindowControls.persistRenderMinimizeRetry(
+      sheet,
+      false,
+      persisted.position,
+      persisted.sheetIdentityKey ?? persisted.docId
+    );
   }
 
   static async restorePersistedPinnedWindows() {
@@ -352,6 +657,8 @@ class WindowControls {
   static persistRenderMinimizeRetry(appDoc, stop, position, persistedDocId = null) {
     setTimeout(() => {
       if (WindowControls.hasRenderedElement(appDoc)) {
+        const doc = WindowControls.getAppDocument(appDoc);
+        if (doc) WindowControls.linkDocumentSheet(doc, appDoc);
         WindowControls.setPinnedState(appDoc, true);
         const taskbarDummy = TaskbarState.getDummy(appDoc);
         if (taskbarDummy)
@@ -360,6 +667,7 @@ class WindowControls {
           appDoc.setPosition(position);
         if (!WindowControls.isMinimized(appDoc))
           appDoc.minimize();
+        if (doc) WindowControls.linkDocumentSheet(doc, appDoc);
         setTimeout(() => {
           const dummy = TaskbarState.getDummy(appDoc);
           if (dummy) WindowControls.applyTaskbarDummyChrome(dummy, appDoc);
@@ -979,7 +1287,10 @@ class WindowControls {
     if (pinned && !app._pinned) {
       app._pinned = true;
       app._closeBkp = app.close;
-      app.close = async function () {};
+      app.close = async function () {
+        if (!WindowControls.isMinimized(this))
+          await this.minimize();
+      };
       if (game.settings.get('window-controls', 'rememberPinnedWindows') && app.targetApp === undefined)
         void WindowControls.persistPinned(app);
     } else if (!pinned && app._pinned) {
@@ -1237,6 +1548,15 @@ class WindowControls {
     });
 
     WindowControls.registerHeaderButtonHooks();
+
+    for (const hook of [
+      "renderActorSheet",
+      "renderItemSheet",
+      "renderJournalEntrySheet",
+      "renderRollTableSheet",
+    ]) {
+      Hooks.on(hook, app => WindowControls.dedupeDocumentSheet(app));
+    }
 
   }
 
