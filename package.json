@@ -1,7 +1,7 @@
 {
   "name": "foundryvtt-window-controls",
   "version": "2.0.0",
-  "description": "Improves Minimized window organization, style and adds Minimize and Pin window buttons",
+  "description": "Organize and pin floating windows for Foundry VTT",
   "main": "windowcontrols.js",
   "scripts": {
     "copy": "mkdir -p dist && cp ./windowcontrols.js dist/ && cp ./windowcontrols.css dist/ && cp ./README.md dist/ && cp ./CHANGELOG.md dist/ && cp ./LICENSE.md dist/ && cp ./module.json dist/ && cp ./THANKS.txt dist/ && cp -r ./lang dist/ && cp -r ./scripts dist/ && cp -r ./templates dist/ && rm -f dist/scripts/deploy-dev.mjs",

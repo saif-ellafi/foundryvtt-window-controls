@@ -1,7 +1,7 @@
 {
 	"id": "window-controls",
 	"title": "Window Controls",
-	"description": "Improves Minimized window organization, style and adds Minimize and Pin window buttons",
+	"description": "Organize and pin floating windows. Minimize sheets on the canvas, in a docked bar, or on a dedicated taskbar.",
 	"version": "2.0.0",
 	"compatibility": {
 		"minimum": "14",

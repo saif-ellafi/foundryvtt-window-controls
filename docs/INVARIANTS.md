@@ -42,6 +42,30 @@ Never hide the real app without a linked dummy tab.
 
 Do not rewrite in-sheet system headers on V2 document sheets.
 
+## Pinned windows
+
+- Pinned `close()` minimizes when the window is open; does not destroy the sheet.
+- Close button is hidden while pinned; header tint (`minimized-pinned`) shows state.
+- Pin control is hidden while minimized.
+- Remember-pinned persistence uses sheet identity:
+  - `prototype` — sidebar actor template
+  - `linked-actor` — linked singleton (world actor id)
+  - `token-instance` — unlinked map token (`Token:<tokenId>` + `sceneId`)
+
+Template, linked, and unlinked token sheets are separate instances and must not dedupe each other.
+
+## Settings (v2.0)
+
+| Key | Scope | Default |
+|-----|-------|---------|
+| `organizedMinimize` | client | `topBar` (Docked Bar Top) |
+| `minimizeButton` | world | enabled |
+| `pinnedButton` | world | enabled |
+| `rememberPinnedWindows` | world | false |
+| `taskbarColor` | world | transparent |
+
+Setting changes refresh open window chrome without a full reload where possible.
+
 ## Taskbar interactions
 
 | Action | Behavior |
