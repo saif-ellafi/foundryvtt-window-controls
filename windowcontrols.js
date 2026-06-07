@@ -1,3 +1,7 @@
+import { registerTaskbar } from "./scripts/taskbar.js";
+import { registerWrappers } from "./scripts/wrappers.js";
+import { TaskbarState } from "./scripts/taskbar-state.js";
+
 class WindowControls {
 
   static noLibWrapper = false;
@@ -37,95 +41,9 @@ class WindowControls {
     return !!el?.closest?.('#window-controls-persistent');
   }
 
-  static isTaskbarDummyInPanel(app) {
-    return app?.constructor?.name === 'WindowControlsPersistentDummy'
-      && WindowControls.isInPersistentTaskbarPanel(app);
-  }
-
   static mergeAppPosition(app, position) {
     app.position = foundry.utils.mergeObject(app.position ?? {}, position);
     return app.position;
-  }
-
-  static get AbstractSidebarTab() {
-    return foundry.applications?.sidebar?.AbstractSidebarTab;
-  }
-
-  static get DocumentSheetV2() {
-    return foundry.applications?.api?.DocumentSheetV2;
-  }
-
-  static get DialogV2() {
-    return foundry.applications?.api?.DialogV2;
-  }
-
-  static isSidebarTab(app) {
-    const Tab = WindowControls.AbstractSidebarTab;
-    if (Tab && app instanceof Tab) return true;
-    return !!(app?.tabName && (app.collection != null || app.documentCollection != null));
-  }
-
-  static isSidebarPopout(app) {
-    if ('isPopout' in (app ?? {})) return app.isPopout === true;
-    return WindowControls.isLegacyPopout(app);
-  }
-
-  static isEmbeddedSidebarTab(app) {
-    return WindowControls.isSidebarTab(app) && !WindowControls.isSidebarPopout(app);
-  }
-
-  static isLegacyPopout(app) {
-    const options = app?.options ?? {};
-    if (options.popOut === true || app.popOut === true) return true;
-    if (options.window?.popOut === true) return true;
-    return false;
-  }
-
-  static isCoreUiSingleton(app) {
-    if (!app || !ui) return false;
-    const singletons = [
-      ui.hotbar, ui.chat, ui.players, ui.controls, ui.nav, ui.notifications,
-      ui.pause, ui.webrtc, ui.hud, ui.sidebar, ui.combat, ui.sceneControls
-    ].filter(Boolean);
-    if (singletons.some(s => s === app)) return true;
-    if (ui.sidebar?.tabs) {
-      for (const tab of Object.values(ui.sidebar.tabs))
-        if (tab === app) return true;
-    }
-    return false;
-  }
-
-  static isDocumentBackedWindow(app) {
-    const DocSheet = WindowControls.DocumentSheetV2;
-    if (DocSheet && app instanceof DocSheet) return true;
-    if (app.document?.documentName) return true;
-    if (!WindowControls.isV2(app) && (app.object || app.entity)) return true;
-    return false;
-  }
-
-  static isTransientApplication(app) {
-    const DialogV2 = WindowControls.DialogV2;
-    if (DialogV2 && app instanceof DialogV2) return true;
-    if (typeof Dialog !== 'undefined' && app instanceof Dialog) return true;
-    const FilePicker = foundry.applications?.apps?.FilePicker;
-    if (FilePicker && app instanceof FilePicker) return true;
-    return false;
-  }
-
-  static shouldSkipTaskbarDummy(app) {
-    if (!app) return true;
-    if (WindowControls.shouldSkipHeaderControls(app)) return true;
-    if (app.constructor?.name === 'WindowControlsPersistentDummy') return true;
-    if (WindowControls.isCoreUiSingleton(app)) return true;
-    if (WindowControls.isEmbeddedSidebarTab(app)) return true;
-    if (WindowControls.isTransientApplication(app)) return true;
-    if (WindowControls.isV2(app) && app.hasFrame === false) return true;
-    return false;
-  }
-
-  static isUserFacingPopout(app) {
-    if (WindowControls.isSidebarTab(app)) return WindowControls.isSidebarPopout(app);
-    return WindowControls.isLegacyPopout(app);
   }
 
   static getDocumentName(app) {
@@ -172,87 +90,6 @@ class WindowControls {
   static applyDisplayTitle(app) {
     const $title = WindowControls.$windowTitle(app);
     if ($title.length) $title.text(WindowControls.getDisplayTitle(app));
-  }
-
-  static syncTaskbarDummyTitle(dummy, targetApp) {
-    const title = WindowControls.getDisplayTitle(targetApp);
-    dummy.options.title = title;
-    if (WindowControls.hasRenderedElement(dummy))
-      WindowControls.applyDisplayTitle(dummy);
-  }
-
-  static findTaskbarDummy(targetApp) {
-    const targetId = WindowControls.getAppId(targetApp);
-    if (targetId == null) return null;
-    return Object.values(ui.windows).find(w =>
-      w.constructor?.name === 'WindowControlsPersistentDummy'
-      && WindowControls.getAppId(w.targetApp) === targetId
-    ) ?? null;
-  }
-
-  static isFramedMinimizableWindow(app) {
-    const options = app?.options ?? {};
-    const windowOpts = options.window ?? {};
-    const minimizable = options.minimizable ?? windowOpts.minimizable;
-    if (minimizable === false) return false;
-    if (WindowControls.isV2(app)) {
-      if (app.hasFrame === false) return false;
-      if (windowOpts.positioned === false) return false;
-      return true;
-    }
-    return options.minimizable !== false;
-  }
-
-  static isTrackableTaskbarWindow(app) {
-    if (!app || WindowControls.shouldSkipTaskbarDummy(app)) return false;
-    if (app._sourceDummyPanelApp?.rendered) return false;
-    if (!WindowControls.getAppTitle(app)) return false;
-    if (!WindowControls.isFramedMinimizableWindow(app)) return false;
-
-    if (WindowControls.isDocumentBackedWindow(app)) return true;
-
-    if (WindowControls.isSidebarTab(app))
-      return WindowControls.isSidebarPopout(app);
-
-    if (app.tabName && !WindowControls.isV2(app))
-      return WindowControls.isUserFacingPopout(app);
-
-    return false;
-  }
-
-  static purgeInvalidTaskbarDummies() {
-    if (!document.querySelector('#window-controls-persistent')) return;
-    for (const dummy of Object.values(ui.windows)) {
-      if (dummy.constructor?.name !== 'WindowControlsPersistentDummy') continue;
-      const target = dummy.targetApp;
-      const keep = target?.rendered
-        && WindowControls.getAppTitle(target)
-        && (WindowControls.isTrackableTaskbarWindow(target) || WindowControls.isMinimized(target));
-      if (!keep)
-        dummy.close({force: true}).catch(() => dummy.justClose?.());
-    }
-  }
-
-  static canMinimizeToTaskbar(app) {
-    if (!app || WindowControls.shouldSkipTaskbarDummy(app)) return false;
-    if (!WindowControls.getAppTitle(app)) return false;
-    return WindowControls.isFramedMinimizableWindow(app);
-  }
-
-  static async ensureTaskbarDummy(app, {onMinimize = false} = {}) {
-    const existing = app._sourceDummyPanelApp ?? WindowControls.findTaskbarDummy(app);
-    if (existing?.rendered) {
-      app._sourceDummyPanelApp = existing;
-      existing.targetApp = app;
-      WindowControls.syncTaskbarDummyTitle(existing, app);
-      return existing;
-    }
-    const allowed = onMinimize
-      ? WindowControls.canMinimizeToTaskbar(app)
-      : WindowControls.isTrackableTaskbarWindow(app);
-    if (!allowed) return null;
-    await WindowControls.renderDummyPanelApp(app, {force: onMinimize});
-    return app._sourceDummyPanelApp ?? WindowControls.findTaskbarDummy(app);
   }
 
   static debouncedReload = foundry.utils.debounce(() => window.location.reload(), 100);
@@ -382,12 +219,16 @@ class WindowControls {
     setTimeout(() => {
       if (appDoc?.rendered) {
         WindowControls.applyPinnedMode(appDoc);
-        if (appDoc._sourceDummyPanelApp)
-          WindowControls.applyPinnedMode(appDoc._sourceDummyPanelApp);
+        const taskbarDummy = TaskbarState.getDummy(appDoc);
+        if (taskbarDummy)
+          WindowControls.applyPinnedMode(taskbarDummy);
         appDoc.setPosition(position);
         if (!appDoc._minimized)
           appDoc.minimize();
-        setTimeout(() => WindowControls.setMinimizedStyle(appDoc._sourceDummyPanelApp), 500);
+        setTimeout(() => {
+          const dummy = TaskbarState.getDummy(appDoc);
+          if (dummy) WindowControls.applyTaskbarDummyChrome(dummy, appDoc);
+        }, 500);
       } else if (!stop) {
         console.warn("Window Controls: Too slow to render persisted Windows... Retrying...");
         WindowControls.persistRenderMinimizeRetry(appDoc, true, position);
@@ -493,12 +334,31 @@ class WindowControls {
     WindowControls.setBarMovementLock(app, true);
   }
 
+  static isFixedBarSetting(setting) {
+    return setting === 'topBar' || setting === 'bottomBar';
+  }
+
+  static clearMinimizeBar() {
+    $("#minimized-bar").hide().remove();
+    const rootStyle = document.querySelector(':root').style;
+    rootStyle.setProperty('--minibarw', 'unset');
+    rootStyle.setProperty('--minibarbot', 'unset');
+    rootStyle.setProperty('--minibartop', 'unset');
+    rootStyle.setProperty('--minibarleft', 'unset');
+  }
+
   static applyOrganizedMinimizeSetting() {
-    WindowControls.positionMinimizeBar();
+    const setting = game.settings.get('window-controls', 'organizedMinimize');
+    if (WindowControls.isFixedBarSetting(setting))
+      WindowControls.positionMinimizeBar();
+    else
+      WindowControls.clearMinimizeBar();
     WindowControls.compactStash();
     for (const entry of Object.values(WindowControls.minimizedStash)) {
-      if (entry?.app?.rendered && WindowControls.isMinimized(entry.app))
-        WindowControls.setMinimizedPosition(entry.app);
+      if (!entry?.app?.rendered || !WindowControls.isMinimized(entry.app)) continue;
+      if (!WindowControls.isFixedBarSetting(setting))
+        WindowControls.setBarMovementLock(entry.app, false);
+      WindowControls.setMinimizedPosition(entry.app);
     }
     WindowControls.refreshMinimizeBar();
   }
@@ -514,8 +374,10 @@ class WindowControls {
 
   static positionMinimizeBar() {
     const setting = game.settings.get('window-controls', 'organizedMinimize');
-    if (!['topBar', 'bottomBar'].includes(setting))
+    if (!WindowControls.isFixedBarSetting(setting)) {
+      WindowControls.clearMinimizeBar();
       return;
+    }
     const rootStyle = document.querySelector(':root').style;
     const bar = $('#minimized-bar').hide();
     const barHtml = $(`<div id="minimized-bar" class="app" style="display: none;"></div>`);
@@ -706,97 +568,7 @@ class WindowControls {
       WindowControls.appInStash(WindowControls.getAppId(app))?.oldPosition
     );
     if (fromStash) return fromStash;
-    const dummy = WindowControls.findTaskbarDummy(app);
-    return WindowControls.clonePosition(dummy?._wcSavedPosition);
-  }
-
-  static hidePersistentTargetApp(app) {
-    if (!WindowControls.hasRenderedElement(app)) return;
-    WindowControls.$el(app)
-      .addClass('wc-persistent-target-hidden')
-      .css({visibility: 'hidden', 'pointer-events': 'none'});
-  }
-
-  static showPersistentTargetApp(app) {
-    if (!WindowControls.hasRenderedElement(app)) return;
-    WindowControls.$el(app)
-      .removeClass('wc-persistent-target-hidden')
-      .css({visibility: '', 'pointer-events': ''});
-  }
-
-  static updatePersistentDummyTabState(dummy, targetMinimized) {
-    if (!dummy || !WindowControls.hasRenderedElement(dummy)) return;
-    const $dummy = WindowControls.$el(dummy);
-    const $icon = $dummy.find(".fa-window-minimize, .fa-window-restore");
-    if (targetMinimized) {
-      $icon.removeClass('fa-window-minimize').addClass('fa-window-restore');
-      $dummy.css('background-color', '');
-    } else {
-      $icon.removeClass('fa-window-restore').addClass('fa-window-minimize');
-      if (game.modules.get('minimal-ui')?.active)
-        $dummy.css('background-color', game.settings.get('minimal-ui', 'shadowColor'));
-      else
-        $dummy.css('background-color', '#ff640080');
-    }
-  }
-
-  static isTaskbarTargetHidden(app) {
-    if (!WindowControls.hasRenderedElement(app)) return false;
-    return WindowControls.$el(app).hasClass('wc-persistent-target-hidden');
-  }
-
-  static isTaskbarTargetMinimized(app) {
-    return WindowControls.isMinimized(app) || WindowControls.isTaskbarTargetHidden(app);
-  }
-
-  static unbindTaskbarDummyCapture(taskbarApp) {
-    for (const {el, fn} of taskbarApp._wcCaptureHandlers ?? [])
-      el.removeEventListener('dblclick', fn, true);
-    taskbarApp._wcCaptureHandlers = [];
-  }
-
-  static async toggleTaskbarTarget(taskbarApp) {
-    if (taskbarApp._wcToggling) return;
-    const target = taskbarApp?.targetApp;
-    if (!target) return;
-    const restoring = WindowControls.isTaskbarTargetMinimized(target);
-    taskbarApp._wcToggling = true;
-    try {
-      if (restoring)
-        await taskbarApp.maximize();
-      else
-        await target.minimize();
-    } finally {
-      taskbarApp._wcToggling = false;
-    }
-  }
-
-  static bindTaskbarDummyInteractions(taskbarApp) {
-    const $root = taskbarApp.element;
-    if (!$root?.length) return;
-    $root.off('.window-controls');
-    WindowControls.unbindTaskbarDummyCapture(taskbarApp);
-
-    const $header = $root.find('.window-header, header');
-    $header.on('click.window-controls', ev => {
-      if ($(ev.target).closest('a, button, [data-action]').length) return;
-      if (!WindowControls.isTaskbarTargetMinimized(taskbarApp.targetApp))
-        WindowControls.bringAppToTop(taskbarApp.targetApp);
-    });
-
-    const rootEl = $root[0];
-    if (rootEl) {
-      const fn = ev => {
-        if (!$(ev.target).closest('.window-header, header').length) return;
-        if ($(ev.target).closest('a, button, [data-action]').length) return;
-        ev.preventDefault();
-        ev.stopPropagation();
-        ev.stopImmediatePropagation();
-        WindowControls.toggleTaskbarTarget(taskbarApp);
-      };
-      rootEl.addEventListener('dblclick', fn, true);
-      taskbarApp._wcCaptureHandlers = [{el: rootEl, fn}];
-    }
+    return WindowControls.clonePosition(TaskbarState.getSavedPosition(app));
   }
 
   static setRestoredPosition(app) {
@@ -910,17 +682,22 @@ class WindowControls {
     WindowControls.compactStash();
     const minimized = $(".window-app.minimized, .application.minimized");
     const stashSize = WindowControls.getStashedKeys().length;
+    const setting = game.settings.get('window-controls', 'organizedMinimize');
+    const barMode = WindowControls.isFixedBarSetting(setting);
     if (minimized.length === 0 || Object.values(WindowControls.minimizedStash).every(w => w.app.rendered === false)) {
       WindowControls.minimizedStash = {};
-      $("#minimized-bar").hide();
+      WindowControls.clearMinimizeBar();
     } else if (stashSize > 0) {
-      if (stashSize === 1)
-        WindowControls.positionMinimizeBar();
-      const setting = game.settings.get('window-controls', 'organizedMinimize');
-      const rootStyle = document.querySelector(':root').style;
-      rootStyle.setProperty('--minibarw', WindowControls.getMinimizeBarWidth(setting) + 'px');
       minimized.show();
-      $("#minimized-bar").show();
+      if (barMode) {
+        if (stashSize === 1)
+          WindowControls.positionMinimizeBar();
+        const rootStyle = document.querySelector(':root').style;
+        rootStyle.setProperty('--minibarw', WindowControls.getMinimizeBarWidth(setting) + 'px');
+        $("#minimized-bar").show();
+      } else {
+        WindowControls.clearMinimizeBar();
+      }
     }
   }
 
@@ -1031,55 +808,6 @@ class WindowControls {
         .removeClass('fa-window-maximize')
         .addClass('fa-window-restore');
     }
-  }
-
-  static async renderDummyPanelApp(app, {force = false} = {}) {
-    if (!game.ready) return;
-    if (!document.querySelector('#window-controls-persistent')) return;
-    if (game.modules.get("gm-screen")?.active && app.cellId?.includes("gm-screen"))
-      return;
-    if (WindowControls.getOverflowedState()) return;
-    if (!force && !WindowControls.isTrackableTaskbarWindow(app)) return;
-    if (!WindowControls.getAppTitle(app)) return;
-
-    const existingDummy = app._sourceDummyPanelApp ?? WindowControls.findTaskbarDummy(app);
-    if (existingDummy?.rendered) {
-      app._sourceDummyPanelApp = existingDummy;
-      existingDummy.targetApp = app;
-      WindowControls.syncTaskbarDummyTitle(existingDummy, app);
-      existingDummy.render();
-      WindowControls.bindTaskbarDummyInteractions(existingDummy);
-      if (WindowControls.isMinimized(app)) {
-        existingDummy._wcSavedPosition = WindowControls.clonePosition(app.position);
-        WindowControls.hidePersistentTargetApp(app);
-        WindowControls.updatePersistentDummyTabState(existingDummy, true);
-      }
-      return;
-    }
-
-    const taskbarApp = new WindowControlsPersistentDummy(app);
-    app._sourceDummyPanelApp = taskbarApp;
-    await taskbarApp._render(true);
-    WindowControls.toggleMovement(taskbarApp);
-    taskbarApp._wcRepositioning = true;
-    await taskbarApp.minimize();
-    taskbarApp._wcRepositioning = false;
-    WindowControls.setMinimizedPosition(taskbarApp);
-    WindowControls.setMinimizedStyle(taskbarApp);
-    taskbarApp.element
-      .find(".fa-window-restore")
-      .removeClass('fa-window-restore')
-      .addClass('fa-window-minimize');
-    taskbarApp.element
-      .find(".window-header, header")
-      .removeClass("draggable");
-    if (game.modules.get('minimal-ui')?.active) {
-      taskbarApp.element.css('background-color', game.settings.get('minimal-ui', 'shadowColor'));
-    } else {
-      taskbarApp.element.css('background-color', '#ff640080');
-    }
-    WindowControls.bindTaskbarDummyInteractions(taskbarApp);
-    taskbarApp.element.css('visibility', 'visible')
   }
 
   static organizedMinimize(app, settings, prePosition) {
@@ -1199,120 +927,12 @@ class WindowControls {
     return newButtons;
   }
 
-  static lwRegister(target, handler) {
-    libWrapper.register('window-controls', target, handler, 'WRAPPER');
-  }
-
-  static afterMinimizeBar(app, setting, prePosition) {
-    WindowControls.organizedMinimize(app, setting, prePosition);
-  }
-
-  static afterMaximizeRestore(app, setting) {
-    WindowControls.setRestoredStyle(app);
-    if (WindowControls.isPersistentTaskbarSetting(setting))
-      WindowControls.showPersistentTargetApp(app);
-    else
-      WindowControls.$el(app).css('visibility', '');
-    if (setting.includes('Bar'))
-      WindowControls.setBarMovementLock(app, false);
-  }
-
-  static registerMinimizeWrapper(proto) {
-    WindowControls.lwRegister(`${proto}.minimize`, function (wrapped, ...args) {
-      const setting = game.settings.get('window-controls', 'organizedMinimize');
-      if (setting === 'disabled') return wrapped(...args);
-      const prePosition = WindowControls.clonePosition(this.position);
-      if (setting === 'persistentTop' || setting === 'persistentBottom') {
-        if (!WindowControls.hasRenderedElement(this) || this.id === 'tokenizer-control') return wrapped(...args);
-        if (this.constructor?.name === 'WindowControlsPersistentDummy') return wrapped(...args);
-        return wrapped(...args).then(async () => {
-          if (!WindowControls.hasRenderedElement(this)) return;
-          const taskbarDummy = await WindowControls.ensureTaskbarDummy(this, {onMinimize: true});
-          if (!taskbarDummy) return;
-          taskbarDummy._wcSavedPosition = WindowControls.clonePosition(prePosition);
-          WindowControls.hidePersistentTargetApp(this);
-          WindowControls.updatePersistentDummyTabState(taskbarDummy, true);
-        });
-      }
-      return wrapped(...args).then(() => {
-        if (!WindowControls.hasRenderedElement(this)) return;
-        WindowControls.afterMinimizeBar(this, setting, prePosition);
-      });
-    });
-  }
-
-  static registerMaximizeWrapper(proto) {
-    WindowControls.lwRegister(`${proto}.maximize`, function (wrapped, ...args) {
-      const setting = game.settings.get('window-controls', 'organizedMinimize');
-      if (setting === 'disabled') return wrapped(...args);
-      if (setting === 'persistentTop' || setting === 'persistentBottom') {
-        if (this.constructor?.name === 'WindowControlsPersistentDummy') {
-          if (!WindowControls.isMinimized(this.targetApp)) return wrapped(...args);
-          this.targetApp._wcSkipPersistentMaximizeWrapper = true;
-          return this.targetApp.maximize(...args);
-        }
-        if (this.id === 'tokenizer-control') {
-          return wrapped(...args).then(() => {
-            if (!WindowControls.hasRenderedElement(this)) return;
-            WindowControls.afterMaximizeRestore(this, setting);
-          });
-        }
-        if (!WindowControls.hasRenderedElement(this)) return wrapped(...args);
-        if (this._wcSkipPersistentMaximizeWrapper)
-          delete this._wcSkipPersistentMaximizeWrapper;
-        const taskbarDummy = WindowControls.findTaskbarDummy(this);
-        const savedPosition = WindowControls.prepareMaximizeRestore(this, setting);
-        if (WindowControls.isTaskbarTargetHidden(this))
-          WindowControls.showPersistentTargetApp(this);
-        return wrapped(...args).then(() => {
-          WindowControls.finishMaximizeRestore(this, setting, savedPosition);
-          if (taskbarDummy)
-            WindowControls.updatePersistentDummyTabState(taskbarDummy, false);
-        });
-      }
-      if (!WindowControls.hasRenderedElement(this) || !WindowControls.isMinimized(this)) return wrapped(...args);
-      const savedPosition = WindowControls.prepareMaximizeRestore(this, setting);
-      return wrapped(...args).then(() => {
-        if (!WindowControls.hasRenderedElement(this)) return;
-        WindowControls.finishMaximizeRestore(this, setting, savedPosition);
-      });
-    });
-  }
-
-  static registerCloseWrapper(proto) {
-    WindowControls.lwRegister(`${proto}.close`, function (wrapped, ...args) {
-      const setting = game.settings.get('window-controls', 'organizedMinimize');
-      if (setting === 'disabled') return wrapped(...args);
-      if (!WindowControls.hasRenderedElement(this)) return wrapped(...args);
-      if (setting === 'persistentTop' || setting === 'persistentBottom') {
-        if (this.id === 'tokenizer-control') return wrapped(...args);
-        if (WindowControls.isMinimized(this) && !this._sourceDummyPanelApp)
-          WindowControls.organizedClose(this, setting);
-        return wrapped(...args).then(() => WindowControls.refreshMinimizeBar());
-      }
-      WindowControls.organizedClose(this, setting);
-      return wrapped(...args).then(() => WindowControls.refreshMinimizeBar());
-    });
-  }
-
   static applyPersistentSetPositionConstraints(app, expectedPosition) {
     const layout = WindowControls.persistentLayout;
     if (!layout || !expectedPosition) return expectedPosition;
 
-    if (app.constructor.name === 'WindowControlsPersistentDummy') {
-      if (layout.mode === 'bottom' && !WindowControls.isTaskbarDummyInPanel(app)) {
-        setTimeout(() => {
-          if (!WindowControls.hasRenderedElement(app)) return;
-          const botPos = WindowControls.getTaskbarBot();
-          if (app.position?.top != botPos) {
-            app._wcRepositioning = true;
-            app.setPosition({top: botPos});
-            app._wcRepositioning = false;
-          }
-        }, 500);
-      }
-      return expectedPosition;
-    }
+    if (WindowControls.isTaskbarDummy(app))
+      return WindowControls.applyPersistentSetPositionConstraintsForDummy(app, expectedPosition);
 
     if (!WindowControls.hasRenderedElement(app)) return expectedPosition;
     const el = WindowControls.$el(app)[0];
@@ -1342,74 +962,6 @@ class WindowControls {
       }
     }
     return expectedPosition;
-  }
-
-  static registerSetPositionWrapper(proto) {
-    const isApplicationV1 = proto === 'Application.prototype';
-    WindowControls.lwRegister(`${proto}.setPosition`, function (wrapped, ...args) {
-      if (this._wcRepositioning || this._wcRestoring) return wrapped(...args);
-      const setting = game.settings.get('window-controls', 'organizedMinimize');
-      if (['topBar', 'bottomBar'].includes(setting) && WindowControls.isMinimized(this)) {
-        const stashKey = WindowControls.getStashedKeys().find(
-          k => WindowControls.getAppId(WindowControls.minimizedStash[k]?.app) === WindowControls.getAppId(this)
-        );
-        if (stashKey != null) {
-          const incoming = args[0] ?? {};
-          const expectedTop = WindowControls.getMinimizedTop(setting, this);
-          if (incoming.left !== stashKey || incoming.top !== expectedTop) {
-            this._wcRepositioning = true;
-            const result = wrapped.call(this, {
-              ...this.position,
-              left: stashKey,
-              top: expectedTop,
-              width: WindowControls.cssMinimizedSize,
-              height: WindowControls.cssMinimizedHeaderHeight
-            });
-            this._wcRepositioning = false;
-            return result;
-          }
-        }
-      }
-      const expectedPosition = wrapped(...args);
-      if (isApplicationV1 && WindowControls.persistentLayout
-        && !WindowControls.isTaskbarDummyInPanel(this))
-        return WindowControls.applyPersistentSetPositionConstraints(this, expectedPosition);
-      return expectedPosition;
-    });
-  }
-
-  static registerHeaderWrapper(proto, headerMethod, isCloseButton) {
-    WindowControls.lwRegister(`${proto}.${headerMethod}`, function (wrapped, ...args) {
-      const result = wrapped(...args);
-      if (WindowControls.shouldSkipHeaderControls(this)) return result;
-      const close = result.find(isCloseButton);
-      if (close) close.label = '';
-      return WindowControls.buildHeaderControlButtons(this).concat(result);
-    });
-  }
-
-  static registerApplicationWrappers() {
-    const targets = [
-      {
-        proto: 'Application.prototype',
-        headerMethod: '_getHeaderButtons',
-        isCloseButton: b => b.class === 'close'
-      }
-    ];
-    if (WindowControls.ApplicationV2) {
-      targets.push({
-        proto: 'foundry.applications.api.ApplicationV2.prototype',
-        headerMethod: '_getHeaderControls',
-        isCloseButton: b => b.class === 'close' || b.action === 'close'
-      });
-    }
-    for (const {proto, headerMethod, isCloseButton} of targets) {
-      WindowControls.registerMinimizeWrapper(proto);
-      WindowControls.registerMaximizeWrapper(proto);
-      WindowControls.registerCloseWrapper(proto);
-      WindowControls.registerSetPositionWrapper(proto);
-      WindowControls.registerHeaderWrapper(proto, headerMethod, isCloseButton);
-    }
   }
 
   static initSettings() {
@@ -1516,8 +1068,6 @@ class WindowControls {
 
     Hooks.once('ready', async function () {
 
-      WindowControls.registerApplicationWrappers();
-
       if (game.settings.get('window-controls', 'rememberPinnedWindows')) {
         try {
           game.user.getFlag("window-controls", "persisted-pinned-windows")?.forEach(persisted => {
@@ -1551,7 +1101,7 @@ class WindowControls {
       }
 
       Hooks.on('PopOut:popout', function (app) {
-        app._sourceDummyPanelApp?.justClose();
+        TaskbarState.getDummy(app)?.justClose();
         WindowControls.refreshMinimizeBar();
       });
 
@@ -1588,6 +1138,14 @@ class WindowControls {
   }
 
 }
+
+registerTaskbar(WindowControls);
+registerWrappers(WindowControls);
+
+// libWrapper.Ready fires *before* init; listener must exist before that hook runs.
+Hooks.once('libWrapper.Ready', () => {
+  WindowControls.registerApplicationWrappers();
+});
 
 Hooks.once('setup', () => {
   const settings = game.settings.get('window-controls', 'organizedMinimize');
@@ -1641,6 +1199,8 @@ Hooks.once('init', () => {
   if (!(WindowControls.noLibWrapper || WindowControls.externalMinimize)) {
     WindowControls.initSettings();
     WindowControls.initHooks();
+    // Fallback if libWrapper.Ready already fired before our listener was attached.
+    WindowControls.registerApplicationWrappers();
   }
 });
 
@@ -1668,41 +1228,7 @@ Hooks.once('ready', () => {
 
   const settingOrganized = game.settings.get('window-controls', 'organizedMinimize');
   if (settingOrganized === 'persistentTop' || settingOrganized === 'persistentBottom') {
-    const tryTaskbarDummy = app => {
-      if (!game.ready) return;
-      if (WindowControls.isTrackableTaskbarWindow(app))
-        WindowControls.renderDummyPanelApp(app);
-    };
-
-    Hooks.on('renderSidebarTab', function (app) {
-      if (!WindowControls.isSidebarPopout(app)) return;
-      tryTaskbarDummy(app);
-    });
-    Hooks.on('renderApplicationV2', function (app) {
-      if (!WindowControls.isTrackableTaskbarWindow(app)) return;
-      tryTaskbarDummy(app);
-    });
-    Hooks.on('renderCompendium', tryTaskbarDummy);
-    Hooks.on('renderJournalSheet', function (app) {
-      if (!(game.modules.get('one-journal')?.active || app.enhancedjournal))
-        tryTaskbarDummy(app);
-    });
-    Hooks.on('renderRollTableConfig', tryTaskbarDummy);
-    Hooks.on('renderActorSheet', tryTaskbarDummy);
-    Hooks.on('renderItemSheet', tryTaskbarDummy);
-    Hooks.on('activateControls', function (app) {
-      if (app.constructor.name === 'EnhancedJournal')
-        tryTaskbarDummy(app);
-    });
-    Hooks.on('renderInlineViewer', tryTaskbarDummy);
-    Hooks.on('renderee', tryTaskbarDummy);
-    Hooks.on('renderQuestLog', tryTaskbarDummy);
-    Hooks.on('renderQuestPreview', tryTaskbarDummy);
-    Hooks.on('renderSoundBoardApplication', tryTaskbarDummy);
-    Hooks.on('renderStaticViewer', tryTaskbarDummy);
-    Hooks.on('renderFillableViewer', tryTaskbarDummy);
-
-    setTimeout(() => WindowControls.purgeInvalidTaskbarDummies(), 500);
+    WindowControls.registerTaskbarRenderHooks();
 
     // ugly, but works. correct the offsets on drop, and camera view
     if (settingOrganized === 'persistentTop') {
@@ -1728,69 +1254,3 @@ Hooks.once('ready', () => {
 
 
 })
-
-class WindowControlsPersistentDummy extends Application {
-  constructor(targetApp) {
-    const title = WindowControls.getDisplayTitle(targetApp);
-    super({
-      title,
-      width: 0,
-      height: 0,
-      minimizable: false,
-      id: `dummy-${WindowControls.curateId(title)}-${WindowControls.getAppId(targetApp)}`
-    });
-    this.targetApp = targetApp;
-    const oldClose = this.targetApp.close;
-    const thisMagic = this;
-    this.targetApp.close = async function () {
-      await thisMagic.justClose();
-      await oldClose.apply(this);
-    }
-  }
-
-  _injectHTML(html) {
-    $('#window-controls-persistent').append(html);
-    this._element = html;
-    html.hide().fadeIn(200);
-  }
-
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(Dialog.defaultOptions, {
-      classes: ['hidden-placeholder'],
-      resizable: false,
-      minimizable: false
-    });
-  }
-
-  _onWindowTitleDoubleClick(event) {
-    event?.preventDefault?.();
-    event?.stopPropagation?.();
-  }
-
-  async maximize(clicked) {
-    if (WindowControls.isTaskbarTargetMinimized(this.targetApp)) {
-      this.targetApp._wcSkipPersistentMaximizeWrapper = true;
-      await this.targetApp.maximize();
-      delete this.targetApp._wcSkipPersistentMaximizeWrapper;
-      WindowControls.updatePersistentDummyTabState(this, false);
-      WindowControls.bringAppToTop(this.targetApp);
-    } else if (clicked) {  // Hack for V11 - to not minimize dummy windows on render
-      await this.targetApp.minimize();
-      this.element
-        .find(".fa-window-minimize")
-        .removeClass('fa-window-minimize')
-        .addClass('fa-window-restore');
-      return
-    }
-  }
-
-  async justClose() {
-    await super.close();
-    WindowControls.refreshMinimizeBar()
-  }
-
-  async close() {
-    await this.targetApp.close();
-    await super.close();
-  }
-}

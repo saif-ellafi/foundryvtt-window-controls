@@ -56,13 +56,33 @@ body.wc-persistent-bottom #window-controls-persistent {
 }
 
 #window-controls-persistent > .window-app.minimized,
-#window-controls-persistent > .application.minimized {
+#window-controls-persistent > .application.minimized,
+#window-controls-persistent > .application.wc-persistent-tab,
+#window-controls-persistent > .wc-persistent-tab.application {
     position: relative !important;
     top: auto !important;
     left: auto !important;
     flex: 0 0 auto;
+    width: 150px !important;
+    height: 30px !important;
+    max-height: 30px !important;
+    min-height: 30px !important;
     margin: 0 !important;
+    overflow: hidden !important;
     box-shadow: none !important;
+    visibility: visible !important;
+}
+
+#window-controls-persistent .wc-persistent-tab > :not(header):not(.window-header) {
+    display: none !important;
+}
+
+#window-controls-persistent .wc-persistent-tab header,
+#window-controls-persistent .wc-persistent-tab .window-header {
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    box-sizing: border-box;
 }
 
 #window-controls-persistent .window-app.minimized .window-header,

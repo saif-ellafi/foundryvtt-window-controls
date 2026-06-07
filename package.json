@@ -4,11 +4,12 @@
   "description": "Improves Minimized window organization, style and adds Maximize and Pin window buttons",
   "main": "windowcontrols.js",
   "scripts": {
-    "copy": "mkdir -p dist && cp ./windowcontrols.js dist/ && cp ./windowcontrols.css dist/ && cp ./README.md dist/ && cp ./CHANGELOG.md dist/ && cp ./LICENSE.md dist/ && cp ./module.json dist/ && cp ./THANKS.txt dist/ && cp -r ./lang dist/",
-    "copyWin": "mkdir dist 2>nul & copy /Y module.json dist\\ & copy /Y windowcontrols.js dist\\ & copy /Y windowcontrols.css dist\\ & copy /Y README.md dist\\ & copy /Y CHANGELOG.md dist\\ & copy /Y LICENSE.md dist\\ & copy /Y THANKS.txt dist\\ & xcopy /Y /I /E /Q lang dist\\lang\\",
+    "copy": "mkdir -p dist && cp ./windowcontrols.js dist/ && cp ./windowcontrols.css dist/ && cp ./README.md dist/ && cp ./CHANGELOG.md dist/ && cp ./LICENSE.md dist/ && cp ./module.json dist/ && cp ./THANKS.txt dist/ && cp -r ./lang dist/ && cp -r ./scripts dist/ && cp -r ./templates dist/",
+    "copyWin": "mkdir dist 2>nul & copy /Y module.json dist\\ & copy /Y windowcontrols.js dist\\ & copy /Y windowcontrols.css dist\\ & copy /Y README.md dist\\ & copy /Y CHANGELOG.md dist\\ & copy /Y LICENSE.md dist\\ & copy /Y THANKS.txt dist\\ & xcopy /Y /I /E /Q lang dist\\lang\\ & xcopy /Y /I /E /Q scripts dist\\scripts\\ & xcopy /Y /I /E /Q templates dist\\templates\\",
     "zip": "npm-build-zip --source=dist --destination=.",
     "build": "npm run copy && npm run zip",
     "buildWin": "npm run copyWin && npm run zip",
+    "dev": "node scripts/deploy-dev.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
