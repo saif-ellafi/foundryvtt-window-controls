@@ -2,7 +2,7 @@
 	"id": "window-controls",
 	"title": "Window Controls",
 	"description": "Organize and pin floating windows. Minimize sheets on the canvas, in a docked bar, or on a dedicated taskbar.",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"compatibility": {
 		"minimum": "14",
 		"verified": "14.363",
@@ -59,6 +59,6 @@
 	],
 	"url": "https://github.com/saif-ellafi/foundryvtt-window-controls",
 	"manifest": "https://github.com/saif-ellafi/foundryvtt-window-controls/releases/latest/download/module.json",
-	"download": "https://github.com/saif-ellafi/foundryvtt-window-controls/releases/download/2.0.0/foundryvtt-window-controls_2.0.0.zip",
+	"download": "https://github.com/saif-ellafi/foundryvtt-window-controls/releases/download/2.0.1/foundryvtt-window-controls_2.0.1.zip",
 	"changelog": "https://github.com/saif-ellafi/foundryvtt-window-controls/blob/master/CHANGELOG.md"
 }

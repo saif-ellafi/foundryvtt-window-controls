@@ -1184,6 +1184,32 @@ class WindowControls {
     }
   }
 
+  static isCloseControlVisible(el) {
+    if (!el) return false;
+    if (el.hidden) return false;
+    const node = el instanceof HTMLElement ? el : el[0];
+    if (!node) return false;
+    if (node.classList?.contains("wc-close-hidden")) return false;
+    const style = window.getComputedStyle(node);
+    if (style.display === "none" || style.visibility === "hidden") return false;
+    return true;
+  }
+
+  static hasVisibleCloseControl(app) {
+    if (app?.window?.close?.hidden) return false;
+
+    if (!WindowControls.hasRenderedElement(app)) {
+      const windowOpts = app?.options?.window ?? {};
+      const closable = app?.window?.closable ?? windowOpts.closable;
+      return closable === true;
+    }
+
+    const $close = WindowControls.$el(app).find(
+      "header [data-action='close'], .window-header [data-action='close'], header .close, .window-header .close"
+    );
+    return $close.toArray().some(el => WindowControls.isCloseControlVisible(el));
+  }
+
   static shouldShowCloseControl(app) {
     if (!app) return false;
     const options = app.options ?? {};
@@ -1193,15 +1219,12 @@ class WindowControls {
 
     if (WindowControls.isV2(app)) {
       const closable = app.window?.closable ?? windowOpts.closable;
-      return closable !== false;
+      if (closable === false) return false;
+      return WindowControls.hasVisibleCloseControl(app);
     }
 
-    if (WindowControls.hasRenderedElement(app)) {
-      const $root = WindowControls.$el(app);
-      return $root.find(
-        "header .close, .window-header .close, header [data-action='close'], .window-header [data-action='close']"
-      ).length > 0;
-    }
+    if (WindowControls.hasRenderedElement(app))
+      return WindowControls.hasVisibleCloseControl(app);
 
     if (typeof app._getHeaderButtons === "function") {
       const buttons = app._getHeaderButtons();

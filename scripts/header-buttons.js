@@ -83,14 +83,19 @@ const headerButtonMethods = {
     WindowControls.syncMinimizeControlIcon(app);
   },
 
-  shouldInjectInlinePin(app) {
+  shouldShowPinControl(app) {
     if (!app || WindowControls.shouldSkipHeaderControls(app)) return false;
-    if (!WindowControls.isV2(app)) return false;
+    if (WindowControls.isTaskbarDummy?.(app)) return false;
     if (game.settings.get("window-controls", "pinnedButton") !== "enabled") return false;
     if (!WindowControls.hasRenderedElement(app)) return false;
-    if (WindowControls.isTaskbarDummy?.(app)) return false;
     if (WindowControls.isMinimized(app)) return false;
-    return WindowControls.isFramedMinimizableWindow(app);
+    if (!WindowControls.isFramedMinimizableWindow(app)) return false;
+    return WindowControls.shouldShowCloseControl(app);
+  },
+
+  shouldInjectInlinePin(app) {
+    if (!WindowControls.isV2(app)) return false;
+    return WindowControls.shouldShowPinControl(app);
   },
 
   handlePinClick(app) {
@@ -117,7 +122,10 @@ const headerButtonMethods = {
   },
 
   injectPinControl(app) {
-    if (!WindowControls.shouldInjectInlinePin(app)) return;
+    if (!WindowControls.shouldShowPinControl(app)) {
+      WindowControls.removePinControl(app);
+      return;
+    }
 
     const $root = WindowControls.$el(app);
     const $header = $root.find("header, .window-header");
@@ -183,7 +191,10 @@ const headerButtonMethods = {
 
   injectV1PinControl(app) {
     if (!WindowControls.hasRenderedElement(app) || WindowControls.isV2(app)) return;
-    if (!WindowControls.isFramedMinimizableWindow(app)) return;
+    if (!WindowControls.shouldShowPinControl(app)) {
+      WindowControls.removePinControl(app);
+      return;
+    }
     const $header = WindowControls.$el(app).find(".window-header");
     if (!$header.length || $header.find(".pin").length) return;
     const $close = $header.find(".close").first();
@@ -240,7 +251,9 @@ const headerButtonMethods = {
   },
 
   registerHeaderButtonHooks() {
-    const onRender = app => {
+    const syncHeaderControls = app => {
+      if (!WindowControls.shouldShowCloseControl(app) && app._pinned)
+        WindowControls.setPinnedState(app, false);
       WindowControls.injectMinimizeControl(app);
       WindowControls.injectPinControl(app);
       WindowControls.refreshPinnedChrome(app);
@@ -249,6 +262,11 @@ const headerButtonMethods = {
         WindowControls.setPinnedState(dummy, true);
       if (app.targetApp?._pinned && !app._pinned)
         WindowControls.setPinnedState(app, true);
+    };
+
+    const onRender = app => {
+      syncHeaderControls(app);
+      queueMicrotask(() => syncHeaderControls(app));
     };
 
     Hooks.on("renderApplicationV2", onRender);

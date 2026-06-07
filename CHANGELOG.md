@@ -1,3 +1,8 @@
+### 2.0.1
+* Bugfix: Pin button no longer appears on windows that cannot be closed
+* Bugfix: Improved detection of non-closeable Application V2 windows
+* Bugfix: Pin button no longer appears when apps hide the close control after render (e.g. Mythic GME Tools)
+
 ### 2.0.0
 * Compatibility: Foundry V14 support
 * Enhancement: Clearer names for minimize layout settings (Floating, Docked Bar, Taskbar)

@@ -1,6 +1,6 @@
 {
   "name": "foundryvtt-window-controls",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Organize and pin floating windows for Foundry VTT",
   "main": "windowcontrols.js",
   "scripts": {
