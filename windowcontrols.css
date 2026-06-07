@@ -161,20 +161,45 @@ body.wc-persistent-top .wc-persistent-tab.window-app.minimized .window-header {
     margin: 0 0 0 2px;
 }
 
-.wc-minimize-control {
+.wc-minimize-control,
+.wc-pin-control {
     flex: 0 0 auto;
 }
 
 header .wc-minimize-control,
-.window-header .wc-minimize-control {
+.window-header .wc-minimize-control,
+header .wc-pin-control,
+.window-header .wc-pin-control {
     margin: 0 0 0 2px;
+}
+
+.wc-pin-control.wc-pinned i,
+.minimized-pinned .wc-pin-control i,
+.minimized-pinned .pin i {
+    color: #ff7100;
+}
+
+/* Hide pin while minimized — header tint shows pinned state; saves tab title space. */
+.application.minimized .header-control.wc-pin-control,
+.window-app.minimized .header-control.wc-pin-control,
+.application.minimized a.pin,
+.window-app.minimized a.pin,
+#window-controls-persistent .header-control.wc-pin-control,
+#window-controls-persistent a.pin {
+    display: none !important;
+}
+
+.header-control.wc-close-hidden,
+a.close.wc-close-hidden,
+button.close.wc-close-hidden {
+    display: none !important;
 }
 
 /* Foundry core hides `.application.minimized .header-control`; keep ours visible and centered. */
 .application.minimized .header-control.wc-minimize-control,
 .window-app.minimized .header-control.wc-minimize-control,
 #window-controls-persistent .header-control.wc-taskbar-toggle,
-#window-controls-persistent .header-control[data-action="close"],
+#window-controls-persistent .header-control[data-action="close"]:not(.wc-close-hidden),
 .application.wc-persistent-tab.minimized .header-control.wc-taskbar-toggle {
     display: inline-flex !important;
     align-items: center !important;

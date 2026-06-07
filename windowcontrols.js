@@ -122,6 +122,30 @@ class WindowControls {
     return app?.appId ?? app?.id;
   }
 
+  /** V1 apps live in ui.windows; V2 apps are in foundry.applications.instances. */
+  static getRenderedApplications() {
+    const seen = new Set();
+    const apps = [];
+    const add = app => {
+      if (!app || seen.has(app)) return;
+      seen.add(app);
+      apps.push(app);
+    };
+    if (ui.windows) {
+      for (const app of Object.values(ui.windows))
+        add(app);
+    }
+    const instances = foundry.applications?.instances;
+    if (instances instanceof Map) {
+      for (const app of instances.values())
+        add(app);
+    } else if (instances) {
+      for (const app of Object.values(instances))
+        add(app);
+    }
+    return apps;
+  }
+
   static isMinimized(app) {
     return app?._minimized === true || app?.minimized === true;
   }
@@ -133,22 +157,6 @@ class WindowControls {
 
   static getStashedKeys() {
     return Object.keys(WindowControls.minimizedStash).map(w => parseInt(w));
-  }
-
-  static minimizeAll() {
-    for (const w of Object.values(ui.windows)) {
-      const ctr = w.constructor.name;
-      if (w._minimized === true || w._pinned === true || ctr === 'DestinyTracker' || ctr === 'ee')
-        continue;
-      if ( // Do not minimize Dialogs
-        !(ctr.includes('Config') ||
-          ctr === 'RollTableConfig' ||
-          ctr.includes('Dialog') ||
-          ctr === 'FilePicker')
-      ) w.minimize();
-      if (game.modules.get('gm-screen')?.active && $(".gm-screen-app").hasClass('expanded'))
-        $(".gm-screen-button").click();
-    }
   }
 
   static curateId(text) {
@@ -174,53 +182,183 @@ class WindowControls {
     return Math.max(...WindowControls.getStashedKeys()) >= WindowControls.getCurrentMaxGap();
   }
 
-  static persistPinned(app) {
+  static getAppDocument(app) {
+    return app?.document ?? app?.options?.document ?? null;
+  }
+
+  static getDocumentTypeName(doc) {
+    return doc?.documentName ?? doc?.constructor?.documentName ?? "";
+  }
+
+  static getPersistCollection(docName) {
+    const collections = {
+      Actor: game.actors,
+      Item: game.items,
+      JournalEntry: game.journal,
+      RollTable: game.tables,
+      Scene: game.scenes,
+      Macro: game.macros,
+    };
+    return collections[docName] ?? null;
+  }
+
+  static async persistPinned(app) {
     const currentPersisted = game.user.getFlag("window-controls", "persisted-pinned-windows") ?? [];
-    if (app.document?.id) {
-      if (!currentPersisted.find(p => p.docId === app.document.id)) {
-        currentPersisted.push({docId: app.document.id, docName: app.document.documentName, position: app.position});
-        game.user.setFlag("window-controls", "persisted-pinned-windows", currentPersisted);
+    const doc = WindowControls.getAppDocument(app);
+    if (doc?.id) {
+      if (!currentPersisted.find(p => p.docId === doc.id)) {
+        currentPersisted.push({
+          docId: doc.id,
+          docName: WindowControls.getDocumentTypeName(doc),
+          position: foundry.utils.deepClone(app.position ?? {}),
+        });
+        await game.user.setFlag("window-controls", "persisted-pinned-windows", currentPersisted);
       }
     } else if (app.tabName) {
       if (!currentPersisted.find(p => p.docId === app.tabName)) {
-        currentPersisted.push({docId: app.tabName, docName: 'SidebarTab', position: app.position});
-        game.user.setFlag("window-controls", "persisted-pinned-windows", currentPersisted);
+        currentPersisted.push({
+          docId: app.tabName,
+          docName: "SidebarTab",
+          position: foundry.utils.deepClone(app.position ?? {}),
+        });
+        await game.user.setFlag("window-controls", "persisted-pinned-windows", currentPersisted);
       }
     }
   }
 
-  static unpersistPinned(app) {
-    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows")?.filter(a => (a.docId !== app.document?.id && a.docId !== app.tabName)) ?? [];
-    game.user.setFlag("window-controls", "persisted-pinned-windows", filtered);
+  static async unpersistPinned(app) {
+    const doc = WindowControls.getAppDocument(app);
+    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows")?.filter(a =>
+      a.docId !== doc?.id && a.docId !== app.tabName
+    ) ?? [];
+    await game.user.setFlag("window-controls", "persisted-pinned-windows", filtered);
   }
 
-  static async persistRender(persisted, collection) {
+  static async removePersistedEntry(docId) {
+    const filtered = game.user.getFlag("window-controls", "persisted-pinned-windows")?.filter(a => a.docId !== docId) ?? [];
+    await game.user.setFlag("window-controls", "persisted-pinned-windows", filtered);
+  }
+
+  static async syncPersistedPinnedFromOpenWindows() {
+    const seen = new Set();
+    for (const app of WindowControls.getRenderedApplications()) {
+      if (!app._pinned || app.targetApp !== undefined) continue;
+      if (WindowControls.isTaskbarDummy?.(app)) continue;
+      const doc = WindowControls.getAppDocument(app);
+      const key = doc?.id ?? app.tabName;
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      await WindowControls.persistPinned(app);
+    }
+  }
+
+  static async renderSheet(sheet) {
+    if (!sheet) return;
+    if (WindowControls.isV2(sheet))
+      await sheet.render({ force: true });
+    else
+      await sheet.render(true);
+  }
+
+  static async ensureSheetRendered(doc) {
+    if (!doc?.sheet) return null;
+    await WindowControls.renderSheet(doc.sheet);
+    return doc.sheet;
+  }
+
+  static async persistRender(persisted) {
+    if (!persisted?.docId) return;
+
     if (ui.PDFoundry && game.journal.get(persisted.docId)?.data.flags.pdfoundry) {
       const pdf = game.journal.get(persisted.docId);
       ui.PDFoundry.openPDFByName(
         pdf.name,
         {entity: pdf}
       ).then(pf => pf.minimize());
-    } else if (collection.contents) {
-      const appDoc = collection.contents.find(d => d.id === persisted.docId).sheet;
-      appDoc.render(true);
-      WindowControls.persistRenderMinimizeRetry(appDoc, false, persisted.position)
-    } else if (collection.tabs) {
-      const tab = collection.tabs[persisted.docId];
+      return;
+    }
+
+    if (persisted.docName === "SidebarTab") {
+      const tab = ui.sidebar.tabs[persisted.docId];
+      if (!tab) return;
       tab.renderPopout();
-      WindowControls.persistRenderMinimizeRetry(tab._popout, false, persisted.position)
+      WindowControls.persistRenderMinimizeRetry(tab._popout, false, persisted.position, persisted.docId);
+      return;
+    }
+
+    const collection = WindowControls.getPersistCollection(persisted.docName);
+    if (!collection) {
+      console.warn(`Window Controls: unsupported persisted document type "${persisted.docName}".`);
+      return;
+    }
+
+    const doc = collection.get?.(persisted.docId)
+      ?? collection.contents?.find(d => d.id === persisted.docId);
+    if (!doc) {
+      console.warn(`Window Controls: persisted document not found (${persisted.docName} ${persisted.docId}).`);
+      await WindowControls.removePersistedEntry(persisted.docId);
+      return;
+    }
+
+    const sheet = await WindowControls.ensureSheetRendered(doc);
+    if (!sheet) {
+      console.warn(`Window Controls: could not open sheet (${persisted.docName} ${persisted.docId}).`);
+      return;
+    }
+    WindowControls.persistRenderMinimizeRetry(sheet, false, persisted.position, persisted.docId);
+  }
+
+  static async restorePersistedPinnedWindows() {
+    const persisted = game.user.getFlag("window-controls", "persisted-pinned-windows");
+    if (!persisted?.length) return;
+    await new Promise(resolve => setTimeout(resolve, 250));
+    for (const entry of persisted) {
+      try {
+        await WindowControls.persistRender(entry);
+      } catch (error) {
+        console.warn(`Window Controls: failed to restore pinned window (${entry.docName} ${entry.docId}).`, error);
+      }
     }
   }
 
-  static persistRenderMinimizeRetry(appDoc, stop, position) {
+  static normalizeTaskbarColor(value) {
+    if (!value || value === "#0000") return "#00000000";
+    return String(value);
+  }
+
+  static applyTaskbarColor(value) {
+    const color = WindowControls.normalizeTaskbarColor(
+      value ?? game.settings.get("window-controls", "taskbarColor")
+    );
+    document.querySelector(":root")?.style.setProperty("--taskbarcolor", color);
+  }
+
+  static migrateLegacyTaskbarColor() {
+    try {
+      const world = game.settings.storage.get("world");
+      const key = "window-controls.taskbarColor";
+      const value = world?.[key];
+      if (value === "#0000" || value === "#000")
+        world[key] = "#00000000";
+    } catch (_) { /* storage not ready */ }
+  }
+
+  static getTaskbarColorSettingType() {
+    const ColorField = foundry.data.fields?.ColorField;
+    if (!ColorField) return String;
+    return new ColorField();
+  }
+
+  static persistRenderMinimizeRetry(appDoc, stop, position, persistedDocId = null) {
     setTimeout(() => {
-      if (appDoc?.rendered) {
-        WindowControls.applyPinnedMode(appDoc);
+      if (WindowControls.hasRenderedElement(appDoc)) {
+        WindowControls.setPinnedState(appDoc, true);
         const taskbarDummy = TaskbarState.getDummy(appDoc);
         if (taskbarDummy)
-          WindowControls.applyPinnedMode(taskbarDummy);
-        appDoc.setPosition(position);
-        if (!appDoc._minimized)
+          WindowControls.setPinnedState(taskbarDummy, true);
+        if (position && typeof appDoc.setPosition === "function")
+          appDoc.setPosition(position);
+        if (!WindowControls.isMinimized(appDoc))
           appDoc.minimize();
         setTimeout(() => {
           const dummy = TaskbarState.getDummy(appDoc);
@@ -228,12 +366,13 @@ class WindowControls {
         }, 500);
       } else if (!stop) {
         console.warn("Window Controls: Too slow to render persisted Windows... Retrying...");
-        WindowControls.persistRenderMinimizeRetry(appDoc, true, position);
+        WindowControls.persistRenderMinimizeRetry(appDoc, true, position, persistedDocId);
       } else {
-        console.warn("Window Controls: Too slow to render persisted Windows... I give up!");
-        game.user.unsetFlag("window-controls", "persisted-pinned-windows");
+        console.warn("Window Controls: Too slow to render persisted window... giving up.");
+        if (persistedDocId)
+          void WindowControls.removePersistedEntry(persistedDocId);
       }
-    }, 1000)
+    }, 1000);
   }
 
   static getHotbarElement() {
@@ -711,6 +850,8 @@ class WindowControls {
     if (WindowControls.isV2(app)) {
       WindowControls.injectMinimizeControl(app);
       WindowControls.syncMinimizeControlIcon(app);
+      WindowControls.injectPinControl(app);
+      WindowControls.refreshPinnedChrome(app);
       return;
     }
     const $minimize = $root.find(".wc-minimize-control, .minimize, [data-action='minimize']");
@@ -724,66 +865,139 @@ class WindowControls {
     if (WindowControls.isV2(app)) {
       WindowControls.injectMinimizeControl(app);
       WindowControls.syncMinimizeControlIcon(app);
+      WindowControls.injectPinControl(app);
+      WindowControls.refreshPinnedChrome(app);
     } else {
       const $minimize = $root.find(".wc-minimize-control, .minimize, [data-action='minimize']");
       $minimize.empty().append(`<i class="far fa-window-minimize"></i>`);
+      if (app._pinned === true)
+        $root.find(".entry-image, .entry-text").hide();
+      WindowControls.syncCloseControlVisibility(app);
     }
+  }
+
+  static shouldShowCloseControl(app) {
+    if (!app) return false;
+    const options = app.options ?? {};
+    if (options.closeable === false) return false;
+    const windowOpts = options.window ?? {};
+    if (windowOpts.closable === false) return false;
+
+    if (WindowControls.isV2(app)) {
+      const closable = app.window?.closable ?? windowOpts.closable;
+      return closable !== false;
+    }
+
+    if (WindowControls.hasRenderedElement(app)) {
+      const $root = WindowControls.$el(app);
+      return $root.find(
+        "header .close, .window-header .close, header [data-action='close'], .window-header [data-action='close']"
+      ).length > 0;
+    }
+
+    if (typeof app._getHeaderButtons === "function") {
+      const buttons = app._getHeaderButtons();
+      return buttons?.some(b => b.class === "close") ?? false;
+    }
+
+    return false;
+  }
+
+  static syncCloseControlVisibility(app) {
+    if (!WindowControls.hasRenderedElement(app)) return;
+    const $root = WindowControls.$el(app);
+    const $header = $root.find("header, .window-header").first();
+    if (!$header.length) return;
+    const $close = $header.find(".close, [data-action='close']");
+    if (!$close.length) return;
+
+    const source = WindowControls.isTaskbarDummy?.(app) ? app.targetApp : app;
+    const show = !app._pinned && WindowControls.shouldShowCloseControl(source);
+    $close.toggleClass("wc-close-hidden", !show);
+    $root.toggleClass("wc-show-close", show);
+  }
+
+  static refreshPinnedChrome(app) {
+    if (!WindowControls.hasRenderedElement(app)) return;
+    const $root = WindowControls.$el(app);
+    const $header = $root.find("header, .window-header").first();
+    if (!$header.length) return;
     if (app._pinned === true) {
-      $root.find(".entry-image").hide();
-      $root.find(".entry-text").hide();
-      $root.find(".close, [data-action='close']").hide();
+      $header.addClass("minimized-pinned");
+      $root.find(".entry-image, .entry-text").hide();
+    } else {
+      $header.removeClass("minimized-pinned");
+      $root.find(".entry-image, .entry-text").show();
     }
+    WindowControls.syncCloseControlVisibility(app);
+    WindowControls.syncPinControlState?.(app);
   }
 
   static applyPinnedMode(app) {
     if (!WindowControls.hasRenderedElement(app)) return;
-    const header = WindowControls.$el(app).find(".window-header");
-    if (!header.hasClass('minimized-pinned')) {
-      header.addClass('minimized-pinned');
+    WindowControls.setPinnedState(app, !app._pinned);
+  }
+
+  static unpinAllWindows() {
+    for (const app of WindowControls.getRenderedApplications()) {
+      if (app._pinned)
+        WindowControls.setPinnedState(app, false);
+    }
+  }
+
+  static clearPersistedPinnedWindows() {
+    game.user.unsetFlag("window-controls", "persisted-pinned-windows");
+  }
+
+  static minimizeButtonSettingChanged(value) {
+    WindowControls.refreshAllHeaderControls({
+      minimizeEnabled: value === "enabled",
+    });
+  }
+
+  static pinnedButtonSettingChanged(value) {
+    const pinEnabled = value === "enabled";
+    if (!pinEnabled) {
+      WindowControls.unpinAllWindows();
+      WindowControls.clearPersistedPinnedWindows();
+    }
+    WindowControls.refreshAllHeaderControls({ pinEnabled });
+  }
+
+  static rememberPinnedWindowsSettingChanged(value) {
+    if (!value)
+      WindowControls.clearPersistedPinnedWindows();
+    else
+      void WindowControls.syncPersistedPinnedFromOpenWindows();
+  }
+
+  static setPinnedState(app, pinned) {
+    if (!WindowControls.hasRenderedElement(app)) return;
+    const $header = WindowControls.$el(app).find("header, .window-header").first();
+    if (!$header.length) return;
+
+    if (pinned && !app._pinned) {
       app._pinned = true;
       app._closeBkp = app.close;
-      if (game.settings.get('window-controls', 'pinnedDoubleTapping') === false) {
-        app.close = async function () {
-          if (!this._minimized) await this.minimize();
-        };
-      } else {
-        app.close = async function () {
-          if (this._minimized)
-            return;
-          if (app._pinned_marked) {
-            delete app._pinned_marked;
-            this.minimize();
-          } else {
-            app._pinned_marked = true;
-            setTimeout(() => {
-              delete app._pinned_marked
-            }, 2000) // Give 2 seconds to attempt to close again
-          }
-        };
-      }
-      header.find(".close").hide();
-      header.find(".entry-image").hide(); // Disallow switching journal modes - it is the safest approach to avoid dealing with close()
-      header.find(".entry-text").hide();
-      if (game.settings.get('window-controls', 'rememberPinnedWindows') && app.targetApp === undefined) {
-        WindowControls.persistPinned(app);
-      }
-    } else if (app._pinned) {
+      app.close = async function () {};
+      if (game.settings.get('window-controls', 'rememberPinnedWindows') && app.targetApp === undefined)
+        void WindowControls.persistPinned(app);
+    } else if (!pinned && app._pinned) {
       delete app._pinned;
-      header.removeClass('minimized-pinned');
       app.close = app._closeBkp;
       delete app._closeBkp;
-      // Dirty hack to prevent very fast minimization (messes up windows size)
-      var _bkpMinimize = app.minimize;
+      const _bkpMinimize = app.minimize;
       app.minimize = function () {};
       setTimeout(() => {
         app.minimize = _bkpMinimize;
-      }, 200)
-      header.find(".entry-image").show();
-      header.find(".entry-text").show();
-      header.find(".close").show();
+      }, 200);
       if (game.settings.get('window-controls', 'rememberPinnedWindows') && app.targetApp === undefined)
-        WindowControls.unpersistPinned(app);
+        void WindowControls.unpersistPinned(app);
+    } else {
+      return;
     }
+
+    WindowControls.refreshPinnedChrome(app);
   }
 
   static organizedMinimize(app, settings, prePosition) {
@@ -861,18 +1075,12 @@ class WindowControls {
     }
     const pinnedSetting = game.settings.get('window-controls', 'pinnedButton');
     if (pinnedSetting === 'enabled') {
-      const pinHandler = () => {
-        WindowControls.applyPinnedMode(app);
-        WindowControls.applyPinnedMode(
-          Object.values(ui.windows).find(w => WindowControls.getAppId(w.targetApp) === WindowControls.getAppId(app))
-        );
-      };
       newButtons.push({
         label: "",
         class: "pin",
         icon: "fas fa-map-pin",
-        onclick: pinHandler,
-        onClick: pinHandler,
+        onclick: () => WindowControls.handlePinClick(app),
+        onClick: () => WindowControls.handlePinClick(app),
         button: true
       });
     }
@@ -946,7 +1154,7 @@ class WindowControls {
         "disabled": game.i18n.localize("WindowControls.Disabled")
       },
       default: "enabled",
-      onChange: WindowControls.debouncedReload
+      onChange: WindowControls.minimizeButtonSettingChanged
     });
     game.settings.register('window-controls', 'pinnedButton', {
       name: game.i18n.localize("WindowControls.PinnedButtonName"),
@@ -959,24 +1167,7 @@ class WindowControls {
         "disabled": game.i18n.localize("WindowControls.Disabled")
       },
       default: "enabled",
-      onChange: WindowControls.debouncedReload
-    });
-    game.settings.register('window-controls', 'clickOutsideMinimize', {
-      name: game.i18n.localize("WindowControls.ClickOutsideMinimizeName"),
-      hint: game.i18n.localize("WindowControls.ClickOutsideMinimizeHint"),
-      scope: 'world',
-      config: true,
-      type: Boolean,
-      default: false,
-      onChange: WindowControls.debouncedReload
-    });
-    game.settings.register('window-controls', 'pinnedDoubleTapping', {
-      name: game.i18n.localize("WindowControls.PinnedDoubleTappingName"),
-      hint: game.i18n.localize("WindowControls.PinnedDoubleTappingHint"),
-      scope: 'world',
-      config: true,
-      type: Boolean,
-      default: true
+      onChange: WindowControls.pinnedButtonSettingChanged
     });
     game.settings.register('window-controls', 'rememberPinnedWindows', {
       name: game.i18n.localize("WindowControls.RememberPinnedName"),
@@ -985,21 +1176,17 @@ class WindowControls {
       config: true,
       type: Boolean,
       default: false,
-      onChange: () => {
-        game.user.unsetFlag("window-controls", "persisted-pinned-windows")
-      }
+      onChange: WindowControls.rememberPinnedWindowsSettingChanged
     });
+    WindowControls.migrateLegacyTaskbarColor();
     game.settings.register('window-controls', 'taskbarColor', {
       name: game.i18n.localize("WindowControls.TaskbarColorName"),
       hint: game.i18n.localize("WindowControls.TaskbarColorHint"),
       scope: 'world',
       config: true,
-      type: String,
-      default: "#0000",
-      onChange: (newValue) => {
-        const rootStyle = document.querySelector(':root').style;
-        rootStyle.setProperty('--taskbarcolor', newValue);
-      }
+      type: WindowControls.getTaskbarColorSettingType(),
+      default: "#00000000",
+      onChange: WindowControls.applyTaskbarColor
     });
   }
 
@@ -1007,35 +1194,18 @@ class WindowControls {
 
     Hooks.once('ready', async function () {
 
+      if (game.user.isGM) {
+        const storedColor = game.settings.get("window-controls", "taskbarColor");
+        const normalizedColor = WindowControls.normalizeTaskbarColor(storedColor);
+        if (storedColor !== normalizedColor)
+          await game.settings.set("window-controls", "taskbarColor", normalizedColor);
+      }
+
       if (game.settings.get('window-controls', 'rememberPinnedWindows')) {
         try {
-          game.user.getFlag("window-controls", "persisted-pinned-windows")?.forEach(persisted => {
-            switch (persisted.docName) {
-              case "Actor": {
-                WindowControls.persistRender(persisted, game.actors);
-                break
-              }
-              case "Item": {
-                WindowControls.persistRender(persisted, game.items);
-                break
-              }
-              case "JournalEntry": {
-                WindowControls.persistRender(persisted, game.journal);
-                break
-              }
-              case "RollTable": {
-                WindowControls.persistRender(persisted, game.tables);
-                break
-              }
-              case "SidebarTab": {
-                WindowControls.persistRender(persisted, ui.sidebar);
-                break
-              }
-            }
-          })
+          await WindowControls.restorePersistedPinnedWindows();
         } catch (error) {
           console.warn("Window Controls: Failed to load persisted pinned windows.\n" + error);
-          game.user.unsetFlag("window-controls", "persisted-pinned-windows");
         }
       }
 
@@ -1043,14 +1213,6 @@ class WindowControls {
         TaskbarState.getDummy(app)?.justClose();
         WindowControls.refreshMinimizeBar();
       });
-
-      if (game.settings.get('window-controls', 'clickOutsideMinimize')) {
-        $("#board").click(() => {
-          if (canvas.tokens.controlled.length)
-            return;
-          WindowControls.minimizeAll();
-        });
-      }
 
     });
 
@@ -1102,7 +1264,7 @@ Hooks.once('setup', () => {
     rootStyle.setProperty('--miniminh', `65vh`);
     rootStyle.setProperty('--minimaxh', `85vh`);
     rootStyle.setProperty('--minisidebaradj', `calc(100vh - ${10 + margin}px)`);
-    rootStyle.setProperty('--taskbarcolor', game.settings.get('window-controls', 'taskbarColor'));
+    WindowControls.applyTaskbarColor();
     const nonBackBody = $("body:not(.background)");
     nonBackBody.css('top', `${margin}px`);
     nonBackBody.css('height', `${dedHeight}%`);
@@ -1120,7 +1282,7 @@ Hooks.once('setup', () => {
     rootStyle.setProperty('--miniminh', `65vh`);
     rootStyle.setProperty('--minimaxh', `85vh`);
     rootStyle.setProperty('--minisidebaradj', `calc(100vh - ${8 - margin}px)`);
-    rootStyle.setProperty('--taskbarcolor', game.settings.get('window-controls', 'taskbarColor'));
+    WindowControls.applyTaskbarColor();
     const nonBackBody = $("body:not(.background)");
     nonBackBody.css('top', `${margin}px`);
     nonBackBody.css('padding-top', `${-margin}px`);

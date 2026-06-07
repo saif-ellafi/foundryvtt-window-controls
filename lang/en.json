@@ -11,24 +11,21 @@
   "WindowControls.RestoreControl": "Restore",
 
   "WindowControls.OrganizedMinimizeName": "Minimize Layout",
-  "WindowControls.OrganizedMinimizeHint": "Organized: invisible slots, windows can move. Fixed Bar: visible bar that resizes, windows locked in place. Taskbar: permanent strip showing open and minimized windows.",
+  "WindowControls.OrganizedMinimizeHint": "Floating: minimized tabs on the canvas, can be moved. Docked bar: visible bar with locked tabs. Taskbar: always-visible strip for open and minimized windows.",
 
-  "WindowControls.OrganizedMinimizeTop": "Organized Top",
-  "WindowControls.OrganizedMinimizeBottom": "Organized Bottom",
-  "WindowControls.OrganizedMinimizeTopBar": "Fixed Top Bar",
-  "WindowControls.OrganizedMinimizeBottomBar": "Fixed Bottom Bar",
+  "WindowControls.OrganizedMinimizeTop": "Floating Top",
+  "WindowControls.OrganizedMinimizeBottom": "Floating Bottom",
+  "WindowControls.OrganizedMinimizeTopBar": "Docked Bar Top",
+  "WindowControls.OrganizedMinimizeBottomBar": "Docked Bar Bottom",
   "WindowControls.OrganizedPersistentTop": "Taskbar Top",
   "WindowControls.OrganizedPersistentBottom": "Taskbar Bottom",
 
   "WindowControls.PinnedButtonName": "Pinned Button",
   "WindowControls.PinnedButtonHint": "Add a pin button on windows. If clicked, such windows may not be closed, only minimized.",
-  "WindowControls.PinnedDoubleTappingName": "Double 'ESC' Tapping to minimize Pinned Windows",
-  "WindowControls.PinnedDoubleTappingHint": "Windows that are currently pinned, will not be minimized when pressing 'ESC', unless it is pressed twice",
+  "WindowControls.PinControl": "Pin",
+  "WindowControls.UnpinControl": "Unpin",
   "WindowControls.RememberPinnedName": "Remember Pinned Windows",
   "WindowControls.RememberPinnedHint": "Pinned Windows will automatically reopen when starting a new session",
-
-  "WindowControls.ClickOutsideMinimizeName": "Minimize Everything on Outside Click",
-  "WindowControls.ClickOutsideMinimizeHint": "Minimize all windows when clicking on the board. Works best with setting: 'left-click to release Objects'.",
 
   "WindowControls.TaskbarColorName": "Taskbar Color",
   "WindowControls.TaskbarColorHint": "Background color for Taskbar Top and Taskbar Bottom layout modes."

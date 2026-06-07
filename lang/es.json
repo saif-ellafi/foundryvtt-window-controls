@@ -11,24 +11,21 @@
   "WindowControls.MinimizeButtonHint": "Añade un botón para minimizar las ventanas.",
 
   "WindowControls.OrganizedMinimizeName": "Disposición al minimizar",
-  "WindowControls.OrganizedMinimizeHint": "Organizado: ranuras invisibles, ventanas movibles. Barra fija: barra visible que se redimensiona, ventanas bloqueadas. Barra de tareas: franja permanente para ventanas abiertas y minimizadas.",
+  "WindowControls.OrganizedMinimizeHint": "Flotante: pestañas minimizadas en el tablero, movibles. Barra anclada: barra visible con pestañas fijas. Barra de tareas: franja siempre visible para ventanas abiertas y minimizadas.",
 
-  "WindowControls.OrganizedMinimizeTop": "Organizado arriba",
-  "WindowControls.OrganizedMinimizeBottom": "Organizado abajo",
-  "WindowControls.OrganizedMinimizeTopBar": "Barra fija arriba",
-  "WindowControls.OrganizedMinimizeBottomBar": "Barra fija abajo",
+  "WindowControls.OrganizedMinimizeTop": "Flotante arriba",
+  "WindowControls.OrganizedMinimizeBottom": "Flotante abajo",
+  "WindowControls.OrganizedMinimizeTopBar": "Barra anclada arriba",
+  "WindowControls.OrganizedMinimizeBottomBar": "Barra anclada abajo",
   "WindowControls.OrganizedPersistentTop": "Barra de tareas arriba",
   "WindowControls.OrganizedPersistentBottom": "Barra de tareas abajo",
 
   "WindowControls.PinnedButtonName": "Botón Fijado",
   "WindowControls.PinnedButtonHint": "Añade un botón para fijar las ventanas. Al activarlo, dichas ventanas no podrán ser cerradas.",
-  "WindowControls.PinnedDoubleTappingName": "Doble pulsación de 'ESC' para minimizar ventanas ancladas",
-  "WindowControls.PinnedDoubleTappingHint": "Las ventanas que están actualmente fijadas, no se minimizarán al pulsar 'ESC', a menos que se pulse dos veces",
+  "WindowControls.PinControl": "Fijar",
+  "WindowControls.UnpinControl": "Desfijar",
   "WindowControls.RememberPinnedName": "Recordar ventanas fijadas",
   "WindowControls.RememberPinnedHint": "Las ventanas fijadas se reabrirán automáticamente cuando se inicie una nueva sesión",
-
-  "WindowControls.ClickOutsideMinimizeName": "Minimizar Todo al Clickear Afuera",
-  "WindowControls.ClickOutsideMinimizeHint": "Minimiza todas las ventanas al hacer clic en el tablero. Funciona mejor con la configuración: 'clic izquierdo para liberar Objetos'.",
 
   "WindowControls.TaskbarColorName": "Color de la barra de tareas",
   "WindowControls.TaskbarColorHint": "Color de fondo para los modos Barra de tareas arriba y Barra de tareas abajo."

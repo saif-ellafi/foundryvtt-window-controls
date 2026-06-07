@@ -154,6 +154,10 @@ const taskbarMethods = {
 
     WindowControls.syncTaskbarDummyTitle(dummy, targetApp);
     WindowControls.ensureTaskbarToggleIcon(dummy);
+    if (targetApp._pinned)
+      WindowControls.setPinnedState(dummy, true);
+    else
+      WindowControls.refreshPinnedChrome(dummy);
     WindowControls.updatePersistentDummyTabState(dummy, targetMinimized);
     WindowControls.toggleMovement(dummy);
   },

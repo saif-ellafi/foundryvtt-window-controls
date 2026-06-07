@@ -33,7 +33,10 @@ export class WindowControlsPersistentDummy extends HandlebarsApplicationMixin(Ap
     const uniqueId = `dummy-${WindowControls.curateId(title)}-${WindowControls.getAppId(targetApp)}`;
     super({
       uniqueId,
-      window: { title },
+      window: {
+        title,
+        closable: WindowControls.shouldShowCloseControl(targetApp),
+      },
     });
     this.targetApp = targetApp;
     TaskbarState.link(targetApp, this);

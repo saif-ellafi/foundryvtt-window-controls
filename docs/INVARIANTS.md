@@ -6,8 +6,8 @@ These rules govern all layout modes. Future changes should preserve them unless 
 
 | Key | Label | Minimized UI |
 |-----|-------|----------------|
-| `top` / `bottom` | Organized | Floating header tabs on canvas |
-| `topBar` / `bottomBar` | Fixed bar | Locked bar; tabs only when minimized |
+| `top` / `bottom` | Floating | Floating header tabs on canvas |
+| `topBar` / `bottomBar` | Docked bar | Locked bar; tabs only when minimized |
 | `persistentTop` / `persistentBottom` | Taskbar | Permanent strip; open + minimized windows as tabs |
 
 ## Taskbar eligibility
