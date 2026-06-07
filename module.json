@@ -1,31 +1,40 @@
 {
 	"id": "window-controls",
 	"title": "Window Controls",
-	"author": "JeansenVaars#2857",
+	"description": "Improves Minimized window organization, style and adds Minimize and Pin window buttons",
+	"version": "2.0.0",
+	"compatibility": {
+		"minimum": "14",
+		"verified": "14.363",
+		"maximum": "14"
+	},
 	"authors": [
 		{
 			"name": "Saif Addin Ellafi",
+			"url": "https://github.com/saif-ellafi",
 			"discord": "JeansenVaars#2857",
 			"ko-fi": "https://ko-fi.com/jeansenvaars"
 		}
 	],
-	"description": "Improves Minimized window organization, style and adds Minimize and Pin window buttons",
-	"version": "1.12.0",
-	"minimumCoreVersion": "12",
-	"compatibleCoreVersion": "14",
-	"compatibility": {
-		"minimum": "12",
-		"verified": "14.363",
-		"maximum": "14"
-	},
 	"relationships": {
-		"requires":  [{
-			"id": "lib-wrapper",
-			"type": "module"
-		}]
+		"requires": [
+			{
+				"id": "lib-wrapper",
+				"type": "module",
+				"manifest": "https://github.com/ruipin/fvtt-lib-wrapper/releases/latest/download/module.json",
+				"compatibility": {
+					"minimum": "1.13.0",
+					"verified": "1.13.5"
+				}
+			}
+		]
 	},
-	"esmodules": [ "windowcontrols.js" ],
-	"styles": [ "windowcontrols.css" ],
+	"esmodules": [
+		"windowcontrols.js"
+	],
+	"styles": [
+		"windowcontrols.css"
+	],
 	"languages": [
 		{
 			"lang": "en",
@@ -48,8 +57,8 @@
 			"path": "lang/ja.json"
 		}
 	],
-	"url": "https://github.com/saif-ellafi/foundryvtt-window-controls.git",
+	"url": "https://github.com/saif-ellafi/foundryvtt-window-controls",
 	"manifest": "https://github.com/saif-ellafi/foundryvtt-window-controls/releases/latest/download/module.json",
-	"download": "https://github.com/saif-ellafi/foundryvtt-window-controls/releases/download/1.12.0/foundryvtt-window-controls_1.12.0.zip",
+	"download": "https://github.com/saif-ellafi/foundryvtt-window-controls/releases/download/2.0.0/foundryvtt-window-controls_2.0.0.zip",
 	"changelog": "https://github.com/saif-ellafi/foundryvtt-window-controls/blob/master/CHANGELOG.md"
 }

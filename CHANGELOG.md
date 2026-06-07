@@ -1,3 +1,17 @@
+### 2.0.0
+* Compatibility: Foundry V14 support
+* Enhancement: Clearer names for minimize layout settings (Floating, Docked Bar, Taskbar)
+* Enhancement: Most setting changes now apply to open windows without reloading Foundry
+* Enhancement: Improved minimized window and taskbar positioning — better centered tabs and cleaner layout
+* Enhancement: Smarter handling of actor sheets — sidebar templates, linked characters, and map tokens are kept separate
+* Bugfix: Fixed duplicate actor sheets after reload when a pinned map token was restored
+* Bugfix: Fixed close button appearing on windows that should not be closeable
+* Bugfix: Improved support for more window types without hardcoded exceptions
+* Removed: Maximize button setting
+* Removed: Minimize Everything on Outside Click setting
+* Removed: Double ESC tapping setting
+* Localization: Updated layout setting names in English, German, Spanish, and Japanese
+
 ### 1.12.0
 * Compatibility: Foundry V12–14 support; module refactor (taskbar, header buttons)
 * Removed: Maximize button setting and canvas-fill maximize (may return if requested)
